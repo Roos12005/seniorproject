@@ -11,9 +11,11 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('analysis.analysis');
+// });
+
+Route::get('/','AnalysisController@getIndex');
 
 Route::get('/test', function () {
     return view('test');
