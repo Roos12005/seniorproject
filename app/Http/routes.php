@@ -17,6 +17,4 @@
 
 Route::get('/','AnalysisController@getIndex');
 
-Route::get('/test', function () {
-    return view('test');
-});
+Route::get('/test','AnalysisController@test');

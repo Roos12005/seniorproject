@@ -3,10 +3,16 @@
 @section('title')
 
 @section('content')
-    <div class="container">
-        <div class="content">
-            <div class="title">Laravel 5</div>
-        </div>
+<section id="main-content">
+
+	<div class="row">
+	    <div class="container">
+	        <div class="content">
+	            <div class="title">Laravel 5</div>
+	            
+	        </div>
+	    </div>
     </div>
+</section>
 @endsection
 @stop

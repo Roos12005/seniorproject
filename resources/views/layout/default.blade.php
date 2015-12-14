@@ -17,10 +17,12 @@
 	    {!! Html::style('js/css3clock/css/style.css') !!}
 	    <!--Morris Chart CSS -->
 	    {!! Html::style('js/morris-chart/morris.css') !!}
-	    <link rel="stylesheet" href="js/morris-chart/morris.css">
 	    <!-- Custom styles for this template -->
 	    {!! Html::style('css/style.css') !!}
 	    {!! Html::style('css/style-responsive.css') !!}
+
+	    <!--common script init for all pages-->
+	    {!! Html::style('js/scripts.js') !!}
 
 
     	@yield('script')
@@ -62,5 +64,7 @@
 			</aside>
 		</section>
         @yield('content')
+        @yield('bottom-script')
+
     </body>
 </html>
