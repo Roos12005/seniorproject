@@ -25,7 +25,7 @@
     function initSigma() {
         let s = new sigma({
             renderers: [{
-                container: document.getElementById('container')
+                container: document.getElementById('graph-container')
             }]
 
             /* 
@@ -51,6 +51,10 @@
     function addNode(s,n) {
         /* TODO : May add some conditional check or calculation here... */
 
+        if(s.graph.nodes(n.id) !== undefined) {
+            throw 'Node#' + n.id + '(' + n.label + ')' + ' is duplicated.';
+        }
+        
         s.graph.addNode({
             id: n.id,
             label: n.label,

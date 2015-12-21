@@ -4506,7 +4506,7 @@ div.tagsinput span.tag {
 /*DASHBOARD -jaman*/
 .main-chart {
     width:100%;
-    height:265px;
+    height:560px;
 }
 #flotTip {
     background:#fff;
@@ -5096,6 +5096,7 @@ div.tagsinput span.tag {
     float:left;
     margin-right:10px;
     color:#fff;
+    padding-top: 15px;
 }
 .mini-stat-info {
     font-size:12px;
@@ -5106,6 +5107,10 @@ div.tagsinput span.tag {
     font-size:24px;
     font-weight:600;
 }
+
+
+
+
 .orange {
     background:#fa8564 !important;
 }
@@ -5113,6 +5118,9 @@ div.tagsinput span.tag {
     background:#1fb5ac !important;
 }
 .mini-stat .green {
+    background:#aec785 !important;
+}
+.tiny-stat .green {
     background:#aec785 !important;
 }
 .pink {
@@ -5709,4 +5717,87 @@ right: -1px;
     -ms-transition: none;
     -o-transition: none;
     transition: none;
+}
+
+/* Custom CSS */
+.no-padding {
+    padding: 0;
+}
+
+.separate-line {
+    border-top: 1px solid #f1f2f7; 
+    margin: 0;
+    width: 100%;
+}
+
+.tiny-stat-wrapper .col-sm-12 {
+    padding: 0;
+    margin-top: 5px;
+}
+
+.tiny-stat-wrapper {
+    font-size: 10px;
+}
+
+
+.tiny-stat {
+    background:#fff;
+    padding:0;
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;
+    border-radius:3px;
+    margin-bottom:10px;
+}
+.tiny-stat-icon {
+    width:45px;
+    height:45px;
+    display:inline-block;
+    line-height:30px;
+    text-align:center;
+    font-size:25px;
+    background:#eee;
+    -webkit-border-radius:100%;
+    -moz-border-radius:100%;
+    border-radius:100%;
+    float:left;
+    margin-right:10px;
+    color:#fff;
+    vertical-align: middle;
+    padding-top: 10px;
+}
+.tiny-stat-info {
+    font-size:10px;
+    padding-top:2px;
+}
+.tiny-stat-info span {
+    display:block;
+    font-size:15px;
+    font-weight:600;
+}
+.more-button {
+    width: 100%; 
+    height: 20px; 
+    padding-top: 0; 
+    padding-bottom:0; 
+    font-size:12px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+.number-dropdown {
+    background: none; 
+    color: #767676; 
+    border: 1px solid #f1f2f7; 
+    margin-right: 10px;
+    font-size: 10px;
+}
+.desc-panel {
+    width: 100%;
+    height: 590px;
+    overflow: auto;
+}
+
+.graph-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }

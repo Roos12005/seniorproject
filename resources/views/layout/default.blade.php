@@ -5,7 +5,6 @@
     	<meta name="description" content="">
     	<meta name="author" content="ThemeBucket">
 
-	    {!! Html::style('css/bootstrap.min.css') !!}
 	    <!--Core CSS -->
 	    {!! Html::style('bs3/css/bootstrap.min.css') !!}
 	    {!! Html::style('js/jquery-ui/jquery-ui-1.10.1.custom.min.css') !!}
@@ -20,10 +19,6 @@
 	    <!-- Custom styles for this template -->
 	    {!! Html::style('css/style.css') !!}
 	    {!! Html::style('css/style-responsive.css') !!}
-
-	    <!--common script init for all pages-->
-	    {!! Html::style('js/scripts.js') !!}
-
 
     	@yield('script')
         <title>@yield('title')</title>
