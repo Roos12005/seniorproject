@@ -26,7 +26,7 @@
 
 
     	@yield('script')
-        <title>Social Network Analysis</title>
+        <title>@yield('title')</title>
     </head>
     <body>
 	    <section id="container">
@@ -62,8 +62,13 @@
 			        <!-- sidebar menu end-->
 			    </div>
 			</aside>
+			<section id="main-content" class="">
+				<section class="wrapper">
+	        		@yield('content')
+	    		</section>
+			</section>
 		</section>
-        @yield('content')
+
         @yield('bottom-script')
 
     </body>

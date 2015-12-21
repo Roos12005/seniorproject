@@ -18,3 +18,5 @@
 Route::get('/','AnalysisController@getIndex');
 
 Route::get('/test','AnalysisController@test');
+
+Route::get('/testsigma','AnalysisController@testgraph');

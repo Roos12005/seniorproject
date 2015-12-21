@@ -16,5 +16,10 @@ class AnalysisController extends Controller{
    		$name = Call_Detail_Records::all();
    		return $name;
    	}
+    
+    // TODO : This function will be removed when my experiment is done!
+    public function testgraph() {
+        return view('experiment.testgraph');
+    }
 }
 ?>
