@@ -25,7 +25,7 @@
     function initSigma() {
         let s = new sigma({
             renderers: [{
-                container: document.getElementById('graph-container')
+                container: document.getElementById('container')
             }]
 
             /* 
@@ -222,6 +222,7 @@
 
         // Display Graph using sigma object
         s.refresh();
+        console.log('SigmaJS Refreshed!');
     }
 
     /**

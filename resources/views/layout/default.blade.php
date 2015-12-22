@@ -24,7 +24,7 @@
         <title>@yield('title')</title>
     </head>
     <body>
-	    <section id="container">
+	    <section id="m-container">
 			<!--header start-->
 			<header class="header fixed-top clearfix">
 				<!--logo start-->

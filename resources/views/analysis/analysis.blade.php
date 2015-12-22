@@ -134,7 +134,7 @@
                 <div class="panel-body">
                     <div id="graph-area" class="main-chart">
                         <!-- This div is referenced by JS file for displaying graph -->
-                        <div id="graph-container"></div>
+                        <div id="container"></div>
                     </div>
                 </div>
                 <!-- Graph Display Body End -->
