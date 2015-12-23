@@ -215,23 +215,131 @@
         });
 
         // Add Click Listener to all Nodes
-        s.bind('clickNode', function(node){
-            // TODO : Handling click event
-            console.log(node.data.node.id);
-            
-        });
+        s.bind('clickNode', clickNodeListener);
 
         // Display Graph using sigma object
         s.refresh();
-        console.log('SigmaJS Refreshed!');
+        console.log(s.camera);
     }
 
-    // This function is temporary code storage
-    function store(s) {
-        // Refresh Zoom
-        s.camera.goTo({x:0, y:0, ratio: 1});
-    }
-    
+    /**  
+     *  @brief  Scripting Zoom Button
+     *
+     *  Add listeners to all three zoom buttons,
+     *  zoom-in, zoom-out, refresh-zoom, by recalculating
+     *  camera position of sigma object
+     *
+     *  @param  s   Sigma object
+     *  @return void
+     */
+     function addZoomListener(s) {
+        // Zoom in Button
+        document.getElementById("zoomin").addEventListener("click", function(){
+            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 0.9 * s.camera.ratio});
+        });
+
+        // Zoom out Button
+        document.getElementById("zoomout").addEventListener("click", function(){
+            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 1.1 * s.camera.ratio});
+        });
+
+        // Refresh Zoom Button
+        document.getElementById("nozoom").addEventListener("click", function(){
+            s.camera.goTo({x:0, y:0, ratio: 1});
+        });
+     }
+
+     /**  
+     *  @brief  Scripting Search Box
+     *
+     *  This function will add listener on search box
+     *  for searching specific number and focus on 
+     *  that node, also, display node data on right column
+     *
+     *  @param  s   Sigma object
+     *  @return void
+     */
+     function addSearchBoxListener(s) {
+        document.getElementById("searchbox").addEventListener("keypress", function(key){
+            // Detect only "Enter" key - keyCode = 13
+            if (key.keyCode === 13) {
+                //  Move camera to entered node
+                let input = document.getElementById("searchbox").value;
+                let node = s.graph.nodes(input);
+                
+                if(node == undefined) {
+                    alert("Number " + input + " is not found. Please check your input number again.");
+                }
+
+                s.camera.goTo({
+                    x: node['read_cam0:x'], 
+                    y: node['read_cam0:y'], 
+                    ratio: 0.5
+                });
+
+                updateInformation(node);
+            }
+        });
+     }
+
+     /**  
+     *  @brief  Listener on clicking node
+     *
+     *  Handling event when clicking on node ???
+     *
+     *  @param  node   clicked node
+     *  @return void
+     */
+     function clickNodeListener(node) {
+        updateInformation(node);
+
+        // Show back button on the top right of the div
+        document.getElementsByClassName('back-section')[0].style.display = 'block';
+
+        // TODO : Display only selected community
+     }
+
+     /**  
+     *  @brief  Update Right column information
+     *
+     *  Triggered by clicking on searching node on the graph.
+     *  This function will update the displayed values to
+     *  the values of selected node.
+     *
+     *  @param  node   clicked node
+     *  @return void
+     */
+     function updateInformation(node) {
+        // TODO : Update right column
+        document.getElementById('cname').innerHTML = '';
+        document.getElementById('cage').innerHTML = '';
+        document.getElementById('cnumber').innerHTML = '';
+        document.getElementById('cpromotion').innerHTML = '';
+        document.getElementById('ccarrier').innerHTML = '';
+        document.getElementById('cgender').innerHTML = '';
+
+        document.getElementById('comrank').innerHTML = '';
+        document.getElementById('comsize').innerHTML = '';
+        document.getElementById('cc').innerHTML = '';
+        document.getElementById('bc').innerHTML = '';
+     }
+
+     /**  
+     *  @brief  Listener on clicking back button
+     *
+     *  Hide the back button and change the displayed graph
+     *  to the full one
+     *
+     *  @param  s      sigma object   
+     *  @return void
+     */
+     function addBackButtonListener(s) {
+        document.getElementById('back').addEventListener('click', function() {
+            document.getElementsByClassName('back-section')[0].style.display = 'none';
+            // TODO : Change displayed graph back to the full one
+        });
+     }
+
 
     /**
      *  @brief Main function of this file
@@ -241,7 +349,10 @@
      */
     !function(undefined){
         let s = initSigma();
+        addZoomListener(s);
         plotGraph(s);
+        addSearchBoxListener(s);
+        addBackButtonListener(s);
     }();
 
 }();
