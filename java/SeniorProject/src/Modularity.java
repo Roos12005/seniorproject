@@ -1,11 +1,7 @@
-
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
-import com.opencsv.*;
 
 public class Modularity {
-	public static final String MODULARITY_CLASS = "modularity_class";
+    public static final String MODULARITY_CLASS = "modularity_class";
     private CommunityStructure structure;
     private double resolution = 1.;
     
@@ -431,46 +427,5 @@ public class Modularity {
     		}
     		System.out.println();
     	}
-    }
-    
-    public static void main(String[] args) throws IOException {
-    	CSVReader reader = new CSVReader(new FileReader("sampledata.csv"));
-    	String [] nextLine;
-        Set<Node> nodes = new HashSet<Node>();
-        List<Edge> edges = new ArrayList<Edge>();
-    	Node a,b;
-//    	reader.readNext();
-        while ((nextLine = reader.readNext()) != null) {
-        	a = new Node(Integer.parseInt(nextLine[0]));
-        	b = new Node(Integer.parseInt(nextLine[1]));
-        	nodes.add(a);
-        	nodes.add(b);
-        	
-//        	Edge e = new Edge(Integer.parseInt(nextLine[0]),Integer.parseInt(nextLine[1]),Integer.parseInt(nextLine[2]));
-        	Edge e = new Edge(Integer.parseInt(nextLine[0]),Integer.parseInt(nextLine[1]),1);
-        	edges.add(e);
-        }
-        System.out.println("Reading Data ... Done!");
-    	reader.close();
-    	Graph hgraph = new Graph(nodes,edges);
-    	// TODO : Input graph
-    	Modularity mod = new Modularity(hgraph);
-    	// Compute Modularity Class
-    	int[] com = mod.buildCommunities(hgraph);
-    	// TODO : Output com
-    	int aa = 0;
-    	Set<Integer> tot = new HashSet<Integer>();
-    	for(int c : com) {
-    		aa++;
-    		tot.add(c);
-    		System.out.println(aa + " : " + c);
-    	}
-    	System.out.println("-------------------------------------------");
-    	System.out.println("Total of Communities : " + tot.size());
-    	System.out.println("-------------------------------------------");
-    	for(Integer co : tot) {
-    		System.out.println(co);
-    	}
-    }
-    
+    }    
 }

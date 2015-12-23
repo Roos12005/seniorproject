@@ -96,7 +96,43 @@ public class Graph {
 		}
 		return res;
 	}
+        
+        public EdgeIterable getEdges(Node node){
+            EdgeIterable res = new EdgeIterable();
+            Set<Edge> tmp = new HashSet<Edge>();
+            for(Edge e : edges) {
+                if(e.getSource() == node.getID() || e.getTarget() == node.getID()) {
+                    tmp.add(e);
+                }
+            }
+            for(Edge e : tmp) {
+                res.add(e);
+            }
+            return res;
+        } 
 	
+        public EdgeIterable getOutEdges(Node node){
+            EdgeIterable res = new EdgeIterable();
+            Set<Edge> tmp = new HashSet<Edge>();
+            for(Edge e : edges) {
+                if(e.getSource() == node.getID()) {
+                    tmp.add(e);
+                }
+            }
+            for(Edge e : tmp) {
+                res.add(e);
+            }
+            return res;
+        }
+        
+        public Node getOpposite(Node node, Edge edge) {
+            if(node.getID() == edge.getSource()){
+                return nodes.get(edge.getTarget());
+            } else {
+                return nodes.get(edge.getSource());
+            }
+        }
+        
 	public Edge getEdge(Node n, Node nei) {
 		// TODO : Fill this function
 		return null;
