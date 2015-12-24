@@ -431,15 +431,17 @@
 {!! Html::script('js/jquery-1.8.3.min.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
+{!! Html::script('js/jquery.js"'); !!}
 
+<!-- Date Range -->
+{!! Html::script('bs3/js/bootstrap.min.js'); !!}
+{!! Html::script('js/advanced-form.js'); !!}
+{!! Html::script('js/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
+{!! Html::script('js/bootstrap-switch.js'); !!}
 
-<script src="js/jquery.js"></script> <!-- both -->
-<script src="bs3/js/bootstrap.min.js"></script> <!-- date range -->
-<script src="js/advanced-form.js"></script> <!-- date range -->
-<script type="text/javascript" src="js/bootstrap-datepicker/js/bootstrap-datepicker.js"></script> <!-- date range -->
-<script src="js/bootstrap-switch.js"></script> <!-- date range -->
-
-
+<!-- Side Bar -->
+{!! Html::script('js/jquery.nicescroll.js'); !!}
+{!! Html::script('js/scripts.js'); !!}
 
 @endsection
 @stop
