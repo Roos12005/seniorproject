@@ -1,5 +1,5 @@
 /**
- *  @file   experiment.js
+ *  @file   graph_main.js
  *
  *  @brief  Graph Script
  *
@@ -8,12 +8,14 @@
  *  additional functions on the graph.
  *
  *  @author Thanaphoom Pungchaichan (pperfectionist)
- *  @bug    No known bug
+ *  @bug    Scroll to Zoom is not working fine!
  *
  */
 
 !function(){
     'use strict';
+
+    let graphData = [];
 
     /**
      *  @brief  Instantiate Sigma object.
@@ -25,7 +27,7 @@
     function initSigma() {
         let s = new sigma({
             renderers: [{
-                container: document.getElementById('container')
+                container: document.getElementById('container'),
             }]
 
             /* 
@@ -33,6 +35,17 @@
              *  Visit https://github.com/jacomyal/sigma.js/wiki/Settings for more setting available
              *
             */
+        });
+        s.settings({
+            defaultEdgeType: "curve",
+            minEdgeSize : 0.2,
+            maxEdgeSize : 0.5,
+            minNodeSize : 1,
+            maxNodeSize : 7,
+            zoomMin : 0.75,
+            zoomMax : 20,
+            // autoResize: false
+            // zoomingRatio : 1
         });
 
         return s;
@@ -140,53 +153,52 @@
      *  @return JSON object - contains graph data
      */
     function fetchData(){
-        // ajaxSetup();
-        // $.ajax({
-        //     type: "GET",
-        //     url: "",
-        //     data : {},
-        //     success: function(e){
-        //         console.log(e);
-        //         e.forEach(function(pd){
-                
-        //         })
-        //     },
-        //     error: function(rs, e){
-        //         console.log(rs.responseText);
-        //         alert('Problem occurs during fetch data.');
-        //     },
-        //     async:false,
-        // })
-        // return preparedData;
+        
+        var preparedData = [];
+        ajaxSetup();
+        $.ajax({
+            type: "GET",
+            url: "data2.json",
+            data : {},
+            success: function(e){
+                preparedData = JSON.parse(e);
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+                alert('Problem occurs during fetch data.');
+            },
+            async:false,
+        })
+        return preparedData;
 
-        return {
-            nodes: [
-                {
-                    id: 1,
-                    label: 'node#1',
-                    x: 0,
-                    y: 0,
-                    size: 1,
-                    color: '#000'
-                },
-                {
-                    id: 2,
-                    label: 'node#2',
-                    x: 1,
-                    y: 1,
-                    size: 1,
-                    color: '#f00'
-                }
-            ],
-            edges: [
-                {
-                    id: 1,
-                    source: 1,
-                    target: 2,
-                    color: '#a5adb0'
-                }
-            ]
-        }
+        // return {
+        //     nodes: [
+        //         {
+        //             id: 1,
+        //             label: 'node#1',
+        //             x: 0,
+        //             y: 0,
+        //             size: 1,
+        //             color: '#000'
+        //         },
+        //         {
+        //             id: 2,
+        //             label: 'node#2',
+        //             x: 1,
+        //             y: 1,
+        //             size: 1,
+        //             color: '#f00'
+        //         }
+        //     ],
+        //     edges: [
+        //         {
+        //             id: 1,
+        //             source: 1,
+        //             target: 2,
+        //             color: '#a5adb0'
+        //         }
+        //     ]
+        // }
     }
 
     /**  
@@ -202,8 +214,8 @@
      */
     function plotGraph(s){
         // Fetch data
-        let graphData = fetchData();
-        
+        graphData = fetchData();
+        console.log(graphData);
         // Add all returned nodes to sigma object
         graphData.nodes.forEach(function(node) {
             addNode(s, node);
@@ -215,23 +227,143 @@
         });
 
         // Add Click Listener to all Nodes
-        s.bind('clickNode', function(node){
-            // TODO : Handling click event
-            console.log(node.data.node.id);
-            
-        });
+        s.bind('clickNode', clickNodeListener);
 
         // Display Graph using sigma object
         s.refresh();
-        console.log('SigmaJS Refreshed!');
+        console.log(s.camera);
     }
 
-    // This function is temporary code storage
-    function store(s) {
-        // Refresh Zoom
-        s.camera.goTo({x:0, y:0, ratio: 1});
-    }
-    
+    /**  
+     *  @brief  Scripting Zoom Button
+     *
+     *  Add listeners to all three zoom buttons,
+     *  zoom-in, zoom-out, refresh-zoom, by recalculating
+     *  camera position of sigma object
+     *
+     *  @param  s   Sigma object
+     *  @return void
+     */
+     function addZoomListener(s) {
+        // Zoom in Button
+        document.getElementById("zoomin").addEventListener("click", function(){
+            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 0.9 * s.camera.ratio});
+        });
+
+        // Zoom out Button
+        document.getElementById("zoomout").addEventListener("click", function(){
+            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 1.1 * s.camera.ratio});
+        });
+
+        // Refresh Zoom Button
+        document.getElementById("nozoom").addEventListener("click", function(){
+            s.camera.goTo({x:0, y:0, ratio: 1});
+        });
+     }
+
+     /**  
+     *  @brief  Scripting Search Box
+     *
+     *  This function will add listener on search box
+     *  for searching specific number and focus on 
+     *  that node, also, display node data on right column
+     *
+     *  @param  s   Sigma object
+     *  @return void
+     */
+     function addSearchBoxListener(s) {
+        document.getElementById("searchbox").addEventListener("keypress", function(key){
+            // Detect only "Enter" key - keyCode = 13
+            if (key.keyCode === 13) {
+                //  Move camera to entered node
+                let input = document.getElementById("searchbox").value;
+                let node = s.graph.nodes(input);
+                
+                if(node == undefined) {
+                    alert("Number " + input + " is not found. Please check your input number again.");
+                    return;
+                }
+
+                s.camera.goTo({
+                    x: node['read_cam0:x'], 
+                    y: node['read_cam0:y'], 
+                    ratio: 0.1
+                });
+
+                updateInformation(node);
+            }
+        });
+     }
+
+     /**  
+     *  @brief  Listener on clicking node
+     *
+     *  Handling event when clicking on node ???
+     *
+     *  @param  node   clicked node
+     *  @return void
+     */
+     function clickNodeListener(node) {
+        updateInformation(node);
+
+        // Show back button on the top right of the div
+        document.getElementsByClassName('back-section')[0].style.display = 'block';
+
+        // TODO : Display only selected community
+     }
+
+     /**  
+     *  @brief  Update Right column information
+     *
+     *  Triggered by clicking on searching node on the graph.
+     *  This function will update the displayed values to
+     *  the values of selected node.
+     *
+     *  @param  node   clicked node
+     *  @return void
+     */
+     function updateInformation(node) {
+        let nodeData = undefined;
+        let nodeID = node.id == undefined ? node.data.node.id : node.id; 
+        graphData.nodes.forEach(function(n) {
+            if(n.id == nodeID) {
+                nodeData = n;
+            }
+        });
+        if(nodeData == undefined) {
+            alert('Can\'t get node data');
+            return;
+        }
+        // TODO : Update right column
+        document.getElementById('cname').innerHTML = 'Unknown';
+        document.getElementById('cage').innerHTML = 'Unknown';
+        document.getElementById('cnumber').innerHTML = 'Unknown';
+        document.getElementById('cpromotion').innerHTML = 'Unknown';
+        document.getElementById('ccarrier').innerHTML = 'Unknown';
+        document.getElementById('cgender').innerHTML = 'Unknown';
+
+        document.getElementById('comrank').innerHTML = '';
+        document.getElementById('comsize').innerHTML = '';
+        document.getElementById('cc').innerHTML = '### (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(4) + ')';
+        document.getElementById('bc').innerHTML = '### (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(4) + ')';
+     }
+
+     /**  
+     *  @brief  Listener on clicking back button
+     *
+     *  Hide the back button and change the displayed graph
+     *  to the full one
+     *
+     *  @param  s      sigma object   
+     *  @return void
+     */
+     function addBackButtonListener(s) {
+        document.getElementById('back').addEventListener('click', function() {
+            document.getElementsByClassName('back-section')[0].style.display = 'none';
+            // TODO : Change displayed graph back to the full one
+        });
+     }
+
 
     /**
      *  @brief Main function of this file
@@ -241,7 +373,10 @@
      */
     !function(undefined){
         let s = initSigma();
+        addZoomListener(s);
         plotGraph(s);
+        addSearchBoxListener(s);
+        addBackButtonListener(s);
     }();
 
 }();
