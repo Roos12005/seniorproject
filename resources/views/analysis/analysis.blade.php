@@ -2,7 +2,10 @@
 
 @section('title', 'AIS - CU : Main Page')
 
+@section('stylesheet')
 
+    {!! Html::style('js/bootstrap-datepicker/css/datepicker.css') !!}
+    
 @section('content')
 
 <!-- Header Start -->
@@ -429,16 +432,16 @@
 </div>
 <!-- Other Statistic Section End -->
 @section('bottom-script')
+{!! Html::script('js/jquery.js'); !!}
 {!! Html::script('js/jquery-1.8.3.min.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
-{!! Html::script('js/jquery.js"'); !!}
 
 <!-- Date Range -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}
-{!! Html::script('js/advanced-form.js'); !!}
 {!! Html::script('js/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
 {!! Html::script('js/bootstrap-switch.js'); !!}
+{!! Html::script('js/main.js'); !!}
 
 <!-- Side Bar -->
 {!! Html::script('js/jquery.nicescroll.js'); !!}

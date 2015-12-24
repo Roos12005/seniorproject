@@ -20,7 +20,7 @@
 	    {!! Html::style('css/style.css') !!}
 	    {!! Html::style('css/style-responsive.css') !!}
 
-    	@yield('script')
+    	@yield('stylesheet')
         <title>@yield('title')</title>
     </head>
     <body>
