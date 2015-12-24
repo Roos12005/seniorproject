@@ -8,7 +8,7 @@ public class SocialNetworkAnalysis {
     public static void main(String[] args) throws IOException {
         Set<Node> nodes;
         List<Edge> edges;
-        try (CSVReader reader = new CSVReader(new FileReader("testdata2.csv"))) {
+        try (CSVReader reader = new CSVReader(new FileReader("testdata.csv"))) {
             String [] nextLine;
             nodes = new HashSet<>();
             edges = new ArrayList<>();

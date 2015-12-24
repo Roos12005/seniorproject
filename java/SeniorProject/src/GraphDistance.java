@@ -26,6 +26,7 @@ public class GraphDistance {
         isDirected = true;
         isNormalized = false;
         N = hgraph.getNodeCount();
+        System.out.println("Node Count : " + N);
     }
     
     public double getPathLength() {
