@@ -24,6 +24,7 @@ public class GraphDistance {
     public GraphDistance(Graph hgraph) {
         isCanceled = false;
         isDirected = true;
+        isNormalized = false;
         N = hgraph.getNodeCount();
     }
     
@@ -77,7 +78,7 @@ public class GraphDistance {
 
                 for (Edge edge : edgeIter) {
                     Node reachable = hgraph.getOpposite(v, edge);
-
+                    
                     int r_index = indicies.get(reachable);
                     if (d[r_index] < 0) {
                         Q.addLast(reachable);

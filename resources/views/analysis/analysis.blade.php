@@ -431,5 +431,6 @@
 {!! Html::script('js/jquery-1.8.3.min.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
+{!! Html::script('js/advanced-form.js')}
 @endsection
 @stop
