@@ -194,7 +194,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Name</label>
                                 <div class=" col-sm-7">
-                                    <p class="form-control-static" id="cname">John Doe</p>
+                                    <p class="form-control-static" id="cname">-</p>
                                 </div>
                             </div>
                             <div class="clearfix"></div>
@@ -202,7 +202,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Number</label>
                                 <div class=" col-sm-7">
-                                    <p class="form-control-static" id="cnumber">08x-xxxxxxx</p>
+                                    <p class="form-control-static" id="cnumber">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
@@ -210,7 +210,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Carrier</label>
                                 <div class=" col-sm-7">
-                                    <p class="form-control-static" id="ccarrier">AIS</p>
+                                    <p class="form-control-static" id="ccarrier">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
@@ -218,7 +218,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Age</label>
                                 <div class=" col-sm-7">
-                                    <p class="form-control-static" id="cage">31</p>
+                                    <p class="form-control-static" id="cage">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
@@ -226,7 +226,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Gender</label>
                                 <div class=" col-sm-7">
-                                    <p class="form-control-static" id="cgender">Male</p>
+                                    <p class="form-control-static" id="cgender">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
@@ -234,7 +234,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Promotion</label>
                                 <div class=" col-sm-7">
-                                    <p class="form-control-static" id="cpromotion">iSmart399</p>
+                                    <p class="form-control-static" id="cpromotion">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
@@ -263,7 +263,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-8 control-label">Community Rank</label>
                                 <div class=" col-sm-3">
-                                    <p class="form-control-static" id="comrank">27</p>
+                                    <p class="form-control-static" id="comrank">-</p>
                                 </div>
                             </div>
                             <div class="clearfix"></div>
@@ -271,7 +271,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-8 control-label">Community Size</label>
                                 <div class=" col-sm-3">
-                                    <p class="form-control-static" id="comsize">27,394</p>
+                                    <p class="form-control-static" id="comsize">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
@@ -279,7 +279,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-8 control-label">BC Rank</label>
                                 <div class=" col-sm-4">
-                                    <p class="form-control-static" id="bc">125 (1.021)</p>
+                                    <p class="form-control-static" id="bc">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
@@ -287,7 +287,7 @@
                             <div class="col-sm-12">
                                 <label class=" col-sm-8 control-label">CC Rank</label>
                                 <div class=" col-sm-4">
-                                    <p class="form-control-static" id="cc">1,461 (0.0128)</p>
+                                    <p class="form-control-static" id="cc">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>

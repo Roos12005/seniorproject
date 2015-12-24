@@ -1,5 +1,5 @@
 /**
- *  @file   experiment.js
+ *  @file   graph_main.js
  *
  *  @brief  Graph Script
  *
@@ -8,12 +8,14 @@
  *  additional functions on the graph.
  *
  *  @author Thanaphoom Pungchaichan (pperfectionist)
- *  @bug    No known bug
+ *  @bug    Scroll to Zoom is not working fine!
  *
  */
 
 !function(){
     'use strict';
+
+    let graphData = [];
 
     /**
      *  @brief  Instantiate Sigma object.
@@ -25,7 +27,7 @@
     function initSigma() {
         let s = new sigma({
             renderers: [{
-                container: document.getElementById('container')
+                container: document.getElementById('container'),
             }]
 
             /* 
@@ -33,6 +35,17 @@
              *  Visit https://github.com/jacomyal/sigma.js/wiki/Settings for more setting available
              *
             */
+        });
+        s.settings({
+            defaultEdgeType: "curve",
+            minEdgeSize : 0.2,
+            maxEdgeSize : 0.5,
+            minNodeSize : 1,
+            maxNodeSize : 7,
+            zoomMin : 0.75,
+            zoomMax : 20,
+            // autoResize: false
+            // zoomingRatio : 1
         });
 
         return s;
@@ -140,53 +153,52 @@
      *  @return JSON object - contains graph data
      */
     function fetchData(){
-        // ajaxSetup();
-        // $.ajax({
-        //     type: "GET",
-        //     url: "",
-        //     data : {},
-        //     success: function(e){
-        //         console.log(e);
-        //         e.forEach(function(pd){
-                
-        //         })
-        //     },
-        //     error: function(rs, e){
-        //         console.log(rs.responseText);
-        //         alert('Problem occurs during fetch data.');
-        //     },
-        //     async:false,
-        // })
-        // return preparedData;
+        
+        var preparedData = [];
+        ajaxSetup();
+        $.ajax({
+            type: "GET",
+            url: "data2.json",
+            data : {},
+            success: function(e){
+                preparedData = JSON.parse(e);
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+                alert('Problem occurs during fetch data.');
+            },
+            async:false,
+        })
+        return preparedData;
 
-        return {
-            nodes: [
-                {
-                    id: 1,
-                    label: 'node#1',
-                    x: 0,
-                    y: 0,
-                    size: 1,
-                    color: '#000'
-                },
-                {
-                    id: 2,
-                    label: 'node#2',
-                    x: 1,
-                    y: 1,
-                    size: 1,
-                    color: '#f00'
-                }
-            ],
-            edges: [
-                {
-                    id: 1,
-                    source: 1,
-                    target: 2,
-                    color: '#a5adb0'
-                }
-            ]
-        }
+        // return {
+        //     nodes: [
+        //         {
+        //             id: 1,
+        //             label: 'node#1',
+        //             x: 0,
+        //             y: 0,
+        //             size: 1,
+        //             color: '#000'
+        //         },
+        //         {
+        //             id: 2,
+        //             label: 'node#2',
+        //             x: 1,
+        //             y: 1,
+        //             size: 1,
+        //             color: '#f00'
+        //         }
+        //     ],
+        //     edges: [
+        //         {
+        //             id: 1,
+        //             source: 1,
+        //             target: 2,
+        //             color: '#a5adb0'
+        //         }
+        //     ]
+        // }
     }
 
     /**  
@@ -202,8 +214,8 @@
      */
     function plotGraph(s){
         // Fetch data
-        let graphData = fetchData();
-        
+        graphData = fetchData();
+        console.log(graphData);
         // Add all returned nodes to sigma object
         graphData.nodes.forEach(function(node) {
             addNode(s, node);
@@ -269,12 +281,13 @@
                 
                 if(node == undefined) {
                     alert("Number " + input + " is not found. Please check your input number again.");
+                    return;
                 }
 
                 s.camera.goTo({
                     x: node['read_cam0:x'], 
                     y: node['read_cam0:y'], 
-                    ratio: 0.5
+                    ratio: 0.1
                 });
 
                 updateInformation(node);
@@ -310,18 +323,29 @@
      *  @return void
      */
      function updateInformation(node) {
+        let nodeData = undefined;
+        let nodeID = node.id == undefined ? node.data.node.id : node.id; 
+        graphData.nodes.forEach(function(n) {
+            if(n.id == nodeID) {
+                nodeData = n;
+            }
+        });
+        if(nodeData == undefined) {
+            alert('Can\'t get node data');
+            return;
+        }
         // TODO : Update right column
-        document.getElementById('cname').innerHTML = '';
-        document.getElementById('cage').innerHTML = '';
-        document.getElementById('cnumber').innerHTML = '';
-        document.getElementById('cpromotion').innerHTML = '';
-        document.getElementById('ccarrier').innerHTML = '';
-        document.getElementById('cgender').innerHTML = '';
+        document.getElementById('cname').innerHTML = 'Unknown';
+        document.getElementById('cage').innerHTML = 'Unknown';
+        document.getElementById('cnumber').innerHTML = 'Unknown';
+        document.getElementById('cpromotion').innerHTML = 'Unknown';
+        document.getElementById('ccarrier').innerHTML = 'Unknown';
+        document.getElementById('cgender').innerHTML = 'Unknown';
 
         document.getElementById('comrank').innerHTML = '';
         document.getElementById('comsize').innerHTML = '';
-        document.getElementById('cc').innerHTML = '';
-        document.getElementById('bc').innerHTML = '';
+        document.getElementById('cc').innerHTML = '### (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(4) + ')';
+        document.getElementById('bc').innerHTML = '### (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(4) + ')';
      }
 
      /**  
