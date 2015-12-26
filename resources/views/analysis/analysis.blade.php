@@ -430,10 +430,10 @@
     </div>
     <!-- Third Widget End -->
 </div>
+
 <!-- Other Statistic Section End -->
 @section('bottom-script')
 {!! Html::script('js/jquery.js'); !!}
-{!! Html::script('js/jquery-1.8.3.min.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
 

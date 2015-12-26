@@ -158,7 +158,7 @@
         ajaxSetup();
         $.ajax({
             type: "GET",
-            url: "data2.json",
+            url: "data.json",
             data : {},
             success: function(e){
                 preparedData = JSON.parse(e);
@@ -215,7 +215,7 @@
     function plotGraph(s){
         // Fetch data
         graphData = fetchData();
-        console.log(graphData);
+        
         // Add all returned nodes to sigma object
         graphData.nodes.forEach(function(node) {
             addNode(s, node);
@@ -344,8 +344,8 @@
 
         document.getElementById('comrank').innerHTML = '';
         document.getElementById('comsize').innerHTML = '';
-        document.getElementById('cc').innerHTML = '### (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(4) + ')';
-        document.getElementById('bc').innerHTML = '### (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(4) + ')';
+        document.getElementById('cc').innerHTML = '### (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
+        document.getElementById('bc').innerHTML = '### (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
      }
 
      /**  
@@ -363,7 +363,6 @@
             // TODO : Change displayed graph back to the full one
         });
      }
-
 
     /**
      *  @brief Main function of this file
