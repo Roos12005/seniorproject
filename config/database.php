@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'neo4j'),
 
     /*
     |--------------------------------------------------------------------------
@@ -52,17 +52,24 @@ return [
             'prefix'   => '',
         ],
 
-        'mysql' => [
-            'driver'    => 'mysql',
-            'host'      => 'localhost',
-            'database'  => 'sna',
-            'username'  => 'root',
-            'password'  => 'root',
-            'charset'   => 'utf8',
-            'collation' => 'utf8_unicode_ci',
-            'prefix'    => '',
-            'strict'    => false,
+        'neo4j'  => [
+            'driver'   => 'neo4j',
+            'host'     => 'localhost',
+            'port'     => '7474',
+            'username' => 'neo4j',
+            'password' => 'aiscu',
         ],
+        // 'mysql' => [
+        //     'driver'    => 'mysql',
+        //     'host'      => 'localhost',
+        //     'database'  => 'sna',
+        //     'username'  => 'root',
+        //     'password'  => 'root',
+        //     'charset'   => 'utf8',
+        //     'collation' => 'utf8_unicode_ci',
+        //     'prefix'    => '',
+        //     'strict'    => false,
+        // ],
 
         'pgsql' => [
             'driver'   => 'pgsql',

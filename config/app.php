@@ -137,6 +137,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Illuminate\Html\HtmlServiceProvider::class,
+        Vinelab\NeoEloquent\NeoEloquentServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -195,7 +196,6 @@ return [
         'View'      => Illuminate\Support\Facades\View::class,
         'Html'      => Illuminate\Html\HtmlFacade::class,
         'Form'      => Illuminate\Html\FormFacade::class,
-
     ],
 
 ];
