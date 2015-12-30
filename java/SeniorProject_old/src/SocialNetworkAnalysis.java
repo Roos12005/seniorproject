@@ -25,8 +25,10 @@ public class SocialNetworkAnalysis {
             System.out.println("Reading Data ... Done!");
         }
     	Graph hgraph = new Graph(nodes,edges);
+    	System.out.println("Building Graph ... Done!");
         GraphDistance dis = new GraphDistance(hgraph);
         dis.execute(hgraph);
+        System.out.println("Calculating Graph Distance ... Done!");
         
         Modularity mod = new Modularity(hgraph);
     	// Compute Modularity Class
