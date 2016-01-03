@@ -5,7 +5,12 @@
 @section('stylesheet')
 
     {!! Html::style('js/bootstrap-datepicker/css/datepicker.css') !!}
-    
+    {!! Html::style('js/select2/select2.css') !!}
+    {!! Html::style('js/iCheck/skins/square/square.css') !!}
+    {!! Html::style('js/iCheck/skins/square/red.css') !!}
+    {!! Html::style('js/iCheck/skins/square/green.css') !!}
+    {!! Html::style('js/iCheck/skins/square/blue.css') !!}
+
 @section('content')
 
 <!-- Header Start -->
@@ -26,29 +31,58 @@
                     <div class="form-group">
                         <div class="col-md-6">
                             <label class="control-label col-md-3">Date Range</label>
-                            <div class="col-md-9">
+                            <!-- <div class="col-md-9">
                                 <div class="input-group input-large" data-date="13/07/2013" data-date-format="mm/dd/yyyy">
-                                    <input type="text" class="form-control dpd1" name="from">
+                                    <input type="text" class="form-control dpd1" name="from" id="from">
                                     <span class="input-group-addon">To</span>
-                                    <input type="text" class="form-control dpd2" name="to">
+                                    <input type="text" class="form-control dpd2" name="to" id="to">
+                                </div>
+                            </div> -->
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <select id="e1" class="populate " style="width: 250px">
+                                        <optgroup label="September 2015">
+                                            <option>Sep 16 - Sep 30</option>
+                                        </optgroup>
+                                        <optgroup label="October 2015">
+                                            <option>Oct 1 - Oct 15</option>
+                                            <option>Oct 16 - Oct 31</option>
+                                        </optgroup>
+                                        <optgroup label="November 2015">
+                                            <option>Nov 1 - Nov 15</option>
+                                            <option>Nov 16 - Nov 30</option>
+                                        </optgroup>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3" style="border-right: 1px solid #f1f2f7; width: 21%;">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1" value="option1" checked> Weekdays
-                            </label>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox2" value="option2"> Weekends
-                            </label>
+                        <div class="col-md-3 icheck " style="border-right: 1px solid #f1f2f7; width: 21%;">
+                            <div class="square">
+                                <div class="checkbox ">
+                                    <input type="checkbox" id="weekdays" value="weekdays_on" checked>
+                                    <label>Weekdays </label>
+                                </div>
+                            </div>
+                            <div class="square-red">
+                                <div class="checkbox ">
+                                    <input type="checkbox" id="weekends" value="weekends_on">
+                                    <label>Weekends </label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1" value="option1" checked> Day time
-                            </label>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox2" value="option2" checked> Night time
-                            </label>
+                        <div class="col-md-3 icheck ">
+                            <div class="square-green">
+                                <div class="checkbox ">
+                                    <input type="checkbox" id="dayTime" value="dayTime_on" checked>
+                                    <label>Day time </label>
+                                </div>
+                            </div>
+                            <div class="square-blue">
+                                <div class="checkbox ">
+                                    <input type="checkbox" id="nightTime" value="nightTime_on" checked>
+                                    <label>Night time </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-12" style="margin-top: 12px;">
                             <div class="text-center">
@@ -61,10 +95,10 @@
                                 <a href="#" class="btn btn-danger" style="margin-right: 10px">
                                     CC Interaction
                                 </a>
-                                <a href="#" class="btn btn-default" style="margin-right: 10px">
+                                <a class="btn btn-default" style="margin-right: 10px">
                                     Self-Coloring
                                 </a>
-                                <a href="#" class="btn btn-primary" style="margin-right: 10px">
+                                <a class="btn btn-primary" style="margin-right: 10px" onclick="return fullGraphClick()">
                                     Full Graph
                                 </a>
                             </div>
@@ -83,7 +117,7 @@
                 <div class="mini-stat clearfix">
                     <span class="mini-stat-icon orange"><i class="fa fa-phone"></i></span>
                     <div class="mini-stat-info">
-                        <span>2,564,982</span>
+                        <span id="unique_numbers" name="unique_numbers">0</span>
                         Unique Numbers
                     </div>
                 </div>
@@ -94,7 +128,7 @@
                 <div class="mini-stat clearfix">
                     <span class="mini-stat-icon tar"><i class="fa fa-users"></i></span>
                     <div class="mini-stat-info">
-                        <span>2,450</span>
+                        <span>0</span>
                         Communities
                     </div>
                 </div>
@@ -105,8 +139,8 @@
                 <div class="mini-stat clearfix">
                     <span class="mini-stat-icon pink"><i class="fa fa-calendar"></i></span>
                     <div class="mini-stat-info">
-                        <span>30 Days</span>
-                        Sep 1st - Sep 30th
+                        <span id="date"> - </span>
+                        <div id="filter">Date</div>
                     </div>
                 </div>
             </div>
@@ -436,12 +470,21 @@
 {!! Html::script('js/jquery.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
+{!! Html::script('js/analysis.js'); !!}
 
-<!-- Date Range -->
+<!-- Date Range (Date Picker) -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}
 {!! Html::script('js/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
 {!! Html::script('js/bootstrap-switch.js'); !!}
 {!! Html::script('js/main.js'); !!}
+
+<!-- Date Range (Dropdown) -->
+{!! Html::script('js/select2/select2.js'); !!}
+{!! Html::script('js/select-init.js'); !!}
+
+<!--Check Box -->
+{!! Html::script('js/iCheck/jquery.icheck.js'); !!}
+{!! Html::script('js/icheck-init.js'); !!}
 
 <!-- Side Bar -->
 {!! Html::script('js/jquery.nicescroll.js'); !!}
