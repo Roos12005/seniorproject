@@ -17,6 +17,10 @@
 
 Route::get('/','AnalysisController@getIndex');
 
+//Get Data
+Route::get('getCDR','AnalysisController@getCDR');
+
+
 Route::get('/test','AnalysisController@test');
 
 Route::get('/testsigma','AnalysisController@testgraph');
