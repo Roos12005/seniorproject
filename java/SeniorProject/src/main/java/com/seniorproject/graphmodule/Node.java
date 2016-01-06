@@ -21,12 +21,14 @@ public class Node {
     private double closeness;
     private double betweenness;
     private int communityID;
+    private String color;
 
     public Node(int s) {
         this.ID = s;
         this.betweenness = 0;
         this.closeness = 0;
         this.eccentricity = 0;
+        this.color = "";
 //        nei = new ArrayList<>();
 //        weights = new HashMap<>();
     }
@@ -115,5 +117,19 @@ public class Node {
      */
     public void setCommunityID(int communityID) {
         this.communityID = communityID;
+    }
+
+    /**
+     * @return the color
+     */
+    public String getColor() {
+        return color;
+    }
+
+    /**
+     * @param color the color to set
+     */
+    public void setColor(String color) {
+        this.color = color;
     }
 }

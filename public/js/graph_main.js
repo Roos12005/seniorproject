@@ -16,6 +16,7 @@
     'use strict';
 
     let graphData = [];
+    let colors = [];
 
     /**
      *  @brief  Instantiate Sigma object.
@@ -170,35 +171,6 @@
             async:false,
         })
         return preparedData;
-
-        // return {
-        //     nodes: [
-        //         {
-        //             id: 1,
-        //             label: 'node#1',
-        //             x: 0,
-        //             y: 0,
-        //             size: 1,
-        //             color: '#000'
-        //         },
-        //         {
-        //             id: 2,
-        //             label: 'node#2',
-        //             x: 1,
-        //             y: 1,
-        //             size: 1,
-        //             color: '#f00'
-        //         }
-        //     ],
-        //     edges: [
-        //         {
-        //             id: 1,
-        //             source: 1,
-        //             target: 2,
-        //             color: '#a5adb0'
-        //         }
-        //     ]
-        // }
     }
 
     /**  

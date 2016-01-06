@@ -13,8 +13,6 @@ import iot.jcypher.database.DBAccessFactory;
 import iot.jcypher.database.DBProperties;
 import iot.jcypher.database.DBType;
 import iot.jcypher.database.IDBAccess;
-import iot.jcypher.domain.DomainAccessFactory;
-import iot.jcypher.domain.IDomainAccess;
 import iot.jcypher.graph.GrLabel;
 import iot.jcypher.graph.GrNode;
 import iot.jcypher.graph.GrProperty;
@@ -31,7 +29,6 @@ import iot.jcypher.query.values.JcRelation;
 import iot.jcypher.query.writer.Format;
 import iot.jcypher.util.Util;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +48,39 @@ public class DBAccess {
         
     }
 
+    public static void clearGraph(String start, String end, String relationship) {
+        JcQuery query = new JcQuery();
+        JcNode a = new JcNode("A");
+        JcNode b = new JcNode("B");
+        JcRelation r = new JcRelation("Call");
+        query.setClauses(new IClause[]{
+            MATCH.node(a).label(start).relation(r).type(relationship).out().node(b).label(end),
+            RETURN.value(r),
+            RETURN.value(a),
+            RETURN.value(b)
+        });
+        JcQueryResult result = dbAccess.execute(query); 
+        List<GrNode> aNode = result.resultOf(a);
+        for(GrNode tmp : aNode) {
+            tmp.remove();
+        }
+        List<GrNode> bNode = result.resultOf(b);
+        for(GrNode tmp : bNode) {
+            tmp.remove();
+        }
+        List<GrRelation> rela = result.resultOf(r);
+        for(GrRelation tmp : rela) {
+            tmp.remove();
+        }
+        
+        // retrieve the Graph (container of the graph model)
+        Graph graph = result.getGraph();
+
+        // store the modified graph
+        List<JcError> errors = graph.store();
+
+    }
+    
     private static void initDBConnection() {
         Properties props = new Properties();
 
@@ -136,20 +166,25 @@ public class DBAccess {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);
+            
+            clearGraph("User", "User", "Call");
+            
             Map<Integer, GrNode> grnodes = new HashMap<>();
             for(Node n : nodes) {
                 GrNode tmp = graph.createNode();
-                tmp.addLabel("CallNode");
+                tmp.addLabel("User");
                 tmp.addProperty("Number", n.getLabel());
                 tmp.addProperty("Eccentricity", n.getEccentricity());
                 tmp.addProperty("Betweenness", n.getBetweenness());
                 tmp.addProperty("Closeness", n.getCloseness());
                 tmp.addProperty("CommunityID", n.getCommunityID());
+                tmp.addProperty("Color", n.getColor());
                 grnodes.put(n.getID(), tmp);
             }
             
             for(Edge e : edges) {
                 GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
+                rel.addProperty("Duration", 1);
             }
             
             List<JcError> errors = graph.store();
@@ -166,78 +201,6 @@ public class DBAccess {
             dbAccess.close();
             dbAccess = null;
         }
-    }
-
-    /**
-     * map to CYPHER statements and map to JSON, print the mapping results to
-     * System.out
-     *
-     * @param query
-     * @param title
-     * @param format
-     */
-    private static void print(JcQuery query, String title, Format format) {
-        System.out.println("QUERY: " + title + " --------------------");
-        // map to Cypher
-        String cypher = iot.jcypher.util.Util.toCypher(query, format);
-        System.out.println("CYPHER --------------------");
-        System.out.println(cypher);
-
-        // map to JSON
-        String json = iot.jcypher.util.Util.toJSON(query, format);
-        System.out.println("");
-        System.out.println("JSON   --------------------");
-        System.out.println(json);
-
-        System.out.println("");
-    }
-
-    /**
-     * print the JSON representation of the query result
-     *
-     * @param queryResult
-     */
-    private static void print(JcQueryResult queryResult, String title) {
-        System.out.println("RESULT OF QUERY: " + title + " --------------------");
-        String resultString = Util.writePretty(queryResult.getJsonResult());
-        System.out.println(resultString);
-    }
-
-    private static void print(List<GrNode> nodes, boolean distinct) {
-        List<Long> ids = new ArrayList<Long>();
-        StringBuilder sb = new StringBuilder();
-        boolean firstNode = true;
-        for (GrNode node : nodes) {
-            if (!ids.contains(node.getId()) || !distinct) {
-                ids.add(node.getId());
-                if (!firstNode) {
-                    sb.append("\n");
-                } else {
-                    firstNode = false;
-                }
-                sb.append("---NODE---:\n");
-                sb.append('[');
-                sb.append(node.getId());
-                sb.append(']');
-                for (GrLabel label : node.getLabels()) {
-                    sb.append(", ");
-                    sb.append(label.getName());
-                }
-                sb.append("\n");
-                boolean first = true;
-                for (GrProperty prop : node.getProperties()) {
-                    if (!first) {
-                        sb.append(", ");
-                    } else {
-                        first = false;
-                    }
-                    sb.append(prop.getName());
-                    sb.append(" = ");
-                    sb.append(prop.getValue());
-                }
-            }
-        }
-        System.out.println(sb.toString());
     }
 
     /**

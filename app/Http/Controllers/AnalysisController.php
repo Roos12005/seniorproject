@@ -23,10 +23,9 @@ class AnalysisController extends Controller{
     public function getCDR() {
         $users = Users::all();
         $cdr_list = array();
-
         foreach($users as $user) {
             $user_info = [
-              'number' => $user->number
+              'number' => $user->Number,
             ];
             array_push($cdr_list, $user_info);
         }
