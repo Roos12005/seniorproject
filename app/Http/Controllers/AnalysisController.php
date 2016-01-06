@@ -24,13 +24,25 @@ class AnalysisController extends Controller{
         $users = Users::all();
         $cdr_list = array();
         foreach($users as $user) {
+          $user_stat = [
+            'Betweenness Centrality' => $user->Betweenness,
+            'Modularity Class' => $user->CommunityID,
+            'Eccentricity' => $user->Eccentricity,
+            'Closeness Centrality' => $user->Closeness
+          ];
             $user_info = [
-              'number' => $user->Number,
+              'label' => $user->Number,
+              'x' => 0,
+              'y' => 0,
+              'id' => $user->id,
+              'sttributes' => $user_stat,
+              'color' => $user->Color,
+              'size' => 0
             ];
             array_push($cdr_list, $user_info);
         }
 
-        return  response()->json(['cdr_list' => $cdr_list]);
+        return  response()->json(['node' => $cdr_list]);
     } 
 
     // TODO : This function will be removed when my experiment is done!
