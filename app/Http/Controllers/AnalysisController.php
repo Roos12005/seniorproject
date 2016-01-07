@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\App;
 use App\Models\Call_Detail_Records;
 use App\Models\Users;
 use File;
+use Neoxygen\NeoClient\ClientBuilder;
 
 class AnalysisController extends Controller{
 
@@ -21,6 +22,15 @@ class AnalysisController extends Controller{
 
     //Get all CDR
     public function getCDR() {
+        $client = ClientBuilder::create()
+            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+            ->setAutoFormatResponse(true)
+            ->build();
+        $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN n, r, m';
+        $result = $client->sendCypherQuery($q)->getResult();
+        print_r($result->getTableFormat());
+
+
         $users = Users::all();
         $cdr_list = array();
         foreach($users as $user) {
