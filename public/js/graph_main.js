@@ -159,16 +159,17 @@
         ajaxSetup();
         $.ajax({
             type: "GET",
-            url: "data.json",
+            url: "http://localhost/seniorproject/public/getCDR",
             data : {},
             success: function(e){
-                preparedData = JSON.parse(e);
+                
+                preparedData = e;
             },
             error: function(rs, e){
                 console.log(rs.responseText);
                 alert('Problem occurs during fetch data.');
             },
-            async:false,
+            async: false,
         })
         return preparedData;
     }
