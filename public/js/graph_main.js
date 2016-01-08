@@ -15,8 +15,10 @@
 !function(){
     'use strict';
 
-    let graphData = [];
-    let colors = [];
+    var graphData = [];
+    var colors = [];
+    var numIDMapper = {};
+    var s;
 
     /**
      *  @brief  Instantiate Sigma object.
@@ -26,7 +28,7 @@
      *  @return instantiated Sigma object
      */    
     function initSigma() {
-        let s = new sigma({
+        s = new sigma({
             renderers: [{
                 container: document.getElementById('container'),
             }]
@@ -48,8 +50,6 @@
             // autoResize: false
             // zoomingRatio : 1
         });
-
-        return s;
     }
 
     /**
@@ -58,13 +58,11 @@
      *  Adding the input node to the Sigma object with the given node setting,
      *  including id, label, x, y, size and color.
      *
-     *  @param  s  Sigma object
      *  @param  n  Input node
      *  @return void
      */
-    function addNode(s,n) {
+    function addNode(n) {
         /* TODO : May add some conditional check or calculation here... */
-
         if(s.graph.nodes(n.id) !== undefined) {
             throw 'Node#' + n.id + '(' + n.label + ')' + ' is duplicated.';
         }
@@ -85,11 +83,10 @@
      *  Adding the input edge to the Sigma object with the given edge setting,
      *  including id, source, target, color.
      *
-     *  @param  s  Sigma object
      *  @param  e  Input edge
      *  @return void
      */
-    function addEdge(s, e) {
+    function addEdge(e) {
         /* TODO : May add some conditional check or calculation here... */
 
         // Throw an exception if source or target node does not exist.
@@ -106,6 +103,15 @@
             target: e.target,
             color: e.color
         })
+    }
+
+
+    function removeNode(n) {
+        s.graph.dropNode(n.id);
+    }
+
+    function clearGraph() {
+        s.graph.clear();
     }
 
     /**
@@ -175,28 +181,26 @@
     }
 
     /**  
-     *  @brief  Plot Graph
+     *  @brief  Plot Full Graph
      *
      *  First, fetch all graph data from server-side and
      *  then add all nodes and edges to the sigma object.
      *  All listener for nodes and edges are also setup here.
      *  Finally, ask sigma object to display graph.
      *
-     *  @param  s   Sigma object
      *  @return void
      */
-    function plotGraph(s){
-        // Fetch data
-        graphData = fetchData();
-        
+    function plotFullGraph(){
+        numIDMapper = {};
         // Add all returned nodes to sigma object
         graphData.nodes.forEach(function(node) {
-            addNode(s, node);
+            addNode(node);
+            numIDMapper[node.label] = node.id;
         });
 
         // Add all return edges to sigma object
         graphData.edges.forEach(function(edge) {
-            addEdge(s,edge);
+            addEdge(edge);
         });
 
         // Add Click Listener to all Nodes
@@ -204,7 +208,22 @@
 
         // Display Graph using sigma object
         s.refresh();
-        console.log(s.camera);
+    }
+
+    /**  
+     *  @brief  Plot Partial Graph
+     *
+     *  
+     *
+     *  @param  nodes   array of selected nodes
+     *  @return void
+     */
+    function plotPartialGraph(nodes){
+        nodes.forEach(function(node) {
+            removeNode(node);
+        });
+
+        s.refresh();
     }
 
     /**  
@@ -214,10 +233,9 @@
      *  zoom-in, zoom-out, refresh-zoom, by recalculating
      *  camera position of sigma object
      *
-     *  @param  s   Sigma object
      *  @return void
      */
-     function addZoomListener(s) {
+     function addZoomListener() {
         // Zoom in Button
         document.getElementById("zoomin").addEventListener("click", function(){
             s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 0.9 * s.camera.ratio});
@@ -241,16 +259,15 @@
      *  for searching specific number and focus on 
      *  that node, also, display node data on right column
      *
-     *  @param  s   Sigma object
      *  @return void
      */
-     function addSearchBoxListener(s) {
+     function addSearchBoxListener() {
         document.getElementById("searchbox").addEventListener("keypress", function(key){
             // Detect only "Enter" key - keyCode = 13
             if (key.keyCode === 13) {
                 //  Move camera to entered node
-                let input = document.getElementById("searchbox").value;
-                let node = s.graph.nodes(input);
+                var input = document.getElementById("searchbox").value;
+                var node = s.graph.nodes(numIDMapper[input]);
                 
                 if(node == undefined) {
                     alert("Number " + input + " is not found. Please check your input number again.");
@@ -277,12 +294,21 @@
      *  @return void
      */
      function clickNodeListener(node) {
-        updateInformation(node);
+        var nodeData = updateInformation(node);
 
         // Show back button on the top right of the div
         document.getElementsByClassName('back-section')[0].style.display = 'block';
 
         // TODO : Display only selected community
+        // console.log(nodeData['attributes']['Modularity Class']);
+        var filteredNodes = [];
+        graphData.nodes.forEach(function(n) {
+            if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
+                filteredNodes.push(n);
+            }
+        });
+
+        plotPartialGraph(filteredNodes)
      }
 
      /**  
@@ -296,8 +322,8 @@
      *  @return void
      */
      function updateInformation(node) {
-        let nodeData = undefined;
-        let nodeID = node.id == undefined ? node.data.node.id : node.id; 
+        var nodeData = undefined;
+        var nodeID = node.id == undefined ? node.data.node.id : node.id; 
         graphData.nodes.forEach(function(n) {
             if(n.id == nodeID) {
                 nodeData = n;
@@ -319,6 +345,8 @@
         document.getElementById('comsize').innerHTML = '';
         document.getElementById('cc').innerHTML = '### (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
         document.getElementById('bc').innerHTML = '### (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
+        
+        return nodeData;
      }
 
      /**  
@@ -327,13 +355,14 @@
      *  Hide the back button and change the displayed graph
      *  to the full one
      *
-     *  @param  s      sigma object   
      *  @return void
      */
-     function addBackButtonListener(s) {
+     function addBackButtonListener() {
         document.getElementById('back').addEventListener('click', function() {
             document.getElementsByClassName('back-section')[0].style.display = 'none';
             // TODO : Change displayed graph back to the full one
+            clearGraph();
+            plotFullGraph();
         });
      }
 
@@ -344,11 +373,12 @@
      *  @return void
      */
     !function(undefined){
-        let s = initSigma();
-        addZoomListener(s);
-        plotGraph(s);
-        addSearchBoxListener(s);
-        addBackButtonListener(s);
+        initSigma();
+        graphData = fetchData();
+        addZoomListener();
+        plotFullGraph();
+        addSearchBoxListener();
+        addBackButtonListener();
     }();
 
 }();
