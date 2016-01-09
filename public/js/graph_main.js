@@ -165,7 +165,7 @@
         ajaxSetup();
         $.ajax({
             type: "GET",
-            url: "http://localhost/seniorproject/public/getCDR",
+            url: "http://localhost/Senior-Project/public/getCDR",
             data : {},
             success: function(e){
                 
@@ -208,6 +208,7 @@
 
         // Display Graph using sigma object
         s.refresh();
+        // s.startForceAtlas2({});
     }
 
     /**  
