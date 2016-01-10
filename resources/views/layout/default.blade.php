@@ -47,7 +47,7 @@
 			        <div class="leftside-navigation">
 			            <ul class="sidebar-menu" id="nav-accordion">
 			            	<li>
-			                    <a class="active" href="/">
+			                    <a class="active" href="/seniorproject/public">
 			                        <i class="fa fa-dashboard"></i>
 			                        <span>Social Network Analysis</span>
 			                    </a>

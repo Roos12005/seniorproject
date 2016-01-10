@@ -2,14 +2,14 @@ function fullGraphClick(){
 
 
         $.ajax({
-            url: 'http://localhost/Senior-Project/public/runMaven',
+            url: 'http://localhost/seniorproject/public/runMaven',
             type: 'GET',
 
             success: function(e)
             {
                 $.ajax(
                 {   
-                    url: 'http://localhost/Senior-Project/public/getCDR',
+                    url: 'http://localhost/seniorproject/public/getCDR',
                     type: 'GET',
                     data: {},
                     dataType: 'json',
