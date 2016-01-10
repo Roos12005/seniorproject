@@ -157,16 +157,16 @@ public class DBAccess {
                         bNode.setLabel(gp.getValue().toString());
                     }
                     if(gp.getName().equals("age")) {
-                        aNode.setAge(gp.getValue().toString());
+                        bNode.setAge(gp.getValue().toString());
                     }
                     if(gp.getName().equals("gender")) {
-                        aNode.setGender(gp.getValue().toString());
+                        bNode.setGender(gp.getValue().toString());
                     }
                     if(gp.getName().equals("rnCode")) {
-                        aNode.setRnCode(gp.getValue().toString());
+                        bNode.setRnCode(gp.getValue().toString());
                     }
                     if(gp.getName().equals("promotion")) {
-                        aNode.setPromotion(gp.getValue().toString());
+                        bNode.setPromotion(gp.getValue().toString());
                     }
                 }
                 
