@@ -487,9 +487,6 @@
 {!! Html::script('js/iCheck/jquery.icheck.js'); !!}
 {!! Html::script('js/icheck-init.js'); !!}
 
-<!-- Side Bar -->
-{!! Html::script('js/jquery.nicescroll.js'); !!}
-{!! Html::script('js/scripts.js'); !!}
 
 @endsection
 @stop

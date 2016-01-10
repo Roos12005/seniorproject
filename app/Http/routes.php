@@ -11,17 +11,13 @@
 |
 */
 
-// Route::get('/', function () {
-//     return view('analysis.analysis');
-// });
-
 Route::get('/','AnalysisController@getIndex');
+Route::get('/aboutus','AboutUsController@getAboutUs');
 Route::get('runMaven','AnalysisController@runMaven');
 
 //Get Data
 Route::get('getCDR','AnalysisController@getCDR');
 
-
+//Test
 Route::get('/test','AnalysisController@test');
-
 Route::get('/testsigma','AnalysisController@testgraph');
