@@ -469,6 +469,7 @@
 @section('bottom-script')
 {!! Html::script('js/jquery.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
+{!! Html::script('js/sigmajs/plugins/sigma.layout.forceAtlas2.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
 {!! Html::script('js/analysis.js'); !!}
 

@@ -50,6 +50,8 @@
             // autoResize: false
             // zoomingRatio : 1
         });
+
+
     }
 
     /**
@@ -206,8 +208,15 @@
         // Add Click Listener to all Nodes
         s.bind('clickNode', clickNodeListener);
 
+
         // Display Graph using sigma object
-        s.refresh();
+        // s.refresh();
+        s.startForceAtlas2({});
+
+        setTimeout(function () {
+            s.stopForceAtlas2();
+        }, 500);
+
     }
 
     /**  
@@ -308,7 +317,7 @@
             }
         });
 
-        plotPartialGraph(filteredNodes)
+        plotPartialGraph(filteredNodes);
      }
 
      /**  
@@ -362,6 +371,7 @@
             document.getElementsByClassName('back-section')[0].style.display = 'none';
             // TODO : Change displayed graph back to the full one
             clearGraph();
+            s.stopForceAtlas2();
             plotFullGraph();
         });
      }
