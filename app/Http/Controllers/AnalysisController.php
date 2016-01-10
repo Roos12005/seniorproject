@@ -12,13 +12,11 @@ use Neoxygen\NeoClient\ClientBuilder;
 class AnalysisController extends Controller{
 
     public function getIndex() {
-       exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar", $output);
        return view('analysis.analysis');
    }
-   public function test() {
-       // $cdr = DB::table('call_detail_records')->where('b_no','2')->pluck('mobile_no');
+
+   public function runmaven() {
        exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar", $output);
-       return var_dump($output);
    }
 
     //Get all CDR
@@ -31,13 +29,17 @@ class AnalysisController extends Controller{
 
         $q = 'MATCH (n:User) RETURN n, ID(n) as n_id';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        $cdr_list = array();
+        $node_list = array();
         foreach($results as $result) {
             $user_stat = [
                 'Betweenness Centrality' => $result['n']['Betweenness'],
                 'Modularity Class' => $result['n']['CommunityID'],
                 'Eccentricity' => $result['n']['Eccentricity'],
-                'Closeness Centrality' => $result['n']['Closeness']
+                'Closeness Centrality' => $result['n']['Closeness'],
+                'Age' => $result['n']['Age'],
+                'Gender' => $result['n']['Gender'],
+                'RnCode' => $result['n']['RnCode'],
+                'Promotion' => $result['n']['Promotion']
             ];
             $user_info = [
               'label' => $result['n']['Number'],
@@ -48,7 +50,7 @@ class AnalysisController extends Controller{
               'color' => $result['n']['Color'],
               'size' => 1
             ];
-            array_push($cdr_list, $user_info);
+            array_push($node_list, $user_info);
         }
 
 
@@ -57,7 +59,10 @@ class AnalysisController extends Controller{
         $edge_list = array();
         foreach ($results as $result) {
             $edge_prop = [
-                'duration' => $result['r']['Duration']
+                'duration' => $result['r']['Duration'],
+                'startDate' => $result['r']['StartDate'],
+                'startTime' => $result['r']['StartTime'],
+                'callDay' => $result['r']['CallDay']
             ];
             $edge_info = [
               'target' => $result['m_id'],
@@ -71,10 +76,15 @@ class AnalysisController extends Controller{
             array_push($edge_list, $edge_info);
         }
 
-        return  response()->json(['nodes' => $cdr_list, 'edges' => $edge_list]);
+        return  response()->json(['nodes' => $node_list, 'edges' => $edge_list]);
     } 
 
     // TODO : This function will be removed when my experiment is done!
+  public function test() {
+       exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar", $output);
+       return var_dump($output);
+   }
+
    public function testgraph() {
     return view('experiment.testgraph');
     }

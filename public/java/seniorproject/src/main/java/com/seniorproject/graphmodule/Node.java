@@ -17,10 +17,17 @@ import java.util.Map;
 public class Node {
     private int ID;
     private String label;
+
+    //attributes
     private double eccentricity;
     private double closeness;
     private double betweenness;
     private int communityID;
+    private String age;
+    private String gender;
+    private String rnCode;
+    private String promotion;
+
     private String color;
 
     public Node(int s) {
@@ -29,8 +36,10 @@ public class Node {
         this.closeness = 0;
         this.eccentricity = 0;
         this.color = "";
-//        nei = new ArrayList<>();
-//        weights = new HashMap<>();
+        this.age = "null";
+        this.rnCode = "null";
+        this.gender = "null";
+        this.promotion = "null";
     }
 
     public int getID() {
@@ -65,6 +74,38 @@ public class Node {
         this.betweenness = betweenness;
     }
 
+    public String getAge() {
+        return this.age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    public String getGender() {
+        return this.gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getRnCode() {
+        return this.rnCode;
+    }
+
+    public void setRnCode(String rnCode) {
+        this.rnCode = rnCode;
+    }
+
+    public String getPromotion() {
+        return this.promotion;
+    }
+
+    public void setPromotion(String promotion) {
+        this.promotion = promotion;
+    }
+    
     public void setAttribute(String type, double value) {
         switch (type) {
             case "eccentricity":
@@ -132,4 +173,5 @@ public class Node {
     public void setColor(String color) {
         this.color = color;
     }
+
 }

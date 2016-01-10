@@ -16,6 +16,7 @@
 // });
 
 Route::get('/','AnalysisController@getIndex');
+Route::get('runMaven','AnalysisController@runMaven');
 
 //Get Data
 Route::get('getCDR','AnalysisController@getCDR');

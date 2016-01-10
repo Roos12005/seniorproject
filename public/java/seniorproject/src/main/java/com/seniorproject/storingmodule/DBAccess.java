@@ -125,6 +125,10 @@ public class DBAccess {
                 int startNodeID = (int) sNode.getId();
                 int endNodeID = (int) eNode.getId();
                 int duration = 0;
+                float weight = 1.0f;
+                String startDate = "";
+                String startTime = "";
+                String callDay = "";
                 
                 Node aNode = new Node(startNodeID);
                 Node bNode = new Node(endNodeID);
@@ -134,11 +138,35 @@ public class DBAccess {
                     if(gp.getName().equals("number")) {
                         aNode.setLabel(gp.getValue().toString());
                     }
+                    if(gp.getName().equals("age")) {
+                        aNode.setAge(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("gender")) {
+                        aNode.setGender(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("rnCode")) {
+                        aNode.setRnCode(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("promotion")) {
+                        aNode.setPromotion(gp.getValue().toString());
+                    }
                 }
                 
                 for(GrProperty gp : eProps) {
                     if(gp.getName().equals("number")) {
                         bNode.setLabel(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("age")) {
+                        aNode.setAge(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("gender")) {
+                        aNode.setGender(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("rnCode")) {
+                        aNode.setRnCode(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("promotion")) {
+                        aNode.setPromotion(gp.getValue().toString());
                     }
                 }
                 
@@ -146,12 +174,22 @@ public class DBAccess {
                     if(gp.getName().equals("duration")) {
                         duration = Integer.parseInt(gp.getValue().toString());
                     }
+                    if(gp.getName().equals("startDate")) {
+                        startDate = gp.getValue().toString();
+                    }
+                    if(gp.getName().equals("startTime")) {
+                        startTime = gp.getValue().toString();
+                    }
+                    if(gp.getName().equals("callDay")) {
+                        callDay = gp.getValue().toString();
+                    }
+
                 }
                 
                 nodes.add(aNode);
                 nodes.add(bNode);
                 
-                edges.add(new Edge(startNodeID, endNodeID, duration));   
+                edges.add(new Edge(startNodeID, endNodeID, weight , startDate, startTime, callDay, duration));   
             }
             
             return new com.seniorproject.graphmodule.Graph(nodes, edges);
@@ -178,13 +216,21 @@ public class DBAccess {
                 tmp.addProperty("Betweenness", n.getBetweenness());
                 tmp.addProperty("Closeness", n.getCloseness());
                 tmp.addProperty("CommunityID", n.getCommunityID());
+                tmp.addProperty("Age", n.getAge());
+                tmp.addProperty("Gender", n.getGender());
+                tmp.addProperty("RnCode", n.getRnCode());
+                tmp.addProperty("Promotion", n.getPromotion());
+
                 tmp.addProperty("Color", n.getColor());
                 grnodes.put(n.getID(), tmp);
             }
             
             for(Edge e : edges) {
                 GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
-                rel.addProperty("Duration", 1);
+                rel.addProperty("Duration", e.getDuration());
+                rel.addProperty("StartDate", e.getStartDate());
+                rel.addProperty("StartTime", e.getStartTime());
+                rel.addProperty("CallDay", e.getCallDay());
             }
             
             List<JcError> errors = graph.store();

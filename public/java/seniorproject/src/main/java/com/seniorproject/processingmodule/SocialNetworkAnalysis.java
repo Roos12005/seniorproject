@@ -50,10 +50,14 @@ public class SocialNetworkAnalysis {
     public static void main(String[] args) throws IOException {
 
         Graph hgraph = (new DBAccess()).loadAll();
+        for(Node node : hgraph.getNodes()) {
+            System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
+        }
     	System.out.println("Building Graph ... Done!");
         GraphDistance dis = new GraphDistance(hgraph);
         dis.execute(hgraph);
         System.out.println("Calculating Graph Distance ... Done!");
+
         
         Modularity mod = new Modularity(hgraph);
     	// Compute Modularity Class

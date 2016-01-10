@@ -128,7 +128,7 @@
                 <div class="mini-stat clearfix">
                     <span class="mini-stat-icon tar"><i class="fa fa-users"></i></span>
                     <div class="mini-stat-info">
-                        <span>0</span>
+                        <span id ="communities" name="communities">0</span>
                         Communities
                     </div>
                 </div>
