@@ -13,6 +13,21 @@ public class Edge {
     int source;
     int target;
     float weight;
+    int duration;
+    String startDate;
+    String startTime;
+    String callDay;
+
+
+    public Edge(int s, int t, float w, String sd, String st, String cd, int d) {
+        source = s;
+        target = t;
+        duration = d;
+        startDate = sd;
+        startTime = st;
+        callDay = cd;
+        weight = w;
+    }
 
     public Edge(int s, int t, float w) {
         source = s;
@@ -42,5 +57,37 @@ public class Edge {
 
     public void setWeight(float weight) {
         this.weight = weight;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+    
+    public String getCallDay() {
+        return callDay;
+    }
+
+    public void setCallDay(String callDay) {
+        this.callDay = callDay;
     }
 }

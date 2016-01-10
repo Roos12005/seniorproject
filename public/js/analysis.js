@@ -1,19 +1,39 @@
 function fullGraphClick(){
-        $.ajax(
-        {   
-            url: '/getCDR',
+
+
+        $.ajax({
+            url: 'http://localhost/Senior-Project/public/runMaven',
             type: 'GET',
-            data: {},
-            dataType: 'json',
-            success: function(data)
+
+            success: function(e)
             {
-                setDate();
-                setStatus();
-                var user_array = new Array();
-                $.each(data.cdr_list, function(index, user_info) {
-                    user_array.push(user_info);
+                $.ajax(
+                {   
+                    url: 'http://localhost/Senior-Project/public/getCDR',
+                    type: 'GET',
+                    data: {},
+                    dataType: 'json',
+                    success: function(data)
+                    {
+                        setDate();
+                        setStatus();
+                        var user_array = new Array();
+                        var communities = new Array();
+                        $.each(data.nodes, function(index, user_info) {
+                            if(!isInArray(user_info['attributes']['Modularity Class'],communities)){
+                                communities.push(user_info['attributes']['Modularity Class']);
+                            }
+                            user_array.push(user_info);
+                        });
+                        console.log(communities);
+                        document.getElementById('unique_numbers').innerHTML = user_array.length;
+                        document.getElementById('communities').innerHTML = communities.length;
+                    }
                 });
-                document.getElementById('unique_numbers').innerHTML = user_array.length;
+
+            },
+            error : function(rs, e) {
+                console.log(rs.responseText);
             }
         });
 }
@@ -36,5 +56,9 @@ function setStatus(){
     else ans = ans + " All Time";
 
     document.getElementById('filter').innerHTML = ans;
+}
+
+function isInArray(value, array) {
+  return array.indexOf(value) > -1;
 }
 
