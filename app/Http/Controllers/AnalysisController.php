@@ -12,6 +12,7 @@ use Neoxygen\NeoClient\ClientBuilder;
 class AnalysisController extends Controller{
 
     public function getIndex() {
+        exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar", $output);
        return view('analysis.analysis');
    }
 

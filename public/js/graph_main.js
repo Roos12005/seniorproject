@@ -170,7 +170,7 @@
             url: "http://localhost/seniorproject/public/getCDR",
             data : {},
             success: function(e){
-                
+                console.log(e);
                 preparedData = e;
             },
             error: function(rs, e){

@@ -49,7 +49,7 @@ public class SocialNetworkAnalysis {
     
     public static void main(String[] args) throws IOException {
 
-        Graph hgraph = (new DBAccess()).loadAll();
+        Graph hgraph = (new DBAccess()).loadAll(0, 1000, 0.00f, 23.59f);
         for(Node node : hgraph.getNodes()) {
             System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
         }

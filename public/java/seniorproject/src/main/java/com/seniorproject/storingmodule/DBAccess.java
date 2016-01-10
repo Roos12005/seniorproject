@@ -13,6 +13,7 @@ import iot.jcypher.database.DBAccessFactory;
 import iot.jcypher.database.DBProperties;
 import iot.jcypher.database.DBType;
 import iot.jcypher.database.IDBAccess;
+import iot.jcypher.domainquery.ast.ConcatenateExpression;
 import iot.jcypher.graph.GrLabel;
 import iot.jcypher.graph.GrNode;
 import iot.jcypher.graph.GrProperty;
@@ -21,11 +22,17 @@ import iot.jcypher.graph.Graph;
 import iot.jcypher.query.JcQuery;
 import iot.jcypher.query.JcQueryResult;
 import iot.jcypher.query.api.IClause;
+import iot.jcypher.query.api.predicate.Concatenator;
 import iot.jcypher.query.factories.clause.MATCH;
 import iot.jcypher.query.factories.clause.RETURN;
+import iot.jcypher.query.factories.clause.WHERE;
+import iot.jcypher.query.factories.clause.WITH;
+import iot.jcypher.query.factories.xpression.C;
 import iot.jcypher.query.result.JcError;
+import iot.jcypher.query.values.JcCollection;
 import iot.jcypher.query.values.JcNode;
 import iot.jcypher.query.values.JcRelation;
+import iot.jcypher.query.values.JcValue;
 import iot.jcypher.query.writer.Format;
 import iot.jcypher.util.Util;
 import java.util.ArrayList;
@@ -97,7 +104,8 @@ public class DBAccess {
         dbAccess = DBAccessFactory.createDBAccess(DBType.REMOTE, props, Config.USERNAME, Config.PASSWORD);
     }
     
-    public com.seniorproject.graphmodule.Graph loadAll() {
+    public com.seniorproject.graphmodule.Graph loadAll(int durationMin, 
+            int durationMax, float startTimeFrom, float startTimeTo) {
         initDBConnection();
         Set<Node> nodes = new HashSet<>();
         List<Edge> edges = new ArrayList<>();
@@ -106,8 +114,19 @@ public class DBAccess {
             JcNode a = new JcNode("A");
             JcNode b = new JcNode("B");
             JcRelation r = new JcRelation("Call");
+            String regexDay = "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday";
+            String regexCarrier = "AIS|TRUE|DTC";
+
             query.setClauses(new IClause[]{
                 MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
+                WHERE.valueOf(r.property("duration")).GTE(durationMin).AND()
+                    .valueOf(r.property("duration")).LTE(durationMax).AND()
+                    .valueOf(r.property("startTime")).GTE(startTimeFrom).AND()
+                    .valueOf(r.property("startTime")).LT(startTimeTo).AND()
+                    .valueOf(r.property("callDay")).REGEX(regexDay).AND()
+                    .valueOf(a.property("rnCode")).REGEX(regexCarrier).AND()
+                    .valueOf(b.property("rnCode")).REGEX(regexCarrier),
+                
                 RETURN.value(r)
             });
             
