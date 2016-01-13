@@ -6,20 +6,18 @@
 
     {!! Html::style('js/bootstrap-datepicker/css/datepicker.css') !!}
     {!! Html::style('js/select2/select2.css') !!}
-    {!! Html::style('js/iCheck/skins/square/square.css') !!}
-    {!! Html::style('js/iCheck/skins/square/red.css') !!}
-    {!! Html::style('js/iCheck/skins/square/green.css') !!}
-    {!! Html::style('js/iCheck/skins/square/blue.css') !!}
+    {!! Html::style('js/iCheck/skins/flat/_all.css') !!}
+    
 
 @section('content')
-
+<meta name="csrf-token" content="{{ csrf_token() }}" />
 <!-- Header Start -->
 <div class="row">
     <div class="col-md-12">
         
         <!-- Graph Filter section start -->
         <section class="panel">
-            <header class="panel-heading"> Graph Filters 
+            <header class="panel-heading"> Graph Controller
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -27,17 +25,11 @@
                 </span>
             </header>
             <div class="panel-body">
-                <form action="#" class="form-horizontal ">
+                <!-- <form action="#" class="form-horizontal ">
                     <div class="form-group">
                         <div class="col-md-6">
                             <label class="control-label col-md-3">Date Range</label>
-                            <!-- <div class="col-md-9">
-                                <div class="input-group input-large" data-date="13/07/2013" data-date-format="mm/dd/yyyy">
-                                    <input type="text" class="form-control dpd1" name="from" id="from">
-                                    <span class="input-group-addon">To</span>
-                                    <input type="text" class="form-control dpd2" name="to" id="to">
-                                </div>
-                            </div> -->
+
                             <div class="form-group">
                                 <div class="col-lg-6">
                                     <select id="e1" class="populate " style="width: 250px">
@@ -65,7 +57,7 @@
                             </div>
                             <div class="square-red">
                                 <div class="checkbox ">
-                                    <input type="checkbox" id="weekends" value="weekends_on">
+                                    <input type="checkbox"  class="day-checkbox"  value="weekends_on">
                                     <label>Weekends </label>
                                 </div>
                             </div>
@@ -104,7 +96,89 @@
                             </div>
                         </div>
                     </div>
-                </form>
+                </form> -->
+
+                <div class="col-md-4">
+                    <div class="col-sm-12" style="padding-bottom: 5px;">
+                        <span> Graph Filters </span>
+                        <div class="clearfix separate-line"></div>
+                    </div>
+                    <div class="col-sm-12">  
+                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="startDate-button">
+                            Date
+                        </a>
+                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="callDay-button">
+                            Day
+                        </a>
+                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="startTime-button">
+                            Call Period
+                        </a>
+                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="duration-button">
+                            Call Duration
+                        </a>
+                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="noOfCall-button">
+                            No. of Call
+                        </a>
+                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="rnCode-button">
+                            Carrier
+                        </a>
+                    </div>  
+                </div>
+                <div class="col-md-5">
+                    <div class="col-sm-12" style="padding-bottom: 5px;">
+                    <span> Graph Hi-light </span>
+                        <div class="clearfix separate-line"></div>
+                    </div>
+                    <div class="col-sm-12">  
+                        <a class="btn btn-default three-col-button hilight h-on" id="h-default">
+                            Default
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-centrality">
+                            Centrality
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-community">
+                            Community
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-carrier">
+                            Carrier
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-daynight">
+                            Day / Night
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-promotion">
+                            Promotion
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-degree">
+                            Degree
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-ais">
+                            AIS Only
+                        </a>
+                    </div>  
+                </div>
+                <div class="col-md-3">
+                    <div class="col-sm-12" style="padding-bottom: 5px;">
+                    <span> Display Mode </span>
+                        <div class="clearfix separate-line"></div>
+                    </div>
+                    <div class="col-sm-12 display-mode">  
+                        <a class="btn btn-default single-col-button" id="full-graph">
+                            Full Graph
+                            <i class="fa fa-times status"></i>
+                        </a>
+                        
+                        <a class="btn btn-default single-col-button">
+                            Community Group
+                            <i class="fa fa-times status"></i>
+                        </a>
+                        
+                        <a class="btn btn-danger single-col-button">
+                            Display Mode 3
+                            <i class="fa fa-times status"></i>
+                        </a>
+                        
+                    </div>  
+                </div>
             </div>
         </section>
         <!-- Graph Filter section end -->
@@ -405,11 +479,11 @@
                     <div class="gauge-canvas">
                         <h4 class="widget-h">Statistics 1</h4>
                         <canvas width=160 height=100 id="gauge"></canvas>
-                    </div>
+                    <!-- </div>
                     <ul class="gauge-meta clearfix">
                         <li id="gauge-textfield" class="pull-left gauge-value"></li>
                         <li class="pull-right gauge-title">Max</li>
-                    </ul>
+                    </ul> -->
                 </div>
             </div>
         </section>
@@ -423,13 +497,13 @@
                 <div class="top-stats-panel">
                     <div class="daily-visit">
                         <h4 class="widget-h">Statistics 2</h4>
-                        <div id="daily-visit-chart" style="width:100%; height: 100px; display: block">
+                        <!-- <div id="daily-visit-chart" style="width:100%; height: 100px; display: block">
 
                         </div>
                         <ul class="chart-meta clearfix">
                             <li class="pull-left visit-chart-value">3233</li>
                             <li class="pull-right visit-chart-title"><i class="fa fa-arrow-up"></i> 15%</li>
-                        </ul>
+                        </ul> -->
                     </div>
                 </div>
             </div>
@@ -443,7 +517,7 @@
             <div class="panel-body">
                 <div class="top-stats-panel">
                     <h4 class="widget-h">Statistics 3</h4>
-                    <div class="bar-stats">
+                    <!-- <div class="bar-stats">
                         <ul class="progress-stat-bar clearfix">
                             <li data-percent="50%"><span class="progress-stat-percent pink"></span></li>
                             <li data-percent="90%"><span class="progress-stat-percent"></span></li>
@@ -457,7 +531,7 @@
                         <div class="daily-sales-info">
                             <span class="sales-count">1200 </span> <span class="sales-label">Products Sold</span>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </section>
@@ -465,13 +539,192 @@
     <!-- Third Widget End -->
 </div>
 
+
+<div aria-hidden="true" aria-labelledby="filterModalLabel" role="dialog" tabindex="-1" id="filterModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Graph Filters</h4>
+            </div>
+            <div class="modal-body">
+            <ul>
+                <form action="#" class="form-horizontal ">
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <label class="control-label col-md-6" >Date Picker</label>
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <select id="e1" class="populate " style="width: 250px">
+                                        <optgroup label="September 2015">
+                                            <option value="20150916">Sep 16 - Sep 30</option>
+                                        </optgroup>
+                                        <optgroup label="October 2015">
+                                            <option value="20151001">Oct 1 - Oct 15</option>
+                                            <option value="20151016">Oct 16 - Oct 31</option>
+                                        </optgroup>
+                                        <optgroup label="November 2015">
+                                            <option value="20151101">Nov 1 - Nov 15</option>
+                                            <option value="20151116"> Nov 16 - Nov 30</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <label class="col-md-4 control-label" >Day Selector</label>
+                            
+                            <div class="col-lg-12 icheck">
+                                <div class="flat-red col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox" class="day-checkbox" value="Sunday">
+                                        <label>Sunday </label>
+                                    </div>
+                                </div>
+                                <div class="flat-orange col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox" class="day-checkbox"  value="Thursday">
+                                        <label>Thursday </label>
+                                    </div>
+                                </div>
+                                <div class="flat-yellow col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox"  class="day-checkbox"  value="Monday">
+                                        <label>Monday </label>
+                                    </div>
+                                </div>
+                                <div class="flat-blue col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox"  class="day-checkbox"  value="Friday">
+                                        <label>Friday </label>
+                                    </div>
+                                </div>
+                                <div class="flat-pink col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox"  class="day-checkbox"  value="Tuesday">
+                                        <label>Tuesday </label>
+                                    </div>
+                                </div>
+                                <div class="flat-purple col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox"  class="day-checkbox"  value="Saturday">
+                                        <label>Saturday </label>
+                                    </div>
+                                </div>
+                                <div class="flat-green col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox"  class="day-checkbox"  value="Wednesday">
+                                        <label>Wednesday </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <label class="control-label col-md-3" >Call Period</label>
+                            <div class="col-md-6">
+                                <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
+                                    <input type="text" class="form-control time-filter" id="callPeriodFrom" name="from" value="00.00">
+                                    <span class="input-group-addon">To</span>
+                                    <input type="text" class="form-control time-filter" id="callPeriodTo" name="to" value="24.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <label class="control-label col-md-3" >Call Duration</label>
+                            <div class="col-md-6">
+                                <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
+                                    <input type="text" class="form-control" id="callDurationFrom" name="from" value="0">
+                                    <span class="input-group-addon">To</span>
+                                    <input type="text" class="form-control" id="callDurationTo" name="to" value="99999">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <label class="control-label col-md-3" >Number of Call</label>
+                            <div class="col-md-6">
+                                <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
+                                    <input type="text" class="form-control" id="noOfCallFrom" name="from" disabled>
+                                    <span class="input-group-addon">To</span>
+                                    <input type="text" class="form-control" id="noOfCallTo" name="to" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <label class="col-md-4 control-label" >Day Selector</label>
+                            
+                            <div class="col-lg-12 icheck">
+                                <div class="flat-green col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox" class="carrier-checkbox" value="AIS">
+                                        <label>AIS </label>
+                                    </div>
+                                </div>
+                                <div class="flat-purple col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox" class="carrier-checkbox" value="JAS">
+                                        <label>JAS </label>
+                                    </div>
+                                </div>
+                                <div class="flat-blue col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox" class="carrier-checkbox" value="DTAC">
+                                        <label>DTAC </label>
+                                    </div>
+                                </div>
+                                <div class="flat-grey col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox" class="carrier-checkbox" value="OTHERS">
+                                        <label>Other </label>
+                                    </div>
+                                </div>
+                                <div class="flat-red col-sm-4">
+                                    <div class="checkbox ">
+                                        <input type="checkbox" class="carrier-checkbox" value="TRUE">
+                                        <label>TRUE </label>
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div> 
+                    </div>
+                    <div style="float: right;">
+                        <button class="btn btn-success" id="filter-save" onclick="return false;">Comfirm</button>
+                        <button class="btn btn-danger" id="filter-cancel">Cancel</button>
+                    </div>
+                    <div class="clearfix"></div>
+
+                </form> 
+                <!-- <li> Which day should we display for you ? </li>
+                <li> Please specify Calling Period you would like to explore </li>
+                <li> How long does customer talking duration you would like to explore ? </li>
+                <li> Number of Calls </li>
+                <li> Carrier Picker </li> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <!-- Other Statistic Section End -->
 @section('bottom-script')
 {!! Html::script('js/jquery.js'); !!}
+{!! Html::script('js/jquery.maskedinput.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/sigmajs/plugins/sigma.layout.forceAtlas2.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
 {!! Html::script('js/analysis.js'); !!}
+
 
 <!-- Date Range (Date Picker) -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}

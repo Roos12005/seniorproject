@@ -1,8 +1,8 @@
 /*Template Name:BucketAdmin Dashboard build with Bootstrap v3.0.3Template Version:1.0Author:ThemeBucket*/
-/* Import fonts */
+/* Import fonts *//*
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic);
 @import url(http://fonts.googleapis.com/css?family=Lato:400,100,100italic,300,300italic,400italic,700,700italic,900,900italic);
-@import url(bucket-ico-fonts.css);
+@import url(bucket-ico-fonts.css);*/
 
 html {
     text-rendering: optimizeLegibility !important;
@@ -5730,6 +5730,12 @@ right: -1px;
     width: 100%;
 }
 
+.vertical-line {
+    border-right: 1px solid #f1f2f7;
+    height: 10px;
+    width: 0%;
+}
+
 .tiny-stat-wrapper .col-sm-12 {
     padding: 0;
     margin-top: 5px;
@@ -5821,4 +5827,108 @@ right: -1px;
 
 #searchbox:focus {
     color: #767676;
+}
+
+.single-col-button {
+    margin: 5px 0; 
+    width: 100%;
+}
+
+
+
+.two-col-button {
+    margin: 5px; 
+    width: 40%;
+}
+
+.three-col-button {
+    margin: 5px; 
+    width: 28%;
+}
+
+.status {
+    float: right;
+    margin-top: 3px;
+}
+
+.h-on {
+    background-color: #95b75d;
+    border-color: #95b75d;
+}
+
+
+.h-on:hover {
+    background-color: #88a755;
+    border-color: #88a755;
+}
+
+
+@-webkit-keyframes rotate-forever {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@-moz-keyframes rotate-forever {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotate-forever {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.single-col-button .fa-refresh {
+    -webkit-animation-duration: 1s;
+    -moz-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-name: rotate-forever;
+    -moz-animation-name: rotate-forever;
+    animation-name: rotate-forever;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-timing-function: linear;
+    animation-timing-function: linear;
+}
+
+#filterModal label {
+    text-align: left;
+    margin-bottom: 10px;
+
 }

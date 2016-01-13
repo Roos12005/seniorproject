@@ -51,6 +51,22 @@ $(function(){
     });
 });
 
+$(function(){
+    $('.minimal-orange input').iCheck({
+        checkboxClass: 'icheckbox_minimal-orange',
+        radioClass: 'iradio_minimal-orange',
+        increaseArea: '20%' // optional
+    });
+});
+
+$(function(){
+    $('.minimal-pink input').iCheck({
+        checkboxClass: 'icheckbox_minimal-pink',
+        radioClass: 'iradio_minimal-pink',
+        increaseArea: '20%' // optional
+    });
+});
+
 
 
 
@@ -152,4 +168,19 @@ $(function(){
         radioClass: 'iradio_flat-purple'
     });
 });
+
+$(function(){
+    $('.flat-pink input').iCheck({
+        checkboxClass: 'icheckbox_flat-pink',
+        radioClass: 'iradio_flat-pink'
+    });
+});
+
+$(function(){
+    $('.flat-orange input').iCheck({
+        checkboxClass: 'icheckbox_flat-orange',
+        radioClass: 'iradio_flat-orange'
+    });
+});
+
 

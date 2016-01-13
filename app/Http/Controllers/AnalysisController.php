@@ -6,19 +6,49 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\App;
 use App\Models\Call_Detail_Records;
 use App\Models\Users;
+use Illuminate\Http\Request;
 use File;
 use Neoxygen\NeoClient\ClientBuilder;
 
 class AnalysisController extends Controller{
 
     public function getIndex() {
-        exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar", $output);
+        exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0 1000 0.00 23.59", $output);
        return view('analysis.analysis');
    }
 
    public function runmaven() {
-       exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar", $output);
+       
    }
+
+    public function processData(Request $request) {
+        $recieve = $request->all();
+        
+        $command = "java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0";
+        foreach ($recieve as $key => $value) {
+            $len = sizeof($value);
+            $command = $command . ' ' . $key . ' ';
+            $back_command = $len . ' ';
+            if(is_array($value)) {
+                $command = $command . (is_numeric($value[0])? 1 : 0) . ' ';
+                foreach ($value as $k => $val) {
+                    $back_command = $back_command . $val;
+                    if($k < $len - 1) {
+                        $back_command = $back_command . ' ';
+                    }
+                }
+            } else {
+                $command = $command . (is_numeric($value[0])? 1 : 0) . ' ';
+                $back_command = $back_command . $value;
+            }
+            $command = $command . $back_command;
+        }
+
+        exec($command);
+        // exec('java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar');
+
+        return $command;
+    }
 
     //Get all CDR
     public function getCDR() {
@@ -31,7 +61,8 @@ class AnalysisController extends Controller{
         $q = 'MATCH (n:User) RETURN n, ID(n) as n_id';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $node_list = array();
-        foreach($results as $result) {
+        $node_count = sizeof($results);
+        foreach($results as $key => $result) {
             $user_stat = [
                 'Betweenness Centrality' => $result['n']['Betweenness'],
                 'Modularity Class' => $result['n']['CommunityID'],
@@ -44,8 +75,8 @@ class AnalysisController extends Controller{
             ];
             $user_info = [
               'label' => $result['n']['Number'],
-              'x' => rand(0, 10),
-              'y' => rand(0, 10),
+              'x' => 10*cos(2 * $key * M_PI/$node_count),
+              'y' => 10*sin(2 * $key * M_PI/$node_count),
               'id' => $result['n_id'],
               'attributes' => $user_stat,
               'color' => $result['n']['Color'],

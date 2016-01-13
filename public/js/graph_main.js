@@ -19,6 +19,20 @@
     var colors = [];
     var numIDMapper = {};
     var s;
+    var currentHilight = 'default';
+    var initForce = false;
+
+    var filter = {
+        startDate : [19700101, 21000101],
+        callDay : ['.+'],
+        startTime : [0.0, 24.00],
+        duration : [0, 99999],
+        rnCode : ['.+']
+    };
+    var graphStatus = {
+        'full-graph' : 0,
+        'community' : 0,
+    }
 
     /**
      *  @brief  Instantiate Sigma object.
@@ -47,6 +61,8 @@
             maxNodeSize : 7,
             zoomMin : 0.75,
             zoomMax : 20,
+            edgeColor : 'default',
+            defaultEdgeArrow: 'source'
             // autoResize: false
             // zoomingRatio : 1
         });
@@ -75,7 +91,10 @@
             x: n.x,
             y: n.y,
             size: n.size,
-            color: n.color
+            color: '#a5adb0',
+            communityColor: n.color,
+            defaultSize: n.size,
+            attributes: n.attributes
         })
     }
 
@@ -103,7 +122,8 @@
             id: e.id,
             source: e.source,
             target: e.target,
-            color: e.color
+            color: '#a5adb0',
+            type: "arrow"
         })
     }
 
@@ -129,26 +149,10 @@
      *  @return void
      */
     function ajaxSetup(){
-        $.ajaxSetup({ 
-            beforeSend: function(xhr, settings) {
-                function getCookie(name) {
-                    var cookieValue = null;
-                    if (document.cookie && document.cookie != '') {
-                        var cookies = document.cookie.split(';');
-                        for (var i = 0; i < cookies.length; i++) {
-                            var cookie = jQuery.trim(cookies[i]);
-                            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                break;
-                            }
-                        }
-                    }
-                    return cookieValue;
-                }
-                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                }
-            } 
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
         });
     }
 
@@ -207,16 +211,20 @@
 
         // Add Click Listener to all Nodes
         s.bind('clickNode', clickNodeListener);
+        s.bind('doubleClickNode', doubleClickNodeListener);
 
 
         // Display Graph using sigma object
-        // s.refresh();
-        s.startForceAtlas2({});
-
-        setTimeout(function () {
-            s.stopForceAtlas2();
-        }, 500);
-
+        if(initForce) {
+            s.refresh();
+        } else {
+            initForce = true;
+            s.startForceAtlas2({});
+            setTimeout(function () {
+                s.stopForceAtlas2();
+            }, 500);
+            
+        }
     }
 
     /**  
@@ -305,11 +313,14 @@
      function clickNodeListener(node) {
         var nodeData = updateInformation(node);
 
-        // Show back button on the top right of the div
-        document.getElementsByClassName('back-section')[0].style.display = 'block';
+     }
 
+     function doubleClickNodeListener(node) {
         // TODO : Display only selected community
         // console.log(nodeData['attributes']['Modularity Class']);
+        var nodeData = updateInformation(node);
+        // Show back button on the top right of the div
+        document.getElementsByClassName('back-section')[0].style.display = 'block';
         var filteredNodes = [];
         graphData.nodes.forEach(function(n) {
             if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
@@ -376,6 +387,213 @@
         });
      }
 
+    function colorByDefault() {
+        if(currentHilight == 'default') return;
+        hilightButton('#h-default');
+        s.graph.nodes().forEach(function(node) {
+            node.color = '#a5adb0';
+            node.size = node.defaultSize;
+        });
+        currentHilight = 'default';
+        s.refresh();
+    }
+
+    function colorByCommunity() {
+        if(currentHilight == 'community') return;
+        colorByDefault();
+        hilightButton('#h-community');
+        s.graph.nodes().forEach(function(node) {
+            node.color = node.communityColor;
+        });
+        currentHilight = 'community';
+        s.refresh();
+    }
+
+    function colorByCentrality() {
+
+        if(currentHilight == 'centrality') return;
+        colorByDefault();
+        hilightButton('#h-centrality');
+        var maxBC = 0.1;
+        var maxCC = 0.1;
+        s.graph.nodes().forEach(function(node) {
+            if(node['attributes']['Betweenness Centrality'] > maxBC) {
+                maxBC = node['attributes']['Betweenness Centrality'];
+            }
+            if(node['attributes']['Closeness Centrality'] > maxCC) {
+                maxCC = node['attributes']['Closeness Centrality'];
+            }
+        });
+
+        s.graph.nodes().forEach(function(node) {
+            var colorScale =  255 * Math.pow(1.008,node['attributes']['Betweenness Centrality'])/Math.pow(1.008,maxBC);
+
+            var hexString = parseInt(colorScale).toString(16);
+            hexString = hexString.length == 1? '0' + hexString : hexString;
+            node.color = '#' + hexString + "0000";
+
+            node.size = 10 * node['attributes']['Closeness Centrality']/maxCC;
+        });
+        currentHilight = 'centrality';
+        s.refresh();
+    }
+
+    function colorByCarrier() {
+        if(currentHilight == 'carrier') return;
+        colorByDefault();
+        hilightButton('#h-carrier');
+        s.graph.nodes().forEach(function(node) {
+            node.color = node['attributes']['RnCode'] == 'TRUE' ? "#e74c3c" : (node['attributes']['RnCode'] == 'AIS' ? "#40d47e" : (node['attributes']['RnCode'] == 'DTC' ? "#3498db" : '#000000'));
+        });
+        s.refresh();
+        currentHilight = 'carrier';
+    }
+
+    function colorByAIS() {
+        if(currentHilight == 'ais') return;
+        colorByDefault();
+        hilightButton('#h-ais');
+        s.graph.nodes().forEach(function(node) {
+            node.color = node['attributes']['RnCode'] == 'AIS' ? "#40d47e" : '#bdc3c7';
+        });
+        s.refresh();
+        currentHilight = 'ais';
+    }
+
+    function colorByDayNight() {
+        alert('Coming Soon ...');
+    }
+
+    function colorByPromotion() {
+        alert('Coming Soon ...');
+    }
+
+    function colorByDegree() {
+        alert('Coming Soon ...');
+    }
+
+    function hilightButton(name) {
+        $('.hilight').removeClass('h-on');
+        $(name).addClass('h-on');
+    }
+
+    /**  
+     *  @brief  Listener on clicking back button
+     *
+     *  Hide the back button and change the displayed graph
+     *  to the full one
+     *
+     *  @return void
+     */
+     function addHilightListener() {
+        document.getElementById('h-default').addEventListener('click', colorByDefault);
+        document.getElementById('h-community').addEventListener('click', colorByCommunity);
+        document.getElementById('h-centrality').addEventListener('click', colorByCentrality);
+        document.getElementById('h-carrier').addEventListener('click', colorByCarrier);
+        document.getElementById('h-ais').addEventListener('click', colorByAIS);
+        document.getElementById('h-promotion').addEventListener('click', colorByPromotion);
+        document.getElementById('h-degree').addEventListener('click', colorByDegree);
+        document.getElementById('h-daynight').addEventListener('click', colorByDayNight);
+     }
+
+     function initFilter() {
+        document.getElementById('filter-save').addEventListener('click', saveFilter);
+        document.getElementById('filter-cancel').addEventListener('click', discardFilter);
+        
+        $('.time-filter').mask('99.99');
+     }
+
+
+     function saveFilter() {
+        resetButton();
+
+        var day = [];
+        $.each($('.day-checkbox:checked'), function() {
+            day.push($(this).val());
+        });
+
+        var carrier = [];
+        $.each($('.carrier-checkbox:checked'), function() {
+            carrier.push($(this).val());
+        });
+    
+        filter = {
+            startDate : [$('#e1').val(),$('#e1').val().substr(6,2) == '01'? $('#e1').val().substr(0,6) + '15' : $('#e1').val().substr(0,6) + '31'],
+            callDay : day.length == 0? ['.+'] : day,
+            startTime : $('#callPeriodFrom').val() == ''? [0.0, 24.00] : [$('#callPeriodFrom').val(), $('#callPeriodTo').val()],
+            duration : $('#callDurationFrom').val() == ''? [1, 99999] : [$('#callDurationFrom').val(), $('#callDurationTo').val()],
+            // noOfCall : $('#noOfCallFrom').val() == ''? [] : [$('#noOfCallFrom').val(), $('#noOfCallTo').val()],
+            rnCode : carrier.length == 0? ['.+'] : carrier
+        }
+
+        $.each(filter, function(k,e) {
+            if(e != '' && e.length != 0 && e[0] != '.+' && e[0] != undefined) {
+                $('#' + k + '-button').removeClass('btn-default').addClass('btn-primary');
+            } else {
+                $('#' + k + '-button').removeClass('btn-primary').addClass('btn-default');
+            }
+        });
+
+        $('#filterModal').modal('hide');
+     }
+
+     function discardFilter() {
+        $('#filterModal').modal('hide');  
+     }
+
+     function resetButton() {
+        graphStatus['full-graph'] = 0;
+        graphStatus['full-community'] = 0;
+
+        $('#full-graph').removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
+        $('#full-graph i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
+
+
+     }
+
+     function processData() {
+        if(graphStatus['full-graph'] == 0) {
+            graphStatus['full-graph'] = 1;
+            $('#full-graph').removeClass('btn-default').addClass('btn-warning');
+            $('#full-graph i').removeClass('fa-times').addClass('fa-refresh');
+            ajaxSetup();
+            $.ajax({
+                type: "POST",
+                url: "http://localhost/seniorproject/public/processData",
+                data : filter,
+                success: function(e){
+                    console.log(e);
+                    $('#full-graph').removeClass('btn-warning').addClass('btn-success');
+                    $('#full-graph i').removeClass('fa-refresh').addClass('fa-check');
+                    // TODO : trigger button
+                    graphStatus['full-graph'] = 2;
+                },
+                error: function(rs, e){
+                    console.log(rs.responseText);
+                }
+            });
+        } else if(graphStatus['full-graph'] == 1) {
+            alert('Graph is processing ...'); 
+        } else if(graphStatus['full-graph'] == 2) {
+
+            runGraph();
+            graphStatus['full-graph'] = 3;
+        } else if(graphStatus['full-graph'] == 3) {
+            alert('The graph is already been shown.');
+        }
+        
+     }
+
+     function runGraph() {
+        clearGraph();
+        graphData = fetchData();
+        plotFullGraph();
+        addZoomListener();
+        addSearchBoxListener();
+        addBackButtonListener();
+        addHilightListener();
+     }
+
     /**
      *  @brief Main function of this file
      *
@@ -384,11 +602,11 @@
      */
     !function(undefined){
         initSigma();
-        graphData = fetchData();
-        addZoomListener();
-        plotFullGraph();
-        addSearchBoxListener();
-        addBackButtonListener();
+        initFilter();
+
+
+
+        document.getElementById('full-graph').addEventListener('click', processData);
     }();
 
 }();

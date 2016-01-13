@@ -16,11 +16,14 @@
 	    {!! Html::style('js/css3clock/css/style.css') !!}
 	    <!--Morris Chart CSS -->
 	    {!! Html::style('js/morris-chart/morris.css') !!}
+	    
+	    @yield('stylesheet')
+
 	    <!-- Custom styles for this template -->
 	    {!! Html::style('css/style.css') !!}
 	    {!! Html::style('css/style-responsive.css') !!}
 
-    	@yield('stylesheet')
+    	
         <title>@yield('title')</title>
     </head>
     <body>

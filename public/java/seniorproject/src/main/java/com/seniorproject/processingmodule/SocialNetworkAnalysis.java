@@ -10,7 +10,12 @@ import com.seniorproject.graphmodule.Node;
 import com.seniorproject.storingmodule.DBAccess;
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -22,9 +27,9 @@ public class SocialNetworkAnalysis {
     
     public static String randomColor() {
         
-        int r = (int) (Math.floor(Math.random()*255));
-        int g = (int) (Math.floor(Math.random()*255));;
-        int b = (int) (Math.floor(Math.random()*255));;
+        int r = (int) (Math.floor((Math.random()*255 + Math.random()*255)/2));
+        int g = (int) (Math.floor((Math.random()*255 + Math.random()*255)/2));
+        int b = (int) (Math.floor((Math.random()*255 + Math.random()*255)/2));
         
         String hex = String.format("#%02x%02x%02x", r, g, b);
         return hex;
@@ -48,8 +53,48 @@ public class SocialNetworkAnalysis {
     }
     
     public static void main(String[] args) throws IOException {
-
-        Graph hgraph = (new DBAccess()).loadAll(0, 1000, 0.00f, 23.59f);
+//        if(args[0].equals("0")) {
+//            // full graph with args[1] as start date
+//        }
+        
+        Map<String, List<Double>> comparableFilters = new HashMap<>();
+        Map<String, List<String>> stringFilters = new HashMap<>();
+        
+        for(int i=1; i<args.length; i++) {
+            String key = args[i++];
+            int is_number = Integer.parseInt(args[i++]);
+            int args_len = Integer.parseInt(args[i++]);
+            
+            
+            if(is_number == 1) {
+                List<Double> tmp = new ArrayList<>();
+                for(int j=0; j<args_len; j++, i++) {
+                    tmp.add(Double.parseDouble(args[i]));
+                }
+                comparableFilters.put(key, tmp);
+            } else {
+                List<String> tmp = new ArrayList<>();
+                for(int j=0; j<args_len; j++, i++) {
+                    tmp.add(args[i]);
+                }
+                stringFilters.put(key, tmp);
+            }
+            i--;
+        }
+        
+//        
+//        for(Entry<String, List<Float>> entry : comparableFilters.entrySet()) {
+//            String key = entry.getKey();
+//            List<Float> value = entry.getValue();
+//            System.out.print(key + " - ");
+//            for(Float s : value) {
+//                System.out.print(s + " ");
+//            }
+//            System.out.println();
+//        }
+        
+        
+        Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters);
         for(Node node : hgraph.getNodes()) {
             System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
         }

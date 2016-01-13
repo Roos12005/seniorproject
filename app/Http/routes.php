@@ -16,6 +16,7 @@
 // });
 
 Route::get('/','AnalysisController@getIndex');
+Route::post('processData','AnalysisController@processData');
 Route::get('runMaven','AnalysisController@runMaven');
 
 //Get Data
