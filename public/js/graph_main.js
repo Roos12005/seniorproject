@@ -365,13 +365,16 @@
             alert('Can\'t get node data');
             return;
         }
+
+        
+        
         // TODO : Update right column
-        document.getElementById('cname').innerHTML = 'Unknown';
-        document.getElementById('cage').innerHTML = 'Unknown';
-        document.getElementById('cnumber').innerHTML = 'Unknown';
-        document.getElementById('cpromotion').innerHTML = 'Unknown';
-        document.getElementById('ccarrier').innerHTML = 'Unknown';
-        document.getElementById('cgender').innerHTML = 'Unknown';
+       // document.getElementById('cname').innerHTML = 'Unknown';
+        document.getElementById('cage').innerHTML = nodeData.attributes['Age'];
+        document.getElementById('cnumber').innerHTML = nodeData.label;
+        document.getElementById('cpromotion').innerHTML = nodeData.attributes['Promotion'];
+        document.getElementById('ccarrier').innerHTML = nodeData.attributes['RnCode'];
+        document.getElementById('cgender').innerHTML = nodeData.attributes['Gender'];
 
         document.getElementById('comrank').innerHTML = '';
         document.getElementById('comsize').innerHTML = '';
@@ -587,7 +590,6 @@
         } else if(graphStatus['full-graph'] == 1) {
             alert('Graph is processing ...'); 
         } else if(graphStatus['full-graph'] == 2) {
-
             runGraph();
             graphStatus['full-graph'] = 3;
         } else if(graphStatus['full-graph'] == 3) {

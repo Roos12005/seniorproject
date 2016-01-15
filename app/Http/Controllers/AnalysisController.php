@@ -13,7 +13,7 @@ use Neoxygen\NeoClient\ClientBuilder;
 class AnalysisController extends Controller{
 
     public function getIndex() {
-        exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0 1000 0.00 23.59", $output);
+      //exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0 1000 0.00 23.59", $output);
        return view('analysis.analysis');
    }
 
@@ -105,6 +105,35 @@ class AnalysisController extends Controller{
         }
 
         return  response()->json(['nodes' => $node_list, 'edges' => $edge_list]);
+    } 
+
+    public function getNodes() {
+        $client = ClientBuilder::create()
+            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+            ->setAutoFormatResponse(true)
+            ->build();
+        
+
+        $q = 'MATCH (n:User) RETURN n, ID(n) as n_id';
+        $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        $node_list = array();
+        $node_count = sizeof($results);
+        foreach($results as $key => $result) {
+            $user_info = [
+              'label' => $result['n']['Number'],
+              'Betweenness Centrality' => $result['n']['Betweenness'],
+              'Modularity Class' => $result['n']['CommunityID'],
+              'Eccentricity' => $result['n']['Eccentricity'],
+              'Closeness Centrality' => $result['n']['Closeness'],
+              'Age' => $result['n']['Age'],
+              'Gender' => $result['n']['Gender'],
+              'RnCode' => $result['n']['RnCode'],
+              'Promotion' => $result['n']['Promotion']
+            ];
+            array_push($node_list, $user_info);
+        }
+
+        return  response()->json($node_list);
     } 
 
     // TODO : This function will be removed when my experiment is done!

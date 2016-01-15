@@ -99,8 +99,8 @@
                             <i class="fa fa-times status"></i>
                         </a>
                         
-                        <a class="btn btn-danger single-col-button">
-                            Display Mode 3
+                        <a class="btn btn-default single-col-button" id="export-data">
+                            Export Data
                             <i class="fa fa-times status"></i>
                         </a>
                         
@@ -229,13 +229,13 @@
 
                         <!-- Customer Information Body Start -->
                         <div class=" col-sm-12 no-padding tiny-stat-wrapper">
-                            <div class="col-sm-12">
+<!--                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Name</label>
                                 <div class=" col-sm-7">
                                     <p class="form-control-static" id="cname">-</p>
                                 </div>
                             </div>
-                            <div class="clearfix"></div>
+                            <div class="clearfix"></div> -->
 
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Number</label>
@@ -243,7 +243,7 @@
                                     <p class="form-control-static" id="cnumber">-</p>
                                 </div>
                             </div>
-                            <div class="clearfix separate-line"></div>
+                            <div class="clearfix"></div>
 
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Carrier</label>
@@ -291,7 +291,7 @@
                             <span class="tiny-stat-icon pink"><i class="fa fa-signal"></i></span>
                             <div class="tiny-stat-info">
                                 <span>Statistics</span>
-                                Lorem Ipsum
+                                Statistics Details
                             </div>
                         </div>
                         <!-- Statistic Header End -->
@@ -658,7 +658,7 @@
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/sigmajs/plugins/sigma.layout.forceAtlas2.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
-{!! Html::script('js/analysis.js'); !!}
+{!! Html::script('js/exportCSV.js'); !!}
 
 
 <!-- Date Range (Date Picker) -->

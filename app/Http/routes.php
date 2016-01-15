@@ -21,6 +21,7 @@ Route::get('/aboutus','AboutUsController@getAboutUs');
 
 //Get Data
 Route::get('getCDR','AnalysisController@getCDR');
+Route::get('getNodes','AnalysisController@getNodes');
 
 
 Route::get('/test','AnalysisController@test');

@@ -33,7 +33,7 @@
 				<!--logo start-->
 				<div class="brand">
 
-				    <a href="index.html" class="logo text-center">
+				    <a href="/seniorproject/public" class="logo text-center">
 				        <h4><strong>AIS - CU</strong> Project</h4>
 				    </a>
 				    <div class="sidebar-toggle-box">
