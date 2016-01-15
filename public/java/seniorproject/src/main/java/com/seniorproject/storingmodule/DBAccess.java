@@ -20,6 +20,7 @@ import iot.jcypher.graph.Graph;
 import iot.jcypher.query.JcQuery;
 import iot.jcypher.query.JcQueryResult;
 import iot.jcypher.query.api.IClause;
+import iot.jcypher.query.api.predicate.Concat;
 import iot.jcypher.query.api.predicate.Concatenator;
 import iot.jcypher.query.factories.clause.MATCH;
 import iot.jcypher.query.factories.clause.RETURN;
@@ -117,23 +118,16 @@ public class DBAccess {
             JcNode b = new JcNode("B");
             JcRelation r = new JcRelation("Call");
             
-//            List<IClause> icList = new ArrayList<>();
-//            icList.add(MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"));
-//            System.out.println("---------- F Filters ----------");
-            double ran[] = new double[6];
             int j=0;
+            Concat con = WHERE.valueOf(r.property("duration")).GTE(-1).AND();
             for(Entry<String, List<Double>> entry : fFilters.entrySet()) {
                 String key = entry.getKey();
                 List<Double> value = entry.getValue();
-                  ran[j++] = value.get(0);
-                  ran[j++] = value.get(1);
-//                icList.add(WHERE.valueOf(r.property(key)).GTE(value.get(0)));
-//                icList.add(WHERE.valueOf(r.property(key)).LTE(value.get(1)));         
+                  con = con.valueOf(r.property(key)).GTE(value.get(0)).AND();
+                  con = con.valueOf(r.property(key)).LTE(value.get(1)).AND();     
                 System.out.println(key + " ---- " + value.get(0) + " / " + value.get(1));
             }
 //            System.out.println("---------- S Filters ----------");
-            String rex[] = new String[2];
-            int i=0;
             for(Entry<String, List<String>> entry : sFilters.entrySet()) {
                 String key = entry.getKey();
                 List<String> value = entry.getValue();
@@ -143,32 +137,42 @@ public class DBAccess {
                 for(String tmp : value) {
                     tmpRegex = tmpRegex + "|" + tmp;
                 }
-                rex[i++] = tmpRegex; 
-//                icList.add(WHERE.valueOf(r.property(key)).REGEX(tmpRegex).OR()
-//                        .valueOf(a.property(key)).REGEX(tmpRegex));
+                con = con.BR_OPEN().valueOf(r.property(key)).REGEX(tmpRegex).OR()
+                        .BR_OPEN().valueOf(a.property(key)).REGEX(tmpRegex).AND()
+                        .valueOf(b.property(key)).REGEX(tmpRegex).BR_CLOSE().BR_CLOSE().AND();
+                
                 System.out.println(key + " ---- " + tmpRegex);
             }
+            query.setClauses(new IClause[]{
+                MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
+                con.valueOf(r.property("duration")).GTE(0),
+                RETURN.value(r),
+            });
 //            
 //            icList.add(RETURN.value(r));
 //            IClause[] iclauses = new IClause[icList.size()];
 //            icList.toArray(iclauses);
 //            query.setClauses(iclauses);
-            System.out.println(ran[0] + " " + ran[1] + " " + ran[4] + " " + ran[5]);
-            query.setClauses(new IClause[]{
-                MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
-                WHERE
-                    .valueOf(r.property("startDate")).GTE(ran[4]).AND()
-                    .valueOf(r.property("startDate")).LTE(ran[5]).AND()
-                    .valueOf(r.property("duration")).GTE(ran[0]).AND()
-                    .valueOf(r.property("duration")).LTE(ran[1]).AND()
-                    .valueOf(r.property("startTime")).GTE(ran[2]).AND()
-                    .valueOf(r.property("startTime")).LTE(ran[3]).AND()
-                    .valueOf(r.property("callDay")).REGEX(rex[0]).AND()
-                    .valueOf(a.property("rnCode")).REGEX(rex[1]),
-                RETURN.value(r),
-            });
+//            Concat ccc = WHERE.valueOf(r.property("startDate")).GTE(ran[4]).AND();
+//            ccc.valueOf(r.property("startDate")).LTE(ran[5]);
+            
+//            System.out.println(ran[0] + " " + ran[1] + " " + ran[4] + " " + ran[5]);
+//            query.setClauses(new IClause[]{
+//                MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
+//                ccc.valueOf(r.property("duration")).GT(0),
+//                WHERE.valueOf(r.property("startDate")).GTE(ran[4]),
+//                    WHERE.valueOf(r.property("startDate")).LTE(ran[5]),
+//                    WHERE.valueOf(r.property("duration")).GTE(ran[0]),
+//                    WHERE.valueOf(r.property("duration")).LTE(ran[1]),
+//                    WHERE.valueOf(r.property("startTime")).GTE(ran[2]),
+//                    WHERE.valueOf(r.property("startTime")).LTE(ran[3]),
+//                    WHERE.valueOf(r.property("callDay")).REGEX(rex[0]),
+//                    WHERE.valueOf(a.property("rnCode")).REGEX(rex[1]),
+//                RETURN.value(r),
+//            });
             
             JcQueryResult result = dbAccess.execute(query);
+            System.out.println(result.resultOf(r).getClass().getName());
             List<GrRelation> relationships = result.resultOf(r);
             for(GrRelation gr : relationships) {
                 GrNode sNode = gr.getStartNode();

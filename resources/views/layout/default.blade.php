@@ -43,8 +43,9 @@
 				<!--logo end-->		
 				<div class="top-nav clearfix">				    
 				    <ul class="nav pull-right top-menu">
-				    	<img src="images/chula.jpg">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				    	<img src="images/ais.jpg" >  
+				    	<img src="images/ais.jpg" id="ais-logo">  
+				    	<img src="images/ChulaEngineering.png" id="chula-logo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				    	
 				    </ul>
 				</div>	
 			</header>

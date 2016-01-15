@@ -5932,3 +5932,14 @@ right: -1px;
     margin-bottom: 10px;
 
 }
+
+#chula-logo {
+    width: 200px;
+    border-radius: 0 !important;
+}
+
+#ais-logo {
+    width: 70px;
+    margin-right: 20px;
+    margin-top: -12px;
+}

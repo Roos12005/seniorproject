@@ -557,6 +557,7 @@
                                 <div class="col-md-6">
                                     <select id="e1" class="populate " style="width: 250px">
                                         <optgroup label="September 2015">
+                                            <option value="20150901">Sep 01 - Sep 15</option>
                                             <option value="20150916">Sep 16 - Sep 30</option>
                                         </optgroup>
                                         <optgroup label="October 2015">
