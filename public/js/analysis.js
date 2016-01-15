@@ -39,7 +39,8 @@ function fullGraphClick(){
 }
 
 function setDate(){
-    document.getElementById('date').innerHTML = document.getElementById('e1').value;
+    var year = 0;
+    document.getElementById('date').innerHTML = year;
 }
 
 function setStatus(){

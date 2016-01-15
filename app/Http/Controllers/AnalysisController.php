@@ -17,10 +17,6 @@ class AnalysisController extends Controller{
        return view('analysis.analysis');
    }
 
-   public function runmaven() {
-       
-   }
-
     public function processData(Request $request) {
         $recieve = $request->all();
         

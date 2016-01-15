@@ -25,79 +25,6 @@
                 </span>
             </header>
             <div class="panel-body">
-                <!-- <form action="#" class="form-horizontal ">
-                    <div class="form-group">
-                        <div class="col-md-6">
-                            <label class="control-label col-md-3">Date Range</label>
-
-                            <div class="form-group">
-                                <div class="col-lg-6">
-                                    <select id="e1" class="populate " style="width: 250px">
-                                        <optgroup label="September 2015">
-                                            <option>Sep 16 - Sep 30</option>
-                                        </optgroup>
-                                        <optgroup label="October 2015">
-                                            <option>Oct 1 - Oct 15</option>
-                                            <option>Oct 16 - Oct 31</option>
-                                        </optgroup>
-                                        <optgroup label="November 2015">
-                                            <option>Nov 1 - Nov 15</option>
-                                            <option>Nov 16 - Nov 30</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 icheck " style="border-right: 1px solid #f1f2f7; width: 21%;">
-                            <div class="square">
-                                <div class="checkbox ">
-                                    <input type="checkbox" id="weekdays" value="weekdays_on" checked>
-                                    <label>Weekdays </label>
-                                </div>
-                            </div>
-                            <div class="square-red">
-                                <div class="checkbox ">
-                                    <input type="checkbox"  class="day-checkbox"  value="weekends_on">
-                                    <label>Weekends </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 icheck ">
-                            <div class="square-green">
-                                <div class="checkbox ">
-                                    <input type="checkbox" id="dayTime" value="dayTime_on" checked>
-                                    <label>Day time </label>
-                                </div>
-                            </div>
-                            <div class="square-blue">
-                                <div class="checkbox ">
-                                    <input type="checkbox" id="nightTime" value="nightTime_on" checked>
-                                    <label>Night time </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12" style="margin-top: 12px;">
-                            <div class="text-center">
-                                <a href="#" class="btn btn-success" style="margin-right: 10px">
-                                    Grouping Communities
-                                </a>
-                                <a href="#" class="btn btn-warning" style="margin-right: 10px">
-                                    AIS Only
-                                </a>
-                                <a href="#" class="btn btn-danger" style="margin-right: 10px">
-                                    CC Interaction
-                                </a>
-                                <a class="btn btn-default" style="margin-right: 10px">
-                                    Self-Coloring
-                                </a>
-                                <a class="btn btn-primary" style="margin-right: 10px" onclick="return fullGraphClick()">
-                                    Full Graph
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </form> -->
-
                 <div class="col-md-4">
                     <div class="col-sm-12" style="padding-bottom: 5px;">
                         <span> Graph Filters </span>
@@ -557,16 +484,23 @@
                                 <div class="col-md-6">
                                     <select id="e1" class="populate " style="width: 250px">
                                         <optgroup label="September 2015">
-                                            <option value="20150901">Sep 01 - Sep 15</option>
-                                            <option value="20150916">Sep 16 - Sep 30</option>
+                                            <option value="201509">Sep - Month</option>
+                                            <option value="20150901">Sep - Week 1</option>
+                                            <option value="20150908">Sep - Week 2</option>
                                         </optgroup>
                                         <optgroup label="October 2015">
-                                            <option value="20151001">Oct 1 - Oct 15</option>
-                                            <option value="20151016">Oct 16 - Oct 31</option>
+                                            <option value="201510">Oct - Month</option>
+                                            <option value="20151001">Oct - Week 1</option>
+                                            <option value="20151008">Oct - Week 2</option>
+                                            <option value="20151015">Oct - Week 3</option>
+                                            <option value="20151022">Oct - Week 4</option>
                                         </optgroup>
                                         <optgroup label="November 2015">
-                                            <option value="20151101">Nov 1 - Nov 15</option>
-                                            <option value="20151116"> Nov 16 - Nov 30</option>
+                                            <option value="201511">Nov - Month</option>
+                                            <option value="20151101">Nov - Week 1</option>
+                                            <option value="20151108">Nov - Week 2</option>
+                                            <option value="20151115">Nov - Week 3</option>
+                                            <option value="20151122">Nov - Week 4</option>
                                         </optgroup>
                                     </select>
                                 </div>

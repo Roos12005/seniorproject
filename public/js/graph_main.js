@@ -176,6 +176,18 @@
             success: function(e){
                 console.log(e);
                 preparedData = e;
+                //setDate();
+                var user_array = new Array();
+                        var communities = new Array();
+                        $.each(e.nodes, function(index, user_info) {
+                            if(!isInArray(user_info['attributes']['Modularity Class'],communities)){
+                                communities.push(user_info['attributes']['Modularity Class']);
+                            }
+                            user_array.push(user_info);
+                        });
+                        console.log(communities);
+                        document.getElementById('unique_numbers').innerHTML = user_array.length;
+                        document.getElementById('communities').innerHTML = communities.length;
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -593,6 +605,13 @@
         addBackButtonListener();
         addHilightListener();
      }
+
+    function setDate(){
+        var year = document.getElementById('e1').value.substring(0,4);
+        var month = document.getElementById('e1').value.substring(4,6);
+        var date = document.getElementById('e1').value.substring(6,8);
+        document.getElementById('date').innerHTML = date + " / " + month + " / " + year;
+    }
 
     /**
      *  @brief Main function of this file
