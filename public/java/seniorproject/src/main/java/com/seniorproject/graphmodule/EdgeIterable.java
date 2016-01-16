@@ -6,23 +6,34 @@
 package com.seniorproject.graphmodule;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author pperfectionist
  */
 public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
-    private List<Edge> edges;
+    private Map<String, Edge> edges;
     private int count = -1;
+    private List<String> ids;
 
     public EdgeIterable(){
-        this.edges = new ArrayList<>();
+        this.edges = new HashMap<>();
+        this.ids = new ArrayList<>();
     }
 
     public boolean add(Edge e){
-        return edges.add(e);
+        if(edges.containsKey(toID(e))) {
+            edges.get(toID(e)).increaseWeight(roundDuration(e.getDuration()));
+        } else {
+            edges.put(toID(e), e);
+            ids.add(toID(e));
+        }
+        return true;
+//        return edges.add(e);
     }
 
     @Override
@@ -39,15 +50,29 @@ public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
     @Override
     public Edge next() {
         count++;
-        return edges.get(count);
+        return edges.get(ids.get(count));
     }
 
     public boolean removeEdge(Edge edge) {
-        int idx = edges.indexOf(edge);
-        if(idx > -1) {
-                edges.remove(idx);
-                return true;
-        }
-        return false;
+        this.edges.remove(toID(edge));
+        return true;
+//        int idx = edges.indexOf(edge);
+//        if(idx > -1) {
+//                edges.remove(idx);
+//                return true;
+//        }
+//        return false;
+    }
+    
+    public int count() {
+        return this.edges.size();
+    }
+    
+    private String toID(Edge e) {
+        return e.getSource() + "," + e.getTarget();
+    }
+    
+    private double roundDuration(double d) {
+        return 60 * (Math.ceil(d/60));
     }
 }
