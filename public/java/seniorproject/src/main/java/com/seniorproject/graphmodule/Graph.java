@@ -21,20 +21,29 @@ public class Graph {
     private NodeIterable nodes;
     
     private Map<Integer, NodeIterable> neighbors;
+    
+    private Map<Integer, EdgeIterable> outEdges;
+    private Map<Integer, EdgeIterable> allEdges;
 
     public Graph(Set<Node> nodes, List<Edge> edges){
         this.nodes = new NodeIterable();
         this.edges = new EdgeIterable();
-        neighbors = new HashMap<>();
-        
+        this.neighbors = new HashMap<>();
+        this.outEdges = new HashMap<>();
+        this.allEdges = new HashMap<>();
         for(Node n : nodes) {
             this.nodes.add(n);
             neighbors.put(n.getID(), new NodeIterable());
+            outEdges.put(n.getID(), new EdgeIterable());
+            allEdges.put(n.getID(), new EdgeIterable());
         }
-        System.out.println("Adding nodes ... done !");
+//        System.out.println("Adding nodes ... done !");
         for(Edge e : edges) {
             
             this.edges.add(e);
+            this.outEdges.get(e.getSource()).add(e);
+            this.allEdges.get(e.getSource()).add(e);
+            this.allEdges.get(e.getTarget()).add(e);
             if(!neighbors.get(e.source).contains(e.getTarget())) {
                 neighbors.get(e.source).add(this.nodes.get(e.getTarget()));
             }
@@ -42,6 +51,7 @@ public class Graph {
                 neighbors.get(e.getTarget()).add(this.nodes.get(e.getSource()));
             }
         }
+        System.out.println("Nodes : " + this.nodes.count() + "\nEdges : " + this.edges.count());
 //        neighbors = new HashMap<>();
 //        
 //        // neighbors
@@ -129,32 +139,34 @@ public class Graph {
     }
 
     public EdgeIterable getEdges(Node node){
-        EdgeIterable res = new EdgeIterable();
-        Set<Edge> tmp = new HashSet<>();
-        for(Edge e : edges) {
-            if(e.getSource() == node.getID() || e.getTarget() == node.getID()) {
-                tmp.add(e);
-            }
-        }
-        
-        for(Edge e : tmp) {
-            res.add(e);
-        }
-        return res;
+//        EdgeIterable res = new EdgeIterable();
+//        Set<Edge> tmp = new HashSet<>();
+//        for(Edge e : edges) {
+//            if(e.getSource() == node.getID() || e.getTarget() == node.getID()) {
+//                tmp.add(e);
+//            }
+//        }
+//        
+//        for(Edge e : tmp) {
+//            res.add(e);
+//        }
+//        return res;
+        return this.allEdges.get(node.getID());
     } 
 
     public EdgeIterable getOutEdges(Node node){
-        EdgeIterable res = new EdgeIterable();
-        Set<Edge> tmp = new HashSet<>();
-        for(Edge e : edges) {
-            if(e.getSource() == node.getID()) {
-                tmp.add(e);
-            }
-        }
-        for(Edge e : tmp) {
-            res.add(e);
-        }
-        return res;
+//        EdgeIterable res = new EdgeIterable();
+//        Set<Edge> tmp = new HashSet<>();
+//        for(Edge e : edges) {
+//            if(e.getSource() == node.getID()) {
+//                tmp.add(e);
+//            }
+//        }
+//        for(Edge e : tmp) {
+//            res.add(e);
+//        }
+//        return res;
+        return this.outEdges.get(node.getID());
     }
 
     public Node getOpposite(Node node, Edge edge) {

@@ -119,11 +119,10 @@ public class SocialNetworkAnalysis {
 //        }
         long buildGraphTime = System.currentTimeMillis();
     	System.out.println("Building Graph ... Done! exec time : " + (buildGraphTime-startTime) + " ms");
-        System.out.println("Total Edges : " + countedge);
         GraphDistance dis = new GraphDistance(hgraph);
         dis.execute(hgraph);
         long calTime = System.currentTimeMillis();
-        System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime-startTime) + " ms");
+        System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime-buildGraphTime) + " ms");
 
         
         Modularity mod = new Modularity(hgraph);
@@ -132,7 +131,7 @@ public class SocialNetworkAnalysis {
     	// TODO : Output com
         
         long comTime = System.currentTimeMillis();
-        System.out.println("Detecting Communities ... Done! exec time : " + (comTime-startTime) + " ms");
+        System.out.println("Detecting Communities ... Done! exec time : " + (comTime-calTime) + " ms");
     	int aa = 0;
     	Set<Integer> tot = new HashSet<>();
 
