@@ -168,6 +168,9 @@
     function fetchData(){
         
         var preparedData = [];
+        var carrier = [0,0,0,0];
+        var com_data = new Array();
+        var color_data = new Array();
         ajaxSetup();
         $.ajax({
             type: "GET",
@@ -176,18 +179,44 @@
             success: function(e){
                 console.log(e);
                 preparedData = e;
-                //setDate();
+                setDate();
                 var user_array = new Array();
-                        var communities = new Array();
-                        $.each(e.nodes, function(index, user_info) {
-                            if(!isInArray(user_info['attributes']['Modularity Class'],communities)){
-                                communities.push(user_info['attributes']['Modularity Class']);
-                            }
-                            user_array.push(user_info);
-                        });
-                        console.log(communities);
-                        document.getElementById('unique_numbers').innerHTML = user_array.length;
-                        document.getElementById('communities').innerHTML = communities.length;
+                var communities = new Array();
+
+                $.each(e.nodes, function(index, user_info) {
+                    if(user_info['attributes']['RnCode'] == "AIS"){
+                        carrier[0] += 1;
+                    }
+                    else if(user_info['attributes']['RnCode'] == "DTAC"){
+                        carrier[1] += 1;
+                    }
+                    else if(user_info['attributes']['RnCode'] == "TRUE"){
+                        carrier[2] += 1;
+                    }
+                    else {
+                        carrier[3] += 1;
+                    }
+                    if (!communities[user_info['attributes']['Modularity Class']]) {
+                       communities[user_info['attributes']['Modularity Class']] = 1;
+                       color_data.push(user_info['color']);
+                    }
+                    else {
+                        communities[user_info['attributes']['Modularity Class']] += 1;
+                    }
+                    user_array.push(user_info);
+                });
+
+                carrier[0] = (carrier[0]/user_array.length * 100).toFixed(1);
+                carrier[1] = (carrier[1]/user_array.length * 100).toFixed(1);
+                carrier[2] = (carrier[2]/user_array.length * 100).toFixed(1);
+                carrier[3] = (carrier[3]/user_array.length * 100).toFixed(1);
+
+                for (var i in communities) {
+                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' members'});
+                }
+
+                document.getElementById('unique_numbers').innerHTML = user_array.length;
+                document.getElementById('communities').innerHTML = communities.length;
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -195,6 +224,32 @@
             },
             async: false,
         })
+        
+        Morris.Donut({
+            element: 'graph-donut',
+            data: com_data,
+            backgroundColor: '#fff',
+            labelColor: '#1fb5ac',
+            colors: color_data,
+            formatter: function (x, data) { return data.formatted; }
+        });
+        
+        Morris.Donut({
+            element: 'graph-donut2',
+            data: [
+                {value: carrier[0], label: 'AIS', formatted: 'at least ' + carrier[0] + "%" },
+                {value: carrier[1], label: 'TRUE', formatted: 'approx. ' + carrier[1] + "%" },
+                {value: carrier[2], label: 'DTAC', formatted: 'approx. ' + carrier[2] + "%" },
+                {value: carrier[3], label: 'OTHER', formatted: 'at most ' + carrier[3] + "%" }
+            ],
+            backgroundColor: '#fff',
+            labelColor: '#1fb5ac',
+            colors: [
+                '#66CC66','#FF0000','#00CCFF','#DDDDDD'
+            ],
+            formatter: function (x, data) { return data.formatted; }
+        });
+
         return preparedData;
     }
 
@@ -356,17 +411,42 @@
      function updateInformation(node) {
         var nodeData = undefined;
         var nodeID = node.id == undefined ? node.data.node.id : node.id; 
+        var communities = new Array();
+        var bc = new Array();
+        var cc = new Array();
         graphData.nodes.forEach(function(n) {
             if(n.id == nodeID) {
                 nodeData = n;
             }
+            bc.push(parseFloat(n.attributes['Betweenness Centrality']));
+            cc.push(parseFloat(n.attributes['Closeness Centrality']));
+            if (!communities[n.attributes['Modularity Class']]) {
+               communities[n.attributes['Modularity Class']] = 1;
+            }
+            else {
+                communities[n.attributes['Modularity Class']] += 1;
+            }
+            
         });
+        bc.sort(function(a, b) {
+          return a - b;
+        });
+        bc.reverse();
+
+        cc.sort(function(a, b) {
+          return a - b;
+        });
+        cc.reverse();
+
+        communities.sort(function(a, b) {
+          return a - b;
+        });
+        communities.reverse();
+
         if(nodeData == undefined) {
             alert('Can\'t get node data');
             return;
         }
-
-        
         
         // TODO : Update right column
        // document.getElementById('cname').innerHTML = 'Unknown';
@@ -376,13 +456,17 @@
         document.getElementById('ccarrier').innerHTML = nodeData.attributes['RnCode'];
         document.getElementById('cgender').innerHTML = nodeData.attributes['Gender'];
 
-        document.getElementById('comrank').innerHTML = '';
-        document.getElementById('comsize').innerHTML = '';
-        document.getElementById('cc').innerHTML = '### (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
-        document.getElementById('bc').innerHTML = '### (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
+        document.getElementById('comrank').innerHTML = communities.indexOf(communities[nodeData.attributes['Modularity Class']]) + 1;
+        document.getElementById('comsize').innerHTML = communities[nodeData.attributes['Modularity Class']];
+        document.getElementById('cc').innerHTML = cc.indexOf(nodeData.attributes['Closeness Centrality']) + ' (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
+        document.getElementById('bc').innerHTML = bc.indexOf(nodeData.attributes['Betweenness Centrality']) + ' (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
+
+        document.getElementById('comid').innerHTML = nodeData.attributes['Modularity Class'];
+        document.getElementById('comnum').innerHTML = communities[nodeData.attributes['Modularity Class']];
         
         return nodeData;
      }
+
 
      /**  
      *  @brief  Listener on clicking back button
@@ -609,10 +693,26 @@
      }
 
     function setDate(){
-        var year = document.getElementById('e1').value.substring(0,4);
         var month = document.getElementById('e1').value.substring(4,6);
         var date = document.getElementById('e1').value.substring(6,8);
-        document.getElementById('date').innerHTML = date + " / " + month + " / " + year;
+        if(month == "01") month = "Jan";
+        else if(month == "02") month = "Feb";
+        else if(month == "03") month = "Mar";
+        else if(month == "04") month = "Apr";
+        else if(month == "05") month = "May";
+        else if(month == "06") month = "Jun";
+        else if(month == "07") month = "Jul";
+        else if(month == "08") month = "Aug";
+        else if(month == "09") month = "Sep";
+        else if(month == "10") month = "Oct";
+        else if(month == "11") month = "Nov";
+        else if(month == "12") month = "Dec";
+        if(date == "") date = " - All Month";
+        else if(date == "01") date = " - Week 1";
+        else if(date == "08") date = " - Week 2";
+        else if(date == "15") date = " - Week 3";
+        else if(date == "22") date = " - Week 4";
+        document.getElementById('date').innerHTML = month + date;
     }
 
     /**

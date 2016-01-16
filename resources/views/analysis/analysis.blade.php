@@ -278,9 +278,9 @@
                             <div class="clearfix separate-line"></div>
 
                             <div class="col-sm-12" style="margin-top:10px;">
-                                <a href="#" class="btn btn-default more-button">
+                                <!-- <a href="#" class="btn btn-default more-button">
                                     View full profile
-                                </a>
+                                </a> -->
                             </div>
                         </div>
                         <!-- Customer Information Body End -->
@@ -331,9 +331,10 @@
                             <div class="clearfix separate-line"></div>
 
                             <div class="col-sm-12">
-                                <a href="#" class="btn btn-default more-button">
+                                <!-- <a href="#" class="btn btn-default more-button">
                                     View this Community
-                                </a>
+                                </a> -->
+
                             </div>
                         </div>
                         <!-- Statistic Body End -->
@@ -351,12 +352,19 @@
                         <!-- Community Body Start -->
                         <div class=" col-sm-12  no-padding tiny-stat-wrapper">
                             <div class="col-sm-12">
-                                <label class=" col-sm-8 control-label">Total Number</label>
+                                <label class=" col-sm-8 control-label">Community ID</label>
                                 <div class=" col-sm-3">
-                                    <p class="form-control-static">27,394</p>
+                                    <p class="form-control-static" id="comid">0</p>
                                 </div>
                             </div>
-                            <div class="clearfix"></div>
+                            <div class="clearfix "></div>
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Total Number</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="comnum">0</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Top 5 Numbers</label>
                                 <div class=" col-sm-7">
@@ -379,11 +387,11 @@
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
-                            <div class="col-sm-12">
+                            <!-- <div class="col-sm-12">
                                 <a href="#" class="btn btn-default more-button">
                                     View Community Details
                                 </a>
-                            </div>
+                            </div> -->
                         </div>
                         <!-- Community Body End -->
                     </div>
@@ -399,52 +407,82 @@
 <!-- Other Statistic Section Start -->
 <div class="row">
     <!-- First Widget Start -->
-    <div class="col-md-4">
+    <!-- <div class="col-md-4">
         <section class="panel">
             <div class="panel-body">
                 <div class="top-stats-panel">
                     <div class="gauge-canvas">
                         <h4 class="widget-h">Statistics 1</h4>
                         <canvas width=160 height=100 id="gauge"></canvas>
-                    <!-- </div>
+                    </div>
                     <ul class="gauge-meta clearfix">
                         <li id="gauge-textfield" class="pull-left gauge-value"></li>
                         <li class="pull-right gauge-title">Max</li>
-                    </ul> -->
+                    </ul>
                 </div>
+            </div>
+        </section>
+    </div> -->
+    <div class="col-sm-6">
+        <section class="panel">
+            <header class="panel-heading">
+                COMMUNITIES CHART
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                    <a href="javascript:;" class="fa fa-cog"></a>
+                    <a href="javascript:;" class="fa fa-times"></a>
+                </span>
+            </header>
+            <div class="panel-body">
+                <div id="graph-donut"></div>
             </div>
         </section>
     </div>
     <!-- First Widget End -->
 
     <!-- Second Widget Start -->
-    <div class="col-md-4">
+    <!-- <div class="col-md-4">
         <section class="panel">
             <div class="panel-body">
                 <div class="top-stats-panel">
                     <div class="daily-visit">
                         <h4 class="widget-h">Statistics 2</h4>
-                        <!-- <div id="daily-visit-chart" style="width:100%; height: 100px; display: block">
+                        <div id="daily-visit-chart" style="width:100%; height: 100px; display: block">
 
                         </div>
                         <ul class="chart-meta clearfix">
                             <li class="pull-left visit-chart-value">3233</li>
                             <li class="pull-right visit-chart-title"><i class="fa fa-arrow-up"></i> 15%</li>
-                        </ul> -->
+                        </ul>
                     </div>
                 </div>
+            </div>
+        </section>
+    </div> -->
+    <div class="col-sm-6">
+        <section class="panel">
+            <header class="panel-heading">
+                CARRIER CHART
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                    <a href="javascript:;" class="fa fa-cog"></a>
+                    <a href="javascript:;" class="fa fa-times"></a>
+                </span>
+            </header>
+            <div class="panel-body">
+                <div id="graph-donut2"></div>
             </div>
         </section>
     </div>
     <!-- Second Widget End -->
 
     <!-- Third Widget Start -->
-    <div class="col-md-4">
+    <!-- <div class="col-md-4">
         <section class="panel">
             <div class="panel-body">
                 <div class="top-stats-panel">
                     <h4 class="widget-h">Statistics 3</h4>
-                    <!-- <div class="bar-stats">
+                    <div class="bar-stats">
                         <ul class="progress-stat-bar clearfix">
                             <li data-percent="50%"><span class="progress-stat-percent pink"></span></li>
                             <li data-percent="90%"><span class="progress-stat-percent"></span></li>
@@ -458,11 +496,11 @@
                         <div class="daily-sales-info">
                             <span class="sales-count">1200 </span> <span class="sales-label">Products Sold</span>
                         </div>
-                    </div> -->
+                    </div>
                 </div>
             </div>
         </section>
-    </div>
+    </div> -->
     <!-- Third Widget End -->
 </div>
 
@@ -678,6 +716,10 @@
 <!-- Side Bar -->
 {!! Html::script('js/jquery.nicescroll.js'); !!}
 {!! Html::script('js/scripts.js'); !!}
+
+<!--Morris Chart-->
+{!! Html::script('js/morris-chart/morris.js'); !!}
+{!! Html::script('js/morris-chart/raphael-min.js'); !!}
 
 @endsection
 @stop

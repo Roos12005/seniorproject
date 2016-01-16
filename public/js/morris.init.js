@@ -65,7 +65,7 @@ Morris.Area({
 
 
 
-// Use Morris.Area instead of Morris.Line
+Use Morris.Area instead of Morris.Line
 Morris.Donut({
     element: 'graph-donut',
     data: [
