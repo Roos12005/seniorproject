@@ -20,7 +20,7 @@ public class Modularity {
     public static final String MODULARITY_CLASS = "modularity_class";
     private CommunityStructure structure;
     private double resolution = 1.;
-    
+    private int outNum = 0;
     public Modularity(Graph hgraph) {
     	this.structure = new Modularity.CommunityStructure(hgraph);
     }
@@ -365,6 +365,7 @@ public class Modularity {
 
             if (someChange) {
                 theStructure.zoomOut();
+                outNum++;
             }
         }
 
@@ -422,6 +423,7 @@ public class Modularity {
     public int[] buildCommunities(Graph hgraph){
         int[] comStructure = new int[hgraph.getNodeCount()];
         computeModularity(hgraph, structure, comStructure, resolution);
+        System.out.println("Total Zoom out : " + outNum);
         return comStructure;
     }
     

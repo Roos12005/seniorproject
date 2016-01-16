@@ -20,35 +20,47 @@ public class Graph {
     private EdgeIterable edges;
     private NodeIterable nodes;
     
-    private Map<Node, NodeIterable> neighbors;
+    private Map<Integer, NodeIterable> neighbors;
 
     public Graph(Set<Node> nodes, List<Edge> edges){
         this.nodes = new NodeIterable();
         this.edges = new EdgeIterable();
-        for(Node n : nodes) {
-            this.nodes.add(n);
-        }
-        for(Edge e : edges) {
-            this.edges.add(e);
-        }
         neighbors = new HashMap<>();
         
-        // neighbors
-        for(Node node : this.nodes) {
-            NodeIterable res = new NodeIterable();
-            Set<Node> tmp = new HashSet<>();
-            for (Edge e : edges) {
-                if(e.getSource() == node.getID()) {
-                    tmp.add(this.nodes.get(e.getTarget()));
-                } else if(e.getTarget() == node.getID()) {
-                    tmp.add(this.nodes.get(e.getSource()));
-                }
-            }
-            for(Node m : tmp) {
-                res.add(m);
-            }
-            neighbors.put(node, res);
+        for(Node n : nodes) {
+            this.nodes.add(n);
+            neighbors.put(n.getID(), new NodeIterable());
         }
+        System.out.println("Adding nodes ... done !");
+        for(Edge e : edges) {
+            
+            this.edges.add(e);
+            if(!neighbors.get(e.source).contains(e.getTarget())) {
+                neighbors.get(e.source).add(this.nodes.get(e.getTarget()));
+            }
+            if(!neighbors.get(e.getTarget()).contains(e.getSource())) {
+                neighbors.get(e.getTarget()).add(this.nodes.get(e.getSource()));
+            }
+        }
+//        neighbors = new HashMap<>();
+//        
+//        // neighbors
+//        for(Node node : this.nodes) {
+//            NodeIterable res = new NodeIterable();
+//            Set<Node> tmp = new HashSet<>();
+//            
+//            for (Edge e : edges) {
+//                if(e.getSource() == node.getID()) {
+//                    tmp.add(this.nodes.get(e.getTarget()));
+//                } else if(e.getTarget() == node.getID()) {
+//                    tmp.add(this.nodes.get(e.getSource()));
+//                }
+//            }
+//            for(Node m : tmp) {
+//                res.add(m);
+//            }
+//            neighbors.put(node, res);
+//        }
         
     }
 
@@ -113,7 +125,7 @@ public class Graph {
     }
 
     public NodeIterable getNeighbors(Node node){
-        return neighbors.get(node);
+        return neighbors.get(node.getID());
     }
 
     public EdgeIterable getEdges(Node node){
