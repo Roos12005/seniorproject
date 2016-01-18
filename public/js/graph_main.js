@@ -122,6 +122,7 @@
             id: e.id,
             source: e.source,
             target: e.target,
+            attributes : e.attributes,
             color: '#a5adb0',
             type: "arrow"
         })
@@ -493,6 +494,9 @@
             node.color = '#a5adb0';
             node.size = node.defaultSize;
         });
+        s.graph.edges().forEach(function(edge) {
+            edge.color = '#999999';
+        });
         currentHilight = 'default';
         s.refresh();
     }
@@ -560,11 +564,41 @@
     }
 
     function colorByDayNight() {
-        alert('Coming Soon ...');
+        if(currentHilight == 'daynight') return;
+        hilightButton('#h-daynight');
+        var color = "";
+        s.graph.edges().forEach(function(edge) {
+            if(edge['attributes']['startTime'] <= 17 &&  edge['attributes']['startTime'] >= 5) {
+                color = "#FF9900";
+            }
+            else color = "#000000";
+            edge.color = color;
+        });
+        s.refresh();
+        currentHilight = 'daynight';
     }
 
     function colorByPromotion() {
-        alert('Coming Soon ...');
+        if(currentHilight == 'promotion') return;
+        colorByDefault();
+        hilightButton('#h-promotion');
+        var maxARPU = 0.1;
+        s.graph.nodes().forEach(function(node) {
+            if(parseInt((node['attributes']['Promotion'].split(' '))[0]) > maxARPU) {
+                maxARPU = parseInt((node['attributes']['Promotion'].split(' '))[0]);
+            }
+        });
+
+        var ARPU = 0;
+        s.graph.nodes().forEach(function(node) {
+            ARPU = parseInt((node['attributes']['Promotion'].split(' '))[0]);
+            var colorScale =  255 * ARPU/maxARPU;
+            var hexString = parseInt(colorScale).toString(16);
+            hexString = hexString.length == 1? '0' + hexString : hexString;
+            node.color = '#' + hexString + "0000";
+        });
+        currentHilight = 'promotion';
+        s.refresh();
     }
 
     function colorByDegree() {
