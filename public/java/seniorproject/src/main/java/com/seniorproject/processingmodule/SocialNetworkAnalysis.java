@@ -58,65 +58,66 @@ public class SocialNetworkAnalysis {
     public static void main(String[] args) throws IOException {
         // temporary read csv for testing performance
         long startTime = System.currentTimeMillis();
-        CSVReader reader = new CSVReader(new FileReader("sampledata.csv"));
-    	String [] nextLine;
-        Set<Node> nodes = new HashSet<Node>();
-        List<Edge> edges = new ArrayList<Edge>();
-    	Node a,b;
-//    	reader.readNext();
-        int i = 0;
-        Map<String, Integer> mapperID = new HashMap<>();
-        int countedge = 0;
-        while ((nextLine = reader.readNext()) != null) {
-            countedge++;
-        	if(!mapperID.containsKey(nextLine[0])) mapperID.put(nextLine[0], i);
-                if(!mapperID.containsKey(nextLine[1])) mapperID.put(nextLine[1], i + 500000000);
-                a = new Node(mapperID.get(nextLine[0]));
-        	b = new Node(mapperID.get(nextLine[1]));
-        	nodes.add(a);
-        	nodes.add(b);
-        	
-//        	Edge e = new Edge(Integer.parseInt(nextLine[0]),Integer.parseInt(nextLine[1]),Integer.parseInt(nextLine[2]));
-        	Edge e = new Edge(mapperID.get(nextLine[0]),mapperID.get(nextLine[1]),1);
-        	edges.add(e);
-                i++;
-        }
-        
-    	reader.close();
-        long readDataTime = System.currentTimeMillis();
-        System.out.println("Reading Data ... Done! exec time : " + (readDataTime-startTime) + " ms");
-    	Graph hgraph = new Graph(nodes,edges);
+//        CSVReader reader = new CSVReader(new FileReader("sampledata.csv"));
+//    	String [] nextLine;
+//        Set<Node> nodes = new HashSet<Node>();
+//        List<Edge> edges = new ArrayList<Edge>();
+//    	Node a,b;
+////    	reader.readNext();
+//        int i = 0;
+//        Map<String, Integer> mapperID = new HashMap<>();
+//        int countedge = 0;
+//        while ((nextLine = reader.readNext()) != null) {
+//            countedge++;
+//        	if(!mapperID.containsKey(nextLine[0])) mapperID.put(nextLine[0], i);
+//                if(!mapperID.containsKey(nextLine[1])) mapperID.put(nextLine[1], i + 500000000);
+//                a = new Node(mapperID.get(nextLine[0]));
+//        	b = new Node(mapperID.get(nextLine[1]));
+//        	nodes.add(a);
+//        	nodes.add(b);
+//        	
+////        	Edge e = new Edge(Integer.parseInt(nextLine[0]),Integer.parseInt(nextLine[1]),Integer.parseInt(nextLine[2]));
+//        	Edge e = new Edge(mapperID.get(nextLine[0]),mapperID.get(nextLine[1]),1);
+//        	edges.add(e);
+//                i++;
+//        }
+//        
+//    	reader.close();
+//        Graph hgraph = new Graph(nodes,edges);
 
         // ------------------------------------------
-//        Map<String, List<Double>> comparableFilters = new HashMap<>();
-//        Map<String, List<String>> stringFilters = new HashMap<>();
-//        
-//        for(int i=1; i<args.length; i++) {
-//            String key = args[i++];
-//            int is_number = Integer.parseInt(args[i++]);
-//            int args_len = Integer.parseInt(args[i++]);
-//            
-//            
-//            if(is_number == 1) {
-//                List<Double> tmp = new ArrayList<>();
-//                for(int j=0; j<args_len; j++, i++) {
-//                    tmp.add(Double.parseDouble(args[i]));
-//                }
-//                comparableFilters.put(key, tmp);
-//            } else {
-//                List<String> tmp = new ArrayList<>();
-//                for(int j=0; j<args_len; j++, i++) {
-//                    tmp.add(args[i]);
-//                }
-//                stringFilters.put(key, tmp);
-//            }
-//            i--;
-//        }
+        Map<String, List<Double>> comparableFilters = new HashMap<>();
+        Map<String, List<String>> stringFilters = new HashMap<>();
+        
+        for(int i=1; i<args.length; i++) {
+            String key = args[i++];
+            int is_number = Integer.parseInt(args[i++]);
+            int args_len = Integer.parseInt(args[i++]);
+            
+            
+            if(is_number == 1) {
+                List<Double> tmp = new ArrayList<>();
+                for(int j=0; j<args_len; j++, i++) {
+                    tmp.add(Double.parseDouble(args[i]));
+                }
+                comparableFilters.put(key, tmp);
+            } else {
+                List<String> tmp = new ArrayList<>();
+                for(int j=0; j<args_len; j++, i++) {
+                    tmp.add(args[i]);
+                }
+                stringFilters.put(key, tmp);
+            }
+            i--;
+        }
        
-//        Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters);
-//        for(Node node : hgraph.getNodes()) {
-//            System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
-//        }
+        Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters);
+        long readDataTime = System.currentTimeMillis();
+        System.out.println("Reading Data ... Done! exec time : " + (readDataTime-startTime) + " ms");
+//    	
+        for(Node node : hgraph.getNodes()) {
+            System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
+        }
         long buildGraphTime = System.currentTimeMillis();
     	System.out.println("Building Graph ... Done! exec time : " + (buildGraphTime-startTime) + " ms");
         GraphDistance dis = new GraphDistance(hgraph);
@@ -158,6 +159,6 @@ public class SocialNetworkAnalysis {
         markColor(hgraph, tot.size());
         
         
-//        (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
+        (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
     }
 }
