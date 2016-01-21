@@ -239,8 +239,8 @@
             element: 'graph-donut2',
             data: [
                 {value: carrier[0], label: 'AIS', formatted: 'at least ' + carrier[0] + "%" },
-                {value: carrier[1], label: 'TRUE', formatted: 'approx. ' + carrier[1] + "%" },
-                {value: carrier[2], label: 'DTAC', formatted: 'approx. ' + carrier[2] + "%" },
+                {value: carrier[1], label: 'DTAC', formatted: 'approx. ' + carrier[1] + "%" },
+                {value: carrier[2], label: 'TRUE', formatted: 'approx. ' + carrier[2] + "%" },
                 {value: carrier[3], label: 'OTHER', formatted: 'at most ' + carrier[3] + "%" }
             ],
             backgroundColor: '#fff',
@@ -291,6 +291,7 @@
             setTimeout(function () {
                 s.stopForceAtlas2();
             }, 500);
+            
             
         }
     }
@@ -546,7 +547,7 @@
         colorByDefault();
         hilightButton('#h-carrier');
         s.graph.nodes().forEach(function(node) {
-            node.color = node['attributes']['RnCode'] == 'TRUE' ? "#e74c3c" : (node['attributes']['RnCode'] == 'AIS' ? "#40d47e" : (node['attributes']['RnCode'] == 'DTC' ? "#3498db" : '#000000'));
+            node.color = node['attributes']['RnCode'] == 'TRUE' ? "#e74c3c" : (node['attributes']['RnCode'] == 'AIS' ? "#40d47e" : (node['attributes']['RnCode'] == 'DTAC' ? "#3498db" : '#000000'));
         });
         s.refresh();
         currentHilight = 'carrier';

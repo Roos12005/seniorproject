@@ -83,5 +83,9 @@
 
         @yield('bottom-script')
 
+        <!-- Side Bar -->
+	{!! Html::script('js/jquery.nicescroll.js'); !!}
+	{!! Html::script('js/scripts.js'); !!}
+
     </body>
 </html>
