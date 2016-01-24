@@ -215,16 +215,11 @@
 
 
         // Display Graph using sigma object
-        if(initForce) {
-            s.refresh();
-        } else {
-            initForce = true;
-            s.startForceAtlas2({});
-            setTimeout(function () {
-                s.stopForceAtlas2();
-            }, 500);
-            
-        }
+        initForce = true;
+        s.startForceAtlas2({});
+        setTimeout(function () {
+            s.killForceAtlas2();
+        }, 500);
     }
 
     /**  
