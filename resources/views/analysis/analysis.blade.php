@@ -99,7 +99,7 @@
                             <i class="fa fa-times status"></i>
                         </a>
                         
-                        <a class="btn btn-default single-col-button" id="export-data">
+                        <a href="#exportCSVModal" data-toggle ="modal" class="btn btn-default single-col-button" id="export-data">
                             Export Data
                             <i class="fa fa-times status"></i>
                         </a>
@@ -407,22 +407,6 @@
 <!-- Other Statistic Section Start -->
 <div class="row">
     <!-- First Widget Start -->
-    <!-- <div class="col-md-4">
-        <section class="panel">
-            <div class="panel-body">
-                <div class="top-stats-panel">
-                    <div class="gauge-canvas">
-                        <h4 class="widget-h">Statistics 1</h4>
-                        <canvas width=160 height=100 id="gauge"></canvas>
-                    </div>
-                    <ul class="gauge-meta clearfix">
-                        <li id="gauge-textfield" class="pull-left gauge-value"></li>
-                        <li class="pull-right gauge-title">Max</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-    </div> -->
     <div class="col-sm-6">
         <section class="panel">
             <header class="panel-heading">
@@ -439,26 +423,6 @@
         </section>
     </div>
     <!-- First Widget End -->
-
-    <!-- Second Widget Start -->
-    <!-- <div class="col-md-4">
-        <section class="panel">
-            <div class="panel-body">
-                <div class="top-stats-panel">
-                    <div class="daily-visit">
-                        <h4 class="widget-h">Statistics 2</h4>
-                        <div id="daily-visit-chart" style="width:100%; height: 100px; display: block">
-
-                        </div>
-                        <ul class="chart-meta clearfix">
-                            <li class="pull-left visit-chart-value">3233</li>
-                            <li class="pull-right visit-chart-title"><i class="fa fa-arrow-up"></i> 15%</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div> -->
     <div class="col-sm-6">
         <section class="panel">
             <header class="panel-heading">
@@ -475,34 +439,8 @@
         </section>
     </div>
     <!-- Second Widget End -->
-
-    <!-- Third Widget Start -->
-    <!-- <div class="col-md-4">
-        <section class="panel">
-            <div class="panel-body">
-                <div class="top-stats-panel">
-                    <h4 class="widget-h">Statistics 3</h4>
-                    <div class="bar-stats">
-                        <ul class="progress-stat-bar clearfix">
-                            <li data-percent="50%"><span class="progress-stat-percent pink"></span></li>
-                            <li data-percent="90%"><span class="progress-stat-percent"></span></li>
-                            <li data-percent="70%"><span class="progress-stat-percent yellow-b"></span></li>
-                        </ul>
-                        <ul class="bar-legend">
-                            <li><span class="bar-legend-pointer pink"></span> New York</li>
-                            <li><span class="bar-legend-pointer green"></span> Los Angels</li>
-                            <li><span class="bar-legend-pointer yellow-b"></span> Dallas</li>
-                        </ul>
-                        <div class="daily-sales-info">
-                            <span class="sales-count">1200 </span> <span class="sales-label">Products Sold</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div> -->
-    <!-- Third Widget End -->
 </div>
+
 
 
 <div aria-hidden="true" aria-labelledby="filterModalLabel" role="dialog" tabindex="-1" id="filterModal" class="modal fade">
@@ -687,7 +625,33 @@
     </div>
 </div>
 
-
+<div aria-hidden="true" aria-labelledby="exportCSVModalLabel" role="dialog" tabindex="-1" id="exportCSVModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Export Data</h4>
+            </div>
+            <div class="modal-body">
+            <ul>
+                <form action="#" class="form-horizontal ">
+                     <div class="form-group">
+                        <label class="col-lg-2 col-sm-2 control-label">Community</label>
+                        <div class="col-lg-6">
+                            <select multiple name="e2" id="e2" style="width:300px" class="populate">
+                            </select>
+                        </div>
+                    </div>
+                    <div style="float: right;">
+                        <button class="btn btn-success" id="exportCSV-export" onclick="return false;">Export</button>
+                        <button class="btn btn-danger" id="exportCSV-cancel">Cancel</button>
+                    </div>
+                    <div class="clearfix"></div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Other Statistic Section End -->
 @section('bottom-script')

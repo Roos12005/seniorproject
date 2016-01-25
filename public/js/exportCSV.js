@@ -4,6 +4,23 @@
         'export-data' : 0,
     }
 
+    function addCommunity(){
+        $.ajax(
+        {
+            url: 'http://localhost/seniorproject/public/getCommunities',
+            type: 'GET',
+            data: {},
+            dataType: 'json',
+            success: function(e)
+            {
+                console.log(e);
+                $.each(e, function(val, text) {
+                     $('#e2').append($('<option></option>').val(val).html("Community  " + val));
+                });
+            }
+        });
+    }
+
     function ajaxSetup(){
         $.ajaxSetup({
             headers: {
@@ -18,18 +35,32 @@
             $('#export-data').removeClass('btn-default').addClass('btn-warning');
             $('#export-data i').removeClass('fa-times').addClass('fa-refresh');
             ajaxSetup();
+
+            var selectedCommunities = [];    
+            $("#e2 :selected").each(function(){
+                selectedCommunities.push($(this).val());
+            });
+            console.log(selectedCommunities);
+
+            var export_communities = new Array();
+
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getNodes",
+                url: "http://localhost/seniorproject/public/getNodeCommunity",
                 data : {},
                 success: function(e){
                     console.log(e);
                     $('#export-data').removeClass('btn-warning').addClass('btn-success');
                     $('#export-data i').removeClass('fa-refresh').addClass('fa-check');
 
-                    JSONToCSVConvertor(e, "Call Detail Records", true);
+                    for(var i in selectedCommunities){
+                        export_communities = export_communities.concat(e[selectedCommunities[i]]);
+                    }
+                    console.log(export_communities);
+                    JSONToCSVConvertor(export_communities, "Call Detail Records", true);
                     // TODO : trigger button
                     graphStatus['export-data'] = 1;
+                    discardExport();
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -117,8 +148,14 @@
         document.body.removeChild(link);
     }
 
+    function discardExport() {
+        $('#exportCSVModal').modal('hide');  
+     }
+
     !function(undefined){
-        document.getElementById('export-data').addEventListener('click', processData);
+        document.getElementById('export-data').addEventListener('click', addCommunity);
+        document.getElementById('exportCSV-export').addEventListener('click', processData);
+        document.getElementById('exportCSV-cancel').addEventListener('click', discardExport);
     }();
 
 }();

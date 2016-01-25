@@ -107,17 +107,45 @@ class AnalysisController extends Controller{
         return  response()->json(['nodes' => $node_list, 'edges' => $edge_list]);
     } 
 
-    public function getNodes() {
+
+    public function getCommunities() {
         $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
             ->build();
         
-
-        $q = 'MATCH (n:User) RETURN n, ID(n) as n_id';
+        $q = 'MATCH (n:User) RETURN distinct n.CommunityID';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        $node_list = array();
-        $node_count = sizeof($results);
+        $communities_list = array();
+        foreach($results as $key => $result) {
+            $community_info = [
+              'CommunityID' => $result['n.CommunityID']
+            ];
+
+            array_push($communities_list, $community_info);
+        }
+        sort($communities_list);
+
+        return  response()->json($communities_list);
+    } 
+
+    public function getNodeCommunity() {
+        $client = ClientBuilder::create()
+            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+            ->setAutoFormatResponse(true)
+            ->build();
+        
+        $q = 'MATCH (n:User) RETURN distinct n.CommunityID';
+        $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        $communities_num = count($results);
+        
+        $communities_list = array();
+        for ($x = 0; $x < $communities_num; $x++) {
+          $communities_list[$x] = array();
+        } 
+
+        $r = 'MATCH (n:User) RETURN n, n.CommunityID';
+        $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
         foreach($results as $key => $result) {
             $user_info = [
               'label' => $result['n']['Number'],
@@ -130,11 +158,20 @@ class AnalysisController extends Controller{
               'RnCode' => $result['n']['RnCode'],
               'Promotion' => $result['n']['Promotion']
             ];
-            array_push($node_list, $user_info);
+            array_push($communities_list[$result['n']['CommunityID']], $user_info);
         }
 
-        return  response()->json($node_list);
+        for ($x = 0; $x < count($communities_list); $x++) {
+          usort($communities_list[$x], function($a,$b){
+            if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
+            return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
+          });
+        }
+
+        return response()->json($communities_list);
     } 
+
+
 
     // TODO : This function will be removed when my experiment is done!
   public function test() {
