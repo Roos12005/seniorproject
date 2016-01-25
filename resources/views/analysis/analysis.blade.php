@@ -94,7 +94,7 @@
                             <i class="fa fa-times status"></i>
                         </a>
                         
-                        <a class="btn btn-default single-col-button">
+                        <a class="btn btn-default single-col-button" id="community-group">
                             Community Group
                             <i class="fa fa-times status"></i>
                         </a>
@@ -661,7 +661,7 @@
 {!! Html::script('js/sigmajs/plugins/sigma.layout.forceAtlas2.min.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
 {!! Html::script('js/exportCSV.js'); !!}
-
+{!! Html::script('js/community_group.js'); !!}
 
 <!-- Date Range (Date Picker) -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}
