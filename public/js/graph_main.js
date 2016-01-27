@@ -31,7 +31,8 @@
     };
     var graphStatus = {
         'full-graph' : 0,
-        'community' : 0,
+        'community-group' : 0,
+        'export-data' : 0,
     }
 
     /**
@@ -431,19 +432,16 @@
             
         });
         bc.sort(function(a, b) {
-          return a - b;
+          return b - a;
         });
-        bc.reverse();
 
         cc.sort(function(a, b) {
-          return a - b;
+          return b - a;
         });
-        cc.reverse();
 
         communities.sort(function(a, b) {
-          return a - b;
+          return b - a;
         });
-        communities.reverse();
 
         if(nodeData == undefined) {
             alert('Can\'t get node data');
@@ -677,11 +675,17 @@
 
      function resetButton() {
         graphStatus['full-graph'] = 0;
-        graphStatus['full-community'] = 0;
+        graphStatus['community-group'] = 0;
+        graphStatus['export-data'] = 0;
 
         $('#full-graph').removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
         $('#full-graph i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
 
+        $('#community-group').removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
+        $('#community-group i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
+
+        $('#export-data').removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
+        $('#export-data i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
 
      }
 

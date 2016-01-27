@@ -23,7 +23,7 @@ Route::get('/aboutus','AboutUsController@getAboutUs');
 Route::get('getCDR','AnalysisController@getCDR');
 Route::get('getNodes','AnalysisController@getNodes');
 Route::get('getCommunities','AnalysisController@getCommunities');
-Route::get('getNodeCommunity','AnalysisController@getNodeCommunity');
+Route::post('getNodeCommunity','AnalysisController@getNodeCommunity');
 
 
 Route::get('/test','AnalysisController@test');

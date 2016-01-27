@@ -42,6 +42,14 @@
             });
             console.log(selectedCommunities);
 
+            var data = {"selectedCommunities":selectedCommunities};
+            document.getElementById('senddata').value = JSON.stringify(data);
+
+            var test = document.getElementById('senddata').value;
+            console.log(test);
+
+
+
             var export_communities = new Array();
 
             $.ajax({
@@ -57,7 +65,7 @@
                         export_communities = export_communities.concat(e[selectedCommunities[i]]);
                     }
                     console.log(export_communities);
-                    JSONToCSVConvertor(export_communities, "Call Detail Records", true);
+                    //JSONToCSVConvertor(export_communities, "Call Detail Records", true);
                     // TODO : trigger button
                     graphStatus['export-data'] = 1;
                     discardExport();

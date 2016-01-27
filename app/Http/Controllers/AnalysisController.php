@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\App;
-use App\Models\Call_Detail_Records;
-use App\Models\Users;
 use Illuminate\Http\Request;
 use File;
 use Neoxygen\NeoClient\ClientBuilder;
@@ -130,45 +128,54 @@ class AnalysisController extends Controller{
     } 
 
     public function getNodeCommunity() {
-        $client = ClientBuilder::create()
-            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
-            ->setAutoFormatResponse(true)
-            ->build();
+        // $client = ClientBuilder::create()
+        //     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+        //     ->setAutoFormatResponse(true)
+        //     ->build();
+
+        $data  = Input::get('senddata');
+        //$data = Request::input('firstname');
+        //$json = $request->input('senddata');
+
+        // $data  = json_decode($json,true);
+        // $selectedCommunities = $data['selectedCommunities'];
         
-        $q = 'MATCH (n:User) RETURN distinct n.CommunityID';
-        $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        $communities_num = count($results);
-        
-        $communities_list = array();
-        for ($x = 0; $x < $communities_num; $x++) {
-          $communities_list[$x] = array();
-        } 
+        // $q = 'MATCH (n:User) RETURN distinct n.CommunityID';
+        // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        // $communities_num = count($results);
 
-        $r = 'MATCH (n:User) RETURN n, n.CommunityID';
-        $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
-        foreach($results as $key => $result) {
-            $user_info = [
-              'label' => $result['n']['Number'],
-              'Betweenness Centrality' => $result['n']['Betweenness'],
-              'Modularity Class' => $result['n']['CommunityID'],
-              'Eccentricity' => $result['n']['Eccentricity'],
-              'Closeness Centrality' => $result['n']['Closeness'],
-              'Age' => $result['n']['Age'],
-              'Gender' => $result['n']['Gender'],
-              'RnCode' => $result['n']['RnCode'],
-              'Promotion' => $result['n']['Promotion']
-            ];
-            array_push($communities_list[$result['n']['CommunityID']], $user_info);
-        }
+        // $communities_list = array();
+        // for ($x = 0; $x < $communities_num; $x++) {
+        //   $communities_list[$x] = array();
+        // } 
 
-        for ($x = 0; $x < count($communities_list); $x++) {
-          usort($communities_list[$x], function($a,$b){
-            if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
-            return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
-          });
-        }
+        // $r = 'MATCH (n:User) RETURN n, n.CommunityID';
+        // $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
+        // foreach($results as $key => $result) {
+        //     $user_info = [
+        //       'label' => $result['n']['Number'],
+        //       'Betweenness Centrality' => $result['n']['Betweenness'],
+        //       'Modularity Class' => $result['n']['CommunityID'],
+        //       'Eccentricity' => $result['n']['Eccentricity'],
+        //       'Closeness Centrality' => $result['n']['Closeness'],
+        //       'Age' => $result['n']['Age'],
+        //       'Gender' => $result['n']['Gender'],
+        //       'RnCode' => $result['n']['RnCode'],
+        //       'Promotion' => $result['n']['Promotion']
+        //     ];
+        //     array_push($communities_list[$result['n']['CommunityID']], $user_info);
+        // }
 
-        return response()->json($communities_list);
+        // for ($x = 0; $x < count($communities_list); $x++) {
+        //   usort($communities_list[$x], function($a,$b){
+        //     if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
+        //     return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
+        //   });
+        // }
+
+        // return response()->json($communities_list);
+        // return response()->json(['test' => $json]);
+        return $data;
     } 
 
 
