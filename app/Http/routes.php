@@ -23,7 +23,10 @@ Route::get('/aboutus','AboutUsController@getAboutUs');
 //Get Data
 Route::get('getCDR','AnalysisController@getCDR');
 
+Route::get('/admin','AdminController@index');
+
 
 Route::get('/test','AnalysisController@test');
 
 Route::get('/testsigma','AnalysisController@testgraph');
+
