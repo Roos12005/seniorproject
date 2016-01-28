@@ -76,8 +76,7 @@
             x: n.x,
             y: n.y,
             size: n.size,
-            color: '#a5adb0',
-            communityColor: n.color,
+            color: n.color,
             defaultSize: n.size,
             attributes: n.attributes
         })
@@ -160,49 +159,46 @@
         ajaxSetup();
         $.ajax({
             type: "GET",
-            url: "http://localhost/seniorproject/public/getCDR",
+            url: "http://localhost/seniorproject/public/getCommunityOfCommunity",
             data : {},
             success: function(e){
                 console.log(e);
                 preparedData = e;
                 setDate();
-                var user_array = new Array();
                 var communities = new Array();
 
-                $.each(e.nodes, function(index, user_info) {
-                    if(user_info['attributes']['RnCode'] == "AIS"){
-                        carrier[0] += 1;
-                    }
-                    else if(user_info['attributes']['RnCode'] == "DTAC"){
-                        carrier[1] += 1;
-                    }
-                    else if(user_info['attributes']['RnCode'] == "TRUE"){
-                        carrier[2] += 1;
-                    }
-                    else {
-                        carrier[3] += 1;
-                    }
-                    if (!communities[user_info['attributes']['Modularity Class']]) {
-                       communities[user_info['attributes']['Modularity Class']] = 1;
-                       color_data.push(user_info['color']);
-                    }
-                    else {
-                        communities[user_info['attributes']['Modularity Class']] += 1;
-                    }
-                    user_array.push(user_info);
+                $.each(e.nodes, function(index, community_info) {
+                     communities[community_info['id']] = community_info['attributes']['Member'];
+                     color_data[community_info['id']] = community_info['color'];
                 });
-
-                carrier[0] = (carrier[0]/user_array.length * 100).toFixed(1);
-                carrier[1] = (carrier[1]/user_array.length * 100).toFixed(1);
-                carrier[2] = (carrier[2]/user_array.length * 100).toFixed(1);
-                carrier[3] = (carrier[3]/user_array.length * 100).toFixed(1);
 
                 for (var i in communities) {
                     com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' members'});
                 }
 
-                document.getElementById('unique_numbers').innerHTML = user_array.length;
                 document.getElementById('communities').innerHTML = communities.length;
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+                alert('Problem occurs during fetch data.');
+            },
+            async: false,
+        })
+
+        $.ajax({
+            type: "GET",
+            url: "http://localhost/seniorproject/public/getCarrier",
+            data : {},
+            success: function(e){
+                console.log(e);
+                var user_num = e['all'];
+
+                carrier[0] = (e['ais']/e['all'] * 100).toFixed(1);
+                carrier[1] = (e['true']/e['all'] * 100).toFixed(1);
+                carrier[2] = (e['dtac']/e['all'] * 100).toFixed(1);
+                carrier[3] = ((e['all']-e['ais']-e['true']-e['dtac'])/e['all'] * 100).toFixed(1);
+
+                document.getElementById('unique_numbers').innerHTML = e['all'];
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -263,8 +259,8 @@
         });
 
         // Add Click Listener to all Nodes
-        s.bind('clickNode', clickNodeListener);
-        s.bind('doubleClickNode', doubleClickNodeListener);
+        s.bind('clickNode', clickCommunityListener);
+        s.bind('doubleClickNode', doubleClickCommunityListener);
 
 
         // Display Graph using sigma object
@@ -331,11 +327,12 @@
      *  @param  node   clicked node
      *  @return void
      */
-     function clickNodeListener(node) {
+     function clickCommunityListener(node) {
+        console.log("Community_graph");
         var nodeData = updateInformation(node);
      }
 
-     function doubleClickNodeListener(node) {
+     function doubleClickCommunityListener(node) {
         // TODO : Display only selected community
         // console.log(nodeData['attributes']['Modularity Class']);
         var nodeData = updateInformation(node);
@@ -378,7 +375,7 @@
             $.ajax({
                 type: "POST",
                 url: "http://localhost/seniorproject/public/processData",
-                data : filter,
+                data : {},
                 success: function(e){
                     console.log(e);
                     $('#community-group').removeClass('btn-warning').addClass('btn-success');
@@ -406,32 +403,38 @@
         graphData = fetchData();
         plotFullGraph();
         addZoomListener();
-        addSearchBoxListener();
+        //addSearchBoxListener();
         addBackButtonListener();
-        addHilightListener();
+        //addHilightListener();
      }
 
     function setDate(){
-        var month = document.getElementById('e1').value.substring(4,6);
-        var date = document.getElementById('e1').value.substring(6,8);
-        if(month == "01") month = "Jan";
-        else if(month == "02") month = "Feb";
-        else if(month == "03") month = "Mar";
-        else if(month == "04") month = "Apr";
-        else if(month == "05") month = "May";
-        else if(month == "06") month = "Jun";
-        else if(month == "07") month = "Jul";
-        else if(month == "08") month = "Aug";
-        else if(month == "09") month = "Sep";
-        else if(month == "10") month = "Oct";
-        else if(month == "11") month = "Nov";
-        else if(month == "12") month = "Dec";
-        if(date == "") date = " - All Month";
-        else if(date == "01") date = " - Week 1";
-        else if(date == "08") date = " - Week 2";
-        else if(date == "15") date = " - Week 3";
-        else if(date == "22") date = " - Week 4";
-        document.getElementById('date').innerHTML = month + date;
+        var year = document.getElementById('e1').value.substring(0,4);
+        if(year == "1970"){
+            document.getElementById('date').innerHTML = "All Data";
+        }
+        else{
+            var month = document.getElementById('e1').value.substring(4,6);
+            var date = document.getElementById('e1').value.substring(6,8);
+            if(month == "01") month = "Jan";
+            else if(month == "02") month = "Feb";
+            else if(month == "03") month = "Mar";
+            else if(month == "04") month = "Apr";
+            else if(month == "05") month = "May";
+            else if(month == "06") month = "Jun";
+            else if(month == "07") month = "Jul";
+            else if(month == "08") month = "Aug";
+            else if(month == "09") month = "Sep";
+            else if(month == "10") month = "Oct";
+            else if(month == "11") month = "Nov";
+            else if(month == "12") month = "Dec";
+            if(date == "") date = " - All Month";
+            else if(date == "01") date = " - Week 1";
+            else if(date == "08") date = " - Week 2";
+            else if(date == "15") date = " - Week 3";
+            else if(date == "22") date = " - Week 4";
+            document.getElementById('date').innerHTML = month + date;
+        }
     }
 
     /**

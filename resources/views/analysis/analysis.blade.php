@@ -116,7 +116,6 @@
             <!-- First widget -->
             <div class="col-md-4">
                 <div class="mini-stat clearfix">
-                 <input type="text" id="firstname" name="firstname" placeholder="" class="form-control input-lg" value="123">
                     <span class="mini-stat-icon orange"><i class="fa fa-phone"></i></span>
                     <div class="mini-stat-info">
                         <span id="unique_numbers" name="unique_numbers">0</span>
@@ -460,6 +459,7 @@
                             <div class="form-group">
                                 <div class="col-md-6">
                                     <select id="e1" class="populate " style="width: 250px">
+                                            <option value="19700101">All Data</option>
                                         <optgroup label="September 2015">
                                             <option value="201509">Sep - Month</option>
                                             <option value="20150901">Sep - Week 1</option>
@@ -635,13 +635,12 @@
             </div>
             <div class="modal-body">
             <ul>
-                <form action="#" class="form-horizontal " method="POST">
+                <form action="#" class="form-horizontal " method="GET">
                      <div class="form-group">
                         <label class="col-lg-2 col-sm-2 control-label">Community</label>
                         <div class="col-lg-6">
                             <select multiple name="e2" id="e2" style="width:300px" class="populate">
                             </select>
-                            <input type='hidden' name="token" id="crsf_token" value="{{Session::token()}}">
                             <input type="hidden" name="senddata" id="senddata" value="32141">  
                         </div>
                     </div>

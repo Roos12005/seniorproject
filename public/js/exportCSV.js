@@ -40,32 +40,24 @@
             $("#e2 :selected").each(function(){
                 selectedCommunities.push($(this).val());
             });
-            console.log(selectedCommunities);
-
-            var data = {"selectedCommunities":selectedCommunities};
-            document.getElementById('senddata').value = JSON.stringify(data);
-
-            var test = document.getElementById('senddata').value;
-            console.log(test);
-
-
 
             var export_communities = new Array();
 
             $.ajax({
                 type: "GET",
                 url: "http://localhost/seniorproject/public/getNodeCommunity",
-                data : {},
+                data : {"senddata":selectedCommunities},
                 success: function(e){
                     console.log(e);
                     $('#export-data').removeClass('btn-warning').addClass('btn-success');
                     $('#export-data i').removeClass('fa-refresh').addClass('fa-check');
 
-                    for(var i in selectedCommunities){
-                        export_communities = export_communities.concat(e[selectedCommunities[i]]);
-                    }
-                    console.log(export_communities);
+                    // for(var i in selectedCommunities){
+                    //     export_communities = export_communities.concat(e[selectedCommunities[i]]);
+                    // }
+                    // console.log(export_communities);
                     //JSONToCSVConvertor(export_communities, "Call Detail Records", true);
+                    JSONToCSVConvertor(e, "Call Detail Records", true);
                     // TODO : trigger button
                     graphStatus['export-data'] = 1;
                     discardExport();

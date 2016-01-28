@@ -429,17 +429,13 @@
             else {
                 communities[n.attributes['Modularity Class']] += 1;
             }
-            
         });
+
         bc.sort(function(a, b) {
           return b - a;
         });
 
         cc.sort(function(a, b) {
-          return b - a;
-        });
-
-        communities.sort(function(a, b) {
           return b - a;
         });
 
@@ -732,26 +728,32 @@
      }
 
     function setDate(){
-        var month = document.getElementById('e1').value.substring(4,6);
-        var date = document.getElementById('e1').value.substring(6,8);
-        if(month == "01") month = "Jan";
-        else if(month == "02") month = "Feb";
-        else if(month == "03") month = "Mar";
-        else if(month == "04") month = "Apr";
-        else if(month == "05") month = "May";
-        else if(month == "06") month = "Jun";
-        else if(month == "07") month = "Jul";
-        else if(month == "08") month = "Aug";
-        else if(month == "09") month = "Sep";
-        else if(month == "10") month = "Oct";
-        else if(month == "11") month = "Nov";
-        else if(month == "12") month = "Dec";
-        if(date == "") date = " - All Month";
-        else if(date == "01") date = " - Week 1";
-        else if(date == "08") date = " - Week 2";
-        else if(date == "15") date = " - Week 3";
-        else if(date == "22") date = " - Week 4";
-        document.getElementById('date').innerHTML = month + date;
+        var year = document.getElementById('e1').value.substring(0,4);
+        if(year == "1970"){
+            document.getElementById('date').innerHTML = "All Data";
+        }
+        else{
+            var month = document.getElementById('e1').value.substring(4,6);
+            var date = document.getElementById('e1').value.substring(6,8);
+            if(month == "01") month = "Jan";
+            else if(month == "02") month = "Feb";
+            else if(month == "03") month = "Mar";
+            else if(month == "04") month = "Apr";
+            else if(month == "05") month = "May";
+            else if(month == "06") month = "Jun";
+            else if(month == "07") month = "Jul";
+            else if(month == "08") month = "Aug";
+            else if(month == "09") month = "Sep";
+            else if(month == "10") month = "Oct";
+            else if(month == "11") month = "Nov";
+            else if(month == "12") month = "Dec";
+            if(date == "") date = " - All Month";
+            else if(date == "01") date = " - Week 1";
+            else if(date == "08") date = " - Week 2";
+            else if(date == "15") date = " - Week 3";
+            else if(date == "22") date = " - Week 4";
+            document.getElementById('date').innerHTML = month + date;
+        }
     }
 
     /**

@@ -123,48 +123,52 @@ class AnalysisController extends Controller{
             array_push($communities_list, $community_info);
         }
         sort($communities_list);
-
         return  response()->json($communities_list);
     } 
 
     public function getNodeCommunity() {
-        // $client = ClientBuilder::create()
-        //     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
-        //     ->setAutoFormatResponse(true)
-        //     ->build();
+        $client = ClientBuilder::create()
+            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+            ->setAutoFormatResponse(true)
+            ->build();
 
-        $data  = Input::get('senddata');
-        //$data = Request::input('firstname');
-        //$json = $request->input('senddata');
+        $selectedCommunity  = Input::get('senddata');
 
-        // $data  = json_decode($json,true);
-        // $selectedCommunities = $data['selectedCommunities'];
-        
+        $query = "WHERE ";
+
+        foreach($selectedCommunity as $community) {
+            $query = $query ." n.CommunityID = ".(string)$community." OR ";
+        }
+
+        $query = substr($query,0,strlen($query)-4);
+
         // $q = 'MATCH (n:User) RETURN distinct n.CommunityID';
         // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         // $communities_num = count($results);
 
-        // $communities_list = array();
+        $communities_list = array();
         // for ($x = 0; $x < $communities_num; $x++) {
         //   $communities_list[$x] = array();
-        // } 
-
-        // $r = 'MATCH (n:User) RETURN n, n.CommunityID';
-        // $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
-        // foreach($results as $key => $result) {
-        //     $user_info = [
-        //       'label' => $result['n']['Number'],
-        //       'Betweenness Centrality' => $result['n']['Betweenness'],
-        //       'Modularity Class' => $result['n']['CommunityID'],
-        //       'Eccentricity' => $result['n']['Eccentricity'],
-        //       'Closeness Centrality' => $result['n']['Closeness'],
-        //       'Age' => $result['n']['Age'],
-        //       'Gender' => $result['n']['Gender'],
-        //       'RnCode' => $result['n']['RnCode'],
-        //       'Promotion' => $result['n']['Promotion']
-        //     ];
-        //     array_push($communities_list[$result['n']['CommunityID']], $user_info);
         // }
+
+        $r = 'MATCH (n:User) '.(string)$query.' RETURN n, n.CommunityID';
+        $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
+        foreach($results as $key => $result) {
+            $user_info = [
+              'label' => $result['n']['Number'],
+              'Betweenness Centrality' => $result['n']['Betweenness'],
+              'Modularity Class' => $result['n']['CommunityID'],
+              'Eccentricity' => $result['n']['Eccentricity'],
+              'Closeness Centrality' => $result['n']['Closeness'],
+              'Age' => $result['n']['Age'],
+              'Gender' => $result['n']['Gender'],
+              'RnCode' => $result['n']['RnCode'],
+              'Promotion' => $result['n']['Promotion']
+            ];
+
+            //array_push($communities_list[$result['n']['CommunityID']], $user_info);
+          array_push($communities_list, $user_info);
+        }
 
         // for ($x = 0; $x < count($communities_list); $x++) {
         //   usort($communities_list[$x], function($a,$b){
@@ -173,10 +177,85 @@ class AnalysisController extends Controller{
         //   });
         // }
 
-        // return response()->json($communities_list);
-        // return response()->json(['test' => $json]);
-        return $data;
+        usort($communities_list, function($a,$b){
+          if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
+          return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
+        });
+
+        return response()->json($communities_list);
     } 
+
+  public function getCommunityOfCommunity() {
+    $client = ClientBuilder::create()
+            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+            ->setAutoFormatResponse(true)
+            ->build();
+
+    $q = 'MATCH (n:User) RETURN count(distinct n.CommunityID)';
+    $community_num = $client->sendCypherQuery($q)->getResult()->get('count(distinct n.CommunityID)');
+
+    $community_list = array();
+
+    for($community = 0; $community < $community_num; $community++) {
+      $q = 'MATCH (n:User{CommunityID:'.$community.'}) RETURN count(n),n.Color';
+      $result = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+      
+      $community_stat = [
+        'Member' => $result[0]['count(n)'],
+        'Modularity Class' => $community
+      ];
+
+      $community_info = [
+        'id' => $community,
+        'label' => "Community: ".$community,
+        'attributes' => $community_stat,
+        'x' => 10*cos(2 * $community * M_PI/$community_num),
+        'y' => 10*sin(2 * $community * M_PI/$community_num),
+        'color' => $result[0]['n.Color'],
+        'size' => 1
+      ];
+      array_push($community_list, $community_info);
+    }
+
+    $edge_list = array();
+
+    $q = 'Match(n:User)-[r:Call]->(m:User) Return n.CommunityID,m.CommunityID';
+    $edges = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+    $edge_id = 5421;
+    foreach ($edges as $edge) {
+      $edge_info = [
+        'id' => $edge_id,
+        'source' => $edge['n.CommunityID'],
+        'target' => $edge['m.CommunityID'],
+        'color' => '',
+        'size' => 1
+      ];
+      array_push($edge_list, $edge_info);
+      $edge_id++;
+    }
+
+    return response()->json(['nodes' => $community_list, 'edges' => $edge_list]); 
+  }
+
+  public function getCarrier(){
+    $client = ClientBuilder::create()
+            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+            ->setAutoFormatResponse(true)
+            ->build();
+    $q = 'MATCH (n:User) RETURN count(n)';
+    $all_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
+
+    $q = 'MATCH (n:User{RnCode:"AIS"}) RETURN count(n)';
+    $ais_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
+
+    $q = 'MATCH (n:User{RnCode:"TRUE"}) RETURN count(n)';
+    $true_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
+
+    $q = 'MATCH (n:User{RnCode:"DTAC"}) RETURN count(n)';
+    $dtac_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
+
+    return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num]);
+  }
 
 
 
