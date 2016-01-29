@@ -548,7 +548,6 @@
                 <h4 class="modal-title">Graph Filters</h4>
             </div>
             <div class="modal-body">
-            <ul>
                 <form action="#" class="form-horizontal ">
                     <div class="form-group">
                         <div class="col-md-6">

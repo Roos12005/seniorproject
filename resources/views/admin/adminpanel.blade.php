@@ -19,53 +19,59 @@
             <header class="panel-heading">
                 Pre-processing Data Setting
                 <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                    <a href="javascript:;" class="fa fa-chevron-up"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
                     <a href="javascript:;" class="fa fa-times"></a>
                  </span>
             </header>
-            <div class="panel-body">
+            <div class="panel-body" style="display: none;">
                     <p>
                         Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat
                     </p>
                     
-                    <button id="editable-sample_new" class="btn btn-primary">
-                        Add New <i class="fa fa-plus"></i>
-                    </button>
+                    
                     </br>
                     <i>
                         Data specified in this section will be automatically starting processed at midnight. More data specified will take longer time to process.
                     </i>
-                    <table class="table  table-hover general-table">
+                    <table class="table  table-hover general-table" id="preprocess-table">
                         <thead>
                         <tr>
                             <th> #</th>
                             <th>Description</th>
 
-                            <th>Date</th>
-                            <th>Day</th>
-                            <th>Period</th>
-                            <th>Duration</th>
-                            <th>No. of Call</th>
-                            <th>Carrier</th>
+                            <th>Centrality</th>
+                            <th>Community</th>
+                            <th>Profiling</th>
+                            <th>Filters</th>
 
                             <th>Priority</th>
                             <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
+
+
+
+                        @foreach($preprocess as $key => $p)
                             <tr>
-                                <td><a href="#">1</a></td>
+                                <td><a href="#">{{$key + 1}}</a></td>
                                 <td>
-                                    User may put thier own description here
+                                    {{ $p['description'] }}
                                 </td>
 
-                                <td>Week 1</td>
-                                <td>All</td>
-                                <td>Daytime</td>
-                                <td>> 0</td>
-                                <td>> 0</td>
-                                <td>AIS,TRUE,DTAC</td>
+                                <td>Yes</td>
+                                <td>Yes</td>
+                                <td>No</td>
+                                
+                                <td>
+                                    <a href="#" data-toggle="modal" class="preprocess-filter" data-pid="{{$p['id']}}">
+                                        Click to see filters
+                                    </a>
+                                    <span id="pf-{{$p['id']}}" data-date="{{$p['date']}}" data-noOfCall="{{$p['noOfCall']}}"
+                                    data-duration="{{$p['duration']}}" data-period="{{$p['period']}}" data-carrier="{{$p['carrier']}}">
+                                    </span>
+                                </td>
 
                                 <td>High</td>
                                 <td>
@@ -73,7 +79,8 @@
                                     <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
                                 </td>
                             </tr>
-                            <tr>
+                        @endforeach
+                           <!--  <tr>
                                 <td><a href="#">2</a></td>
                                 <td>
                                     User may put thier own description here
@@ -83,17 +90,18 @@
                                 <td>Weekday</td>
                                 <td>Nighttime</td>
                                 <td>10 - 150</td>
-                                <td>60 - 100</td>
-                                <td>AIS</td>
 
                                 <td>Low</td>
                                 <td>
                                     <span class="label label-default label-mini"><i class="fa fa-cog"></i></span>
                                     <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
                                 </td>
-                            </tr>
+                            </tr> -->
                         </tbody>
-                    </table>      
+                    </table>     
+                    <button id="editable-sample_new" class="btn btn-primary">
+                        Add New <i class="fa fa-plus"></i>
+                    </button> 
             </div>
         </section>
     </div>
@@ -103,7 +111,7 @@
     <div class="col-sm-12">
         <section class="panel">
             <header class="panel-heading">
-                Data Table
+                Pre-processing Data
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -111,10 +119,8 @@
                  </span>
             </header>
             <div class="panel-body">
-                    <button id="editable-sample_new" class="btn btn-primary">
-                        Add New <i class="fa fa-plus"></i>
-                    </button>
-                    <table class="table  table-hover general-table">
+                    
+                    <table class="table  table-hover general-table" id="preprocess-progress-table">
                         <thead>
                         <tr>
                             <th> #</th>
@@ -128,86 +134,227 @@
                         </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><a href="#">1</a></td>
-                                <td>2015/09/01 - 2015/09/15</td>
-                                <td>
-                                    <span class="label label-default label-mini"><i class="fa fa-info"></i></span>
-                                    User may put thier own description here
-                                </td>
-                                <td class="text-center">1,203,791</td>
-                                <td class="text-center">5.2 GB</td>
-                                <td>
-                                    <span class="label label-primary label-mini"><i class="fa fa-eye"></i></span>
-                                    <span class="label label-success label-mini"><i class="fa fa-download"></i></span>
-                                    <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
-                                </td>
-                                <td><span class="label label-success label-mini">Ready</span></td>
-                                <td>
-                                    <div class="progress progress-striped progress-xs">
-                                        <div style="width: 100%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
-                                            <span class="sr-only">100% Complete (success)</span>
+                            @foreach($table as $key => $row)
+                                <tr>
+                                    <td><a href="#">{{ $key + 1 }}</a></td>
+                                    <td>{{ $row['date'] }}</td>
+                                    <td>
+                                        <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
+                                        {{ $row['description'] }}
+                                        <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}"
+                                        data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}">
+                                        </span>
+                                    </td>
+                                    <td class="text-center">{{ $row['customers'] }}</td>
+                                    <td class="text-center">{{ $row['size'] }}</td>
+                                    <td>
+                                    @if($row['progress'] < 100)
+                                        <span class="label label-default label-mini"><i class="fa fa-eye"></i></span>
+                                        <span class="label label-default label-mini"><i class="fa fa-download"></i></span>
+                                    @else
+                                        <span class="label label-primary label-mini"><i class="fa fa-eye"></i></span>
+                                        <span class="label label-success label-mini"><i class="fa fa-download"></i></span>
+                                    @endif
+                                        <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
+                                    </td>
+                                    <td><span class="label label-success label-mini">{{ $row['status'] }}</span></td>
+                                    <td>
+                                        <div class="progress progress-striped progress-xs">
+                                            <div style="width: {{ $row['progress'] }}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
+                                                <span class="sr-only">100% Complete (success)</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><a href="#">2</a></td>
-                                <td>2015/09/01 - 2015/09/15</td>
-                                <td>
-                                    <span class="label label-default label-mini"><i class="fa fa-info"></i></span>
-                                    User may put thier own description here
-                                </td>
-                                <td class="text-center">-</td>
-                                <td class="text-center">-</td>
-                                <td>
-                                    <span class="label label-default label-mini"><i class="fa fa-eye"></i></span>
-                                    <span class="label label-default label-mini"><i class="fa fa-download"></i></span>
-                                    <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
-                                </td>
-                                <td><span class="label label-warning label-mini">Processing</span></td>
-                                <td>
-                                    <div class="progress progress-striped progress-xs">
-                                        <div style="width: 60%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="60" role="progressbar" class="progress-bar progress-bar-success">
-                                            <span class="sr-only">100% Complete (success)</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><a href="#">3</a></td>
-                                <td>2015/09/15 - 2015/09/30</td>
-                                <td>
-                                    <span class="label label-default label-mini"><i class="fa fa-info"></i></span>
-                                    User may put thier own description here
-                                </td>
-                                <td class="text-center">-</td>
-                                <td class="text-center">-</td>
-                                <td>
-                                    <span class="label label-default label-mini"><i class="fa fa-eye"></i></span>
-                                    <span class="label label-default label-mini"><i class="fa fa-download"></i></span>
-                                    <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
-                                </td>
-                                <td><span class="label label-warning label-mini">Processing</span></td>
-                                <td>
-                                    <div class="progress progress-striped progress-xs">
-                                        <div style="width: 20%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="20" role="progressbar" class="progress-bar progress-bar-success">
-                                            <span class="sr-only">100% Complete (success)</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
-                    </table>   
+                    </table> 
             </div>
         </section>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <section class="panel">
+            <header class="panel-heading">
+                Batch Job Data
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                    <a href="javascript:;" class="fa fa-cog"></a>
+                    <a href="javascript:;" class="fa fa-times"></a>
+                 </span>
+            </header>
+            <div class="panel-body">
+                    
+                    <table class="table  table-hover general-table" id="progress-table">
+                        <thead>
+                        <tr>
+                            <th> #</th>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Customers</th>
+                            <th>Size</th>
+                            <th>Actions</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($table as $key => $row)
+                                <tr>
+                                    <td><a href="#">{{ $key + 1 }}</a></td>
+                                    <td>{{ $row['date'] }}</td>
+                                    <td>
+                                        <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
+                                        {{ $row['description'] }}
+                                        <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}"
+                                        data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}">
+                                        </span>
+                                    </td>
+                                    <td class="text-center">{{ $row['customers'] }}</td>
+                                    <td class="text-center">{{ $row['size'] }}</td>
+                                    <td>
+                                    @if($row['progress'] < 100)
+                                        <span class="label label-default label-mini"><i class="fa fa-eye"></i></span>
+                                        <span class="label label-default label-mini"><i class="fa fa-download"></i></span>
+                                    @else
+                                        <span class="label label-primary label-mini"><i class="fa fa-eye"></i></span>
+                                        <span class="label label-success label-mini"><i class="fa fa-download"></i></span>
+                                    @endif
+                                        <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
+                                    </td>
+                                    <td><span class="label label-success label-mini">{{ $row['status'] }}</span></td>
+                                    <td>
+                                        <div class="progress progress-striped progress-xs">
+                                            <div style="width: {{ $row['progress'] }}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
+                                                <span class="sr-only">100% Complete (success)</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <button id="editable-sample_new" class="btn btn-primary">
+                        Add New <i class="fa fa-plus"></i>
+                    </button>   
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<!-- Proprocess Information Modal-->
+<div aria-hidden="true" aria-labelledby="preprocessModalLabel" role="dialog" tabindex="-1" id="preprocessModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Filters</h4>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="form-horizontal ">
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Date </label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="pf-date">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Day</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="pf-day">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Period</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="pf-period">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Duration</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="pf-duration">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">No. of Calls</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="pf-noOfCall">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Carrier</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="pf-carrier">-</p>
+                        </div>
+                    </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Information Modal-->
+<div aria-hidden="true" aria-labelledby="tableModalLabel" role="dialog" tabindex="-1" id="tableModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Filters</h4>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="form-horizontal ">
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Date </label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-date">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Day</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-day">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Period</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-period">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Duration</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-duration">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">No. of Calls</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-noOfCall">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Carrier</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-carrier">-</p>
+                        </div>
+                    </div>
+                </form> 
+            </div>
+        </div>
     </div>
 </div>
 
 @section('bottom-script')
 {!! Html::script('js/jquery.js'); !!}
 {!! Html::script('js/jquery.maskedinput.js'); !!}
-
+{!! Html::script('js/data-tables/jquery.dataTables.js'); !!}
+{!! Html::script('js/data-tables/DT_bootstrap.js'); !!}
+{!! Html::script('js/admin_panel.js'); !!}
 
 
 <!-- Date Range (Date Picker) -->

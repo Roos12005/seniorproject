@@ -67,7 +67,6 @@
             // zoomingRatio : 1
         });
 
-
     }
 
     /**
