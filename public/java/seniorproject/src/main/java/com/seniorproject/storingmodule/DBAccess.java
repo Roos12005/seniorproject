@@ -262,7 +262,7 @@ public class DBAccess {
         return null;
     }
     
-    public void store(NodeIterable nodes, EdgeIterable edges) {
+    public void store(NodeIterable nodes, List<Edge> edges) {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);

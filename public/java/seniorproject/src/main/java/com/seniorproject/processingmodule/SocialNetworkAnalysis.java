@@ -159,6 +159,6 @@ public class SocialNetworkAnalysis {
         markColor(hgraph, tot.size());
         
         
-        (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
+        (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges());
     }
 }
