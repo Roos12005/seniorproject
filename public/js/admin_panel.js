@@ -200,19 +200,41 @@
             }
             
 
+            var validator = new Validator();
+
+            var durationMin = validator.validateMinRange($('#preprocess-durationFrom').val());
+            var durationMax = validator.validateMaxRange($('#preprocess-durationTo').val());
+            if(durationMin > durationMax && durationMax !== -1) {
+                alert('Minimum duration is exceeded the Maximun duration.');
+                return;
+            }
+
+            var callsMin = validator.validateMinRange($('#preprocess-callsFrom').val());
+            var callsMax = validator.validateMaxRange($('#preprocess-callsTo').val());
+            if(callsMin > callsMax && callsMax !== -1) {
+                alert('Minimum calls is exceeded the Maximun calls.');
+                return;
+            }
+
+            var periodMin = validator.validateMinTime($('#preprocess-periodFrom').val());
+            var periodMax = validator.validateMaxTime($('#preprocess-periodTo').val());
+            if(periodMin > periodMax && periodMax !== -1) {
+                alert('Minimum period is exceeded the Maximun period.');
+                return;
+            }
+
             var submit = {
                 'date' : $('#preprocess-date').val(),
                 'days' : days,
-                'periodMin' : $('#preprocess-periodFrom').val() == ""? 0 : $('#preprocess-periodFrom').val(),
-                'periodMax' : $('#preprocess-periodTo').val() == ""? -1 : $('#preprocess-periodTo').val(),
-                'durationMin' : toNotExceedInteger($('#preprocess-durationFrom').val()) == ""? 0 : toNotExceedInteger($('#preprocess-durationFrom').val()),
-                'durationMax' : toNotExceedInteger($('#preprocess-durationTo').val()) == ""? -1 : toNotExceedInteger($('#preprocess-durationTo').val()),
-                'callsMin' : toNotExceedInteger($('#preprocess-callsFrom').val()) == ""? 0 : toNotExceedInteger($('#preprocess-callsFrom').val()),
-                'callsMax' : toNotExceedInteger($('#preprocess-callsTo').val()) == ""? -1 : toNotExceedInteger($('#preprocess-callsTo').val()),
+                'periodMin' : periodMin,
+                'periodMax' : periodMax,
+                'durationMin' : durationMin,
+                'durationMax' : durationMax,
+                'callsMin' : callsMin,
+                'callsMax' : callsMax,
                 'carriers' : carriers,
                 'mode' : mode
-
-            }
+            };
             console.log('Preprocess Form submission : ');
             console.log(submit);
 

@@ -152,9 +152,9 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Period</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="00:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control time-filter" id="preprocess-periodFrom" name="from" value="00.00">
+                            <input type="text" class="form-control time-filter time-mask" id="preprocess-periodFrom" name="from" value="00.00">
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control time-filter" id="preprocess-periodTo" name="to" value="24.00">
+                            <input type="text" class="form-control time-filter time-mask" id="preprocess-periodTo" name="to" value="24.00">
                         </div>
                     </div>
                 </div>
@@ -163,9 +163,9 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Duration</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control" id="preprocess-durationFrom" name="from" value="0">
+                            <input type="text" class="form-control integer-mask" id="preprocess-durationFrom" name="from" value="0">
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control" id="preprocess-durationTo" name="to" value="">
+                            <input type="text" class="form-control integer-mask" id="preprocess-durationTo" name="to" value="">
                         </div>
                     </div>
                 </div>
@@ -174,9 +174,9 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Calls</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control" id="preprocess-callsFrom" name="from" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-callsFrom" name="from" disabled>
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control" id="preprocess-callsTo" name="to" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-callsTo" name="to" disabled>
                         </div>
                     </div>
                 </div>
