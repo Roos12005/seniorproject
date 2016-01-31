@@ -299,6 +299,38 @@ public class DBAccess {
             if (!errors.isEmpty())
                     printErrors(errors);
         } catch (Exception e) {
+
+        } finally {
+            closeDBConnection();
+        }
+    }
+
+    public void storeCommunity(NodeIterable nodes, EdgeIterable edges) {
+        initDBConnection();
+        try {
+            Graph graph = Graph.create(dbAccess);
+            clearGraph("User_Com", "User_Com", "Call");
+            Map<Integer, GrNode> grnodes = new HashMap<>();
+            for(Node n : nodes) {
+                GrNode tmp = graph.createNode();
+                tmp.addLabel("User_Com");
+                tmp.addProperty("Member", n.getMember());
+                tmp.addProperty("Eccentricity", n.getEccentricity());
+                tmp.addProperty("Betweenness", n.getBetweenness());
+                tmp.addProperty("Closeness", n.getCloseness());
+                tmp.addProperty("CommunityID", n.getCommunityID());
+                tmp.addProperty("Color", n.getColor());
+                grnodes.put(n.getID(), tmp);
+            }
+            
+            for(Edge e : edges) {
+                GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
+            }
+            List<JcError> errors = graph.store();
+            if (!errors.isEmpty())
+                    printErrors(errors);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             closeDBConnection();
         }

@@ -63,6 +63,10 @@ public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
 //        }
 //        return false;
     }
+
+    public Edge get(int source) {
+        return this.edges.get(source);
+    }
     
     public int count() {
         return this.edges.size();

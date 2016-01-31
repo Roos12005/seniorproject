@@ -11,7 +11,6 @@ use Neoxygen\NeoClient\ClientBuilder;
 class AnalysisController extends Controller{
 
     public function getIndex() {
-      //exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0 1000 0.00 23.59", $output);
        return view('analysis.analysis');
    }
 
@@ -39,8 +38,6 @@ class AnalysisController extends Controller{
         }
 
         exec($command);
-        // exec('java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar');
-
         return $command;
     }
 

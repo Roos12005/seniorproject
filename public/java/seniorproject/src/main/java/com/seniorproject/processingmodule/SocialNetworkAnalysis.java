@@ -9,6 +9,8 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.Graph;
 import com.seniorproject.graphmodule.Node;
+import com.seniorproject.graphmodule.NodeIterable;
+import com.seniorproject.graphmodule.EdgeIterable;
 import com.seniorproject.storingmodule.DBAccess;
 import java.awt.Color;
 import java.io.FileReader;
@@ -88,13 +90,13 @@ public class SocialNetworkAnalysis {
         // ------------------------------------------
         Map<String, List<Double>> comparableFilters = new HashMap<>();
         Map<String, List<String>> stringFilters = new HashMap<>();
+        boolean comOfCom = args[args.length-1].equals("1")?true:false;
         
-        for(int i=1; i<args.length; i++) {
+        for(int i=1; i<args.length - 4; i++) {
             String key = args[i++];
             int is_number = Integer.parseInt(args[i++]);
             int args_len = Integer.parseInt(args[i++]);
-            
-            
+
             if(is_number == 1) {
                 List<Double> tmp = new ArrayList<>();
                 for(int j=0; j<args_len; j++, i++) {
@@ -110,11 +112,11 @@ public class SocialNetworkAnalysis {
             }
             i--;
         }
-       
+
         Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters);
         long readDataTime = System.currentTimeMillis();
         System.out.println("Reading Data ... Done! exec time : " + (readDataTime-startTime) + " ms");
-//    	
+    	
         for(Node node : hgraph.getNodes()) {
             System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
         }
@@ -158,7 +160,40 @@ public class SocialNetworkAnalysis {
         
         markColor(hgraph, tot.size());
         
-        
         (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
+
+        if(comOfCom){
+            Set<Node> comNodes = new HashSet<>();
+            List<Edge> comEdges = new ArrayList<>();
+            int[] comMember = new int[tot.size()];
+            String[] comColor = new String[tot.size()];
+
+            for(Node node : hgraph.getNodes()){
+                comMember[node.getCommunityID()]++;
+                comColor[node.getCommunityID()] = node.getColor();
+            }
+
+            for(int id = 0; id < tot.size(); id++){
+                Node node = new Node(id);
+                node.setCommunityID(id);
+                node.setMember(comMember[id]);
+                node.setColor(comColor[id]);
+                comNodes.add(node);
+            }
+
+            for(Edge edge : hgraph.getEdges()){
+                int comSource = hgraph.getNodes().get(edge.getSource()).getCommunityID();
+                int comTarget = hgraph.getNodes().get(edge.getTarget()).getCommunityID();
+                if(comSource != comTarget){
+                    comEdges.add(new Edge(comSource,comTarget,1.0f));
+                }
+            }
+            
+            Graph comGraph = new Graph(comNodes,comEdges);
+            GraphDistance comDis = new GraphDistance(comGraph); 
+            comDis.execute(comGraph);
+            System.out.println("Calculating Community Graph Distance ... Done!");   
+            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getEdges());       
+        }
     }
 }

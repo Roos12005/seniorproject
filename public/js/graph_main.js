@@ -27,8 +27,10 @@
         callDay : ['.+'],
         startTime : [0.0, 24.00],
         duration : [0, 99999],
-        rnCode : ['.+']
+        rnCode : ['.+'],
+        ComOfCom : 0
     };
+
     var graphStatus = {
         'full-graph' : 0,
         'community-group' : 0,
@@ -219,6 +221,91 @@
 
                 document.getElementById('unique_numbers').innerHTML = user_array.length;
                 document.getElementById('communities').innerHTML = communities.length;
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+                alert('Problem occurs during fetch data.');
+            },
+            async: false,
+        })
+        
+        Morris.Donut({
+            element: 'graph-donut',
+            data: com_data,
+            backgroundColor: '#fff',
+            labelColor: '#1fb5ac',
+            colors: color_data,
+            formatter: function (x, data) { return data.formatted; }
+        });
+        
+        Morris.Donut({
+            element: 'graph-donut2',
+            data: [
+                {value: carrier[0], label: 'AIS', formatted: 'at least ' + carrier[0] + "%" },
+                {value: carrier[1], label: 'DTAC', formatted: 'approx. ' + carrier[1] + "%" },
+                {value: carrier[2], label: 'TRUE', formatted: 'approx. ' + carrier[2] + "%" },
+                {value: carrier[3], label: 'OTHER', formatted: 'at most ' + carrier[3] + "%" }
+            ],
+            backgroundColor: '#fff',
+            labelColor: '#1fb5ac',
+            colors: [
+                '#66CC66','#FF0000','#00CCFF','#DDDDDD'
+            ],
+            formatter: function (x, data) { return data.formatted; }
+        });
+
+        return preparedData;
+    }
+
+    function fetchCommunityData(){
+        
+        var preparedData = [];
+        var carrier = [0,0,0,0];
+        var com_data = new Array();
+        var color_data = new Array();
+        ajaxSetup();
+        $.ajax({
+            type: "GET",
+            url: "http://localhost/seniorproject/public/getCommunityOfCommunity",
+            data : {},
+            success: function(e){
+                console.log(e);
+                preparedData = e;
+                setDate();
+                var communities = new Array();
+
+                $.each(e.nodes, function(index, community_info) {
+                     communities[community_info['id']] = community_info['attributes']['Member'];
+                     color_data[community_info['id']] = community_info['color'];
+                });
+
+                for (var i in communities) {
+                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' members'});
+                }
+
+                document.getElementById('communities').innerHTML = communities.length;
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+                alert('Problem occurs during fetch data.');
+            },
+            async: false,
+        })
+
+        $.ajax({
+            type: "GET",
+            url: "http://localhost/seniorproject/public/getCarrier",
+            data : {},
+            success: function(e){
+                console.log(e);
+                var user_num = e['all'];
+
+                carrier[0] = (e['ais']/e['all'] * 100).toFixed(1);
+                carrier[1] = (e['true']/e['all'] * 100).toFixed(1);
+                carrier[2] = (e['dtac']/e['all'] * 100).toFixed(1);
+                carrier[3] = ((e['all']-e['ais']-e['true']-e['dtac'])/e['all'] * 100).toFixed(1);
+
+                document.getElementById('unique_numbers').innerHTML = e['all'];
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -651,7 +738,8 @@
             startTime : $('#callPeriodFrom').val() == ''? [0.0, 24.00] : [$('#callPeriodFrom').val(), $('#callPeriodTo').val()],
             duration : $('#callDurationFrom').val() == ''? [1, 99999] : [$('#callDurationFrom').val(), $('#callDurationTo').val()],
             // noOfCall : $('#noOfCallFrom').val() == ''? [] : [$('#noOfCallFrom').val(), $('#noOfCallTo').val()],
-            rnCode : carrier.length == 0? ['.+'] : carrier
+            rnCode : carrier.length == 0? ['.+'] : carrier,
+            ComOfCom : 0
         }
 
         $.each(filter, function(k,e) {
@@ -717,6 +805,39 @@
         
      }
 
+     function processCommunityData() {
+        if(graphStatus['community-group'] == 0) {
+            filter['ComOfCom'] = 1;
+            graphStatus['community-group'] = 1;
+            $('#community-group').removeClass('btn-default').addClass('btn-warning');
+            $('#community-group i').removeClass('fa-times').addClass('fa-refresh');
+            ajaxSetup();
+            $.ajax({
+                type: "POST",
+                url: "http://localhost/seniorproject/public/processData",
+                data : filter,
+                success: function(e){
+                    console.log(e);
+                    $('#community-group').removeClass('btn-warning').addClass('btn-success');
+                    $('#community-group i').removeClass('fa-refresh').addClass('fa-check');
+                    // TODO : trigger button
+                    graphStatus['community-group'] = 2;
+                },
+                error: function(rs, e){
+                    console.log(rs.responseText);
+                }
+            });
+        } else if(graphStatus['community-group'] == 1) {
+            alert('Graph is processing ...'); 
+        } else if(graphStatus['community-group'] == 2) {
+            runCommunityGraph();
+            graphStatus['community-group'] = 3;
+        } else if(graphStatus['community-group'] == 3) {
+            alert('The graph is already been shown.');
+        }
+        
+     }
+
      function runGraph() {
         clearGraph();
         graphData = fetchData();
@@ -725,6 +846,16 @@
         addSearchBoxListener();
         addBackButtonListener();
         addHilightListener();
+     }
+
+     function runCommunityGraph() {
+        clearGraph();
+        graphData = fetchCommunityData();
+        plotFullGraph();
+        addZoomListener();
+        // addSearchBoxListener();
+        addBackButtonListener();
+        // addHilightListener();
      }
 
     function setDate(){
@@ -767,7 +898,7 @@
         initFilter();
 
 
-
+        document.getElementById('community-group').addEventListener('click', processCommunityData);
         document.getElementById('full-graph').addEventListener('click', processData);
     }();
 
