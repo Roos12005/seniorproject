@@ -21,6 +21,7 @@
     var s;
     var currentHilight = 'default';
     var initForce = false;
+    var compute_com = false;
 
     var filter = {
         startDate : [19700101, 21000101],
@@ -229,30 +230,7 @@
             async: false,
         })
         
-        Morris.Donut({
-            element: 'graph-donut',
-            data: com_data,
-            backgroundColor: '#fff',
-            labelColor: '#1fb5ac',
-            colors: color_data,
-            formatter: function (x, data) { return data.formatted; }
-        });
-        
-        Morris.Donut({
-            element: 'graph-donut2',
-            data: [
-                {value: carrier[0], label: 'AIS', formatted: 'at least ' + carrier[0] + "%" },
-                {value: carrier[1], label: 'DTAC', formatted: 'approx. ' + carrier[1] + "%" },
-                {value: carrier[2], label: 'TRUE', formatted: 'approx. ' + carrier[2] + "%" },
-                {value: carrier[3], label: 'OTHER', formatted: 'at most ' + carrier[3] + "%" }
-            ],
-            backgroundColor: '#fff',
-            labelColor: '#1fb5ac',
-            colors: [
-                '#66CC66','#FF0000','#00CCFF','#DDDDDD'
-            ],
-            formatter: function (x, data) { return data.formatted; }
-        });
+        createPieChart(com_data,color_data,carrier);
 
         return preparedData;
     }
@@ -275,8 +253,8 @@
                 var communities = new Array();
 
                 $.each(e.nodes, function(index, community_info) {
-                     communities[community_info['id']] = community_info['attributes']['Member'];
-                     color_data[community_info['id']] = community_info['color'];
+                     communities[community_info['attributes']['Modularity Class']] = community_info['attributes']['Member'];
+                     color_data[community_info['attributes']['Modularity Class']] = community_info['color'];
                 });
 
                 for (var i in communities) {
@@ -314,6 +292,12 @@
             async: false,
         })
         
+        createPieChart(com_data,color_data,carrier);
+
+        return preparedData;
+    }
+
+    function createPieChart(com_data, color_data, carrier){
         Morris.Donut({
             element: 'graph-donut',
             data: com_data,
@@ -338,8 +322,6 @@
             ],
             formatter: function (x, data) { return data.formatted; }
         });
-
-        return preparedData;
     }
 
     /**  
@@ -367,21 +349,27 @@
 
         // Add Click Listener to all Nodes
         s.bind('clickNode', clickNodeListener);
-        s.bind('doubleClickNode', doubleClickNodeListener);
+        if(compute_com){
+            s.bind('doubleClickNode', doubleClickCommunityListener);
+        } else {
+            s.bind('doubleClickNode', doubleClickNodeListener);
+        }
 
 
         // Display Graph using sigma object
-        if(initForce) {
-            s.refresh();
-        } else {
-            initForce = true;
-            s.startForceAtlas2({});
-            setTimeout(function () {
-                s.stopForceAtlas2();
-            }, 500);
-            
-            
-        }
+        // if(initForce) {
+        //     s.refresh();
+        // } else {
+        //     initForce = true;
+        //     s.startForceAtlas2({});
+        //     setTimeout(function () {
+        //         s.stopForceAtlas2();
+        //     }, 500);
+        // }
+        s.startForceAtlas2({});
+        setTimeout(function () {
+            s.killForceAtlas2();
+        }, 500);
     }
 
     /**  
@@ -469,7 +457,6 @@
      */
      function clickNodeListener(node) {
         var nodeData = updateInformation(node);
-
      }
 
      function doubleClickNodeListener(node) {
@@ -488,6 +475,57 @@
         plotPartialGraph(filteredNodes);
      }
 
+     function doubleClickCommunityListener(node) {
+        // TODO : Display only selected community
+        var nodeData = updateInformation(node);
+        // Show back button on the top right of the div
+        document.getElementsByClassName('back-section')[0].style.display = 'block';
+        var plotNodes = [];
+        clearGraph();
+        // s.refresh();
+
+        ajaxSetup();
+        $.ajax({
+            type: "GET",
+            url: "http://localhost/seniorproject/public/getCDR",
+            data : {},
+            success: function(e){
+                console.log(e);
+                graphData = e;
+                graphData.nodes.forEach(function(node) {
+        //     addNode(node);
+        //     numIDMapper[node.label] = node.id;
+            console.log(node.id);
+         });
+            }
+        });
+        console.log("passss");
+        numIDMapper = {};
+        // Add all returned nodes to sigma object
+        graphData.nodes.forEach(function(node) {
+        //     addNode(node);
+        //     numIDMapper[node.label] = node.id;
+            console.log(node.id);
+         });
+
+        // // Add all return edges to sigma object
+        // graphData.edges.forEach(function(edge) {
+        //     addEdge(edge);
+        // });
+
+        // // Display Graph using sigma object
+        // if(initForce) {
+        //     s.refresh();
+        // } else {
+        //     initForce = true;
+        //     s.startForceAtlas2({});
+        //     setTimeout(function () {
+        //         s.stopForceAtlas2();
+        //     }, 500);
+        // }
+        
+     }
+
      /**  
      *  @brief  Update Right column information
      *
@@ -502,6 +540,7 @@
         var nodeData = undefined;
         var nodeID = node.id == undefined ? node.data.node.id : node.id; 
         var communities = new Array();
+        var communityRank = new Array();
         var bc = new Array();
         var cc = new Array();
         graphData.nodes.forEach(function(n) {
@@ -510,11 +549,17 @@
             }
             bc.push(parseFloat(n.attributes['Betweenness Centrality']));
             cc.push(parseFloat(n.attributes['Closeness Centrality']));
-            if (!communities[n.attributes['Modularity Class']]) {
-               communities[n.attributes['Modularity Class']] = 1;
-            }
-            else {
-                communities[n.attributes['Modularity Class']] += 1;
+            if(compute_com){
+                communityRank[n.attributes['Modularity Class']] = n.attributes['Member'];
+            } else {
+                if (!communities[n.attributes['Modularity Class']]) {
+                   communities[n.attributes['Modularity Class']] = 1;
+                   communityRank[n.attributes['Modularity Class']] = 1;
+                }
+                else {
+                    communities[n.attributes['Modularity Class']] += 1;
+                    communityRank[n.attributes['Modularity Class']] += 1;
+                }
             }
         });
 
@@ -526,30 +571,36 @@
           return b - a;
         });
 
+        communityRank.sort(function(a, b) {
+          return b - a;
+        });
+
         if(nodeData == undefined) {
             alert('Can\'t get node data');
             return;
         }
         
         // TODO : Update right column
-       // document.getElementById('cname').innerHTML = 'Unknown';
+        // document.getElementById('cname').innerHTML = 'Unknown';
         document.getElementById('cage').innerHTML = nodeData.attributes['Age'];
         document.getElementById('cnumber').innerHTML = nodeData.label;
         document.getElementById('cpromotion').innerHTML = nodeData.attributes['Promotion'];
         document.getElementById('ccarrier').innerHTML = nodeData.attributes['RnCode'];
         document.getElementById('cgender').innerHTML = nodeData.attributes['Gender'];
-
-        document.getElementById('comrank').innerHTML = communities.indexOf(communities[nodeData.attributes['Modularity Class']]) + 1;
-        document.getElementById('comsize').innerHTML = communities[nodeData.attributes['Modularity Class']];
         document.getElementById('cc').innerHTML = cc.indexOf(nodeData.attributes['Closeness Centrality']) + ' (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
         document.getElementById('bc').innerHTML = bc.indexOf(nodeData.attributes['Betweenness Centrality']) + ' (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
-
         document.getElementById('comid').innerHTML = nodeData.attributes['Modularity Class'];
-        document.getElementById('comnum').innerHTML = communities[nodeData.attributes['Modularity Class']];
-        
+        if(compute_com){
+            document.getElementById('comrank').innerHTML = communityRank.indexOf(nodeData.attributes['Member']) + 1;
+            document.getElementById('comsize').innerHTML = nodeData.attributes['Member'];
+            document.getElementById('comnum').innerHTML = nodeData.attributes['Member'];
+        } else {
+            document.getElementById('comrank').innerHTML = communityRank.indexOf(communities[nodeData.attributes['Modularity Class']]) + 1;
+            document.getElementById('comsize').innerHTML = communities[nodeData.attributes['Modularity Class']];
+            document.getElementById('comnum').innerHTML = communities[nodeData.attributes['Modularity Class']];
+       }
         return nodeData;
      }
-
 
      /**  
      *  @brief  Listener on clicking back button
@@ -808,6 +859,7 @@
      function processCommunityData() {
         if(graphStatus['community-group'] == 0) {
             filter['ComOfCom'] = 1;
+            compute_com = true;
             graphStatus['community-group'] = 1;
             $('#community-group').removeClass('btn-default').addClass('btn-warning');
             $('#community-group i').removeClass('fa-times').addClass('fa-refresh');
@@ -830,7 +882,7 @@
         } else if(graphStatus['community-group'] == 1) {
             alert('Graph is processing ...'); 
         } else if(graphStatus['community-group'] == 2) {
-            runCommunityGraph();
+            runGraph();
             graphStatus['community-group'] = 3;
         } else if(graphStatus['community-group'] == 3) {
             alert('The graph is already been shown.');
@@ -840,22 +892,16 @@
 
      function runGraph() {
         clearGraph();
-        graphData = fetchData();
+        if(compute_com){
+            graphData = fetchCommunityData();
+        } else {
+            graphData = fetchData();
+        }
         plotFullGraph();
         addZoomListener();
         addSearchBoxListener();
         addBackButtonListener();
         addHilightListener();
-     }
-
-     function runCommunityGraph() {
-        clearGraph();
-        graphData = fetchCommunityData();
-        plotFullGraph();
-        addZoomListener();
-        // addSearchBoxListener();
-        addBackButtonListener();
-        // addHilightListener();
      }
 
     function setDate(){

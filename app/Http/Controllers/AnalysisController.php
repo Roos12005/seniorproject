@@ -193,43 +193,89 @@ class AnalysisController extends Controller{
 
     $community_list = array();
 
-    for($community = 0; $community < $community_num; $community++) {
-      $q = 'MATCH (n:User{CommunityID:'.$community.'}) RETURN count(n),n.Color';
-      $result = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-      
-      $community_stat = [
-        'Member' => $result[0]['count(n)'],
-        'Modularity Class' => $community
-      ];
+    $q = 'MATCH (n:User_Com) RETURN n, ID(n) as n_id';
+        $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        $node_list = array();
+        $node_count = sizeof($results);
+        foreach($results as $key => $result) {
+            $community_stat = [
+                'Betweenness Centrality' => $result['n']['Betweenness'],
+                'Modularity Class' => $result['n']['CommunityID'],
+                'Eccentricity' => $result['n']['Eccentricity'],
+                'Closeness Centrality' => $result['n']['Closeness'],
+                'Member' => $result['n']['Member']
+            ];
+            $community_info = [
+              'label' => "Community".$result['n']['CommunityID'],
+              'x' => 10*cos(2 * M_PI/$community_num),
+              'y' => 10*sin(2 * M_PI/$community_num),
+              'id' => $result['n_id'],
+              'attributes' => $community_stat,
+              'color' => $result['n']['Color'],
+              'size' => 1
+            ];
+            array_push($community_list, $community_info);
+        }
 
-      $community_info = [
-        'id' => $community,
-        'label' => "Community: ".$community,
-        'attributes' => $community_stat,
-        'x' => 10*cos(2 * $community * M_PI/$community_num),
-        'y' => 10*sin(2 * $community * M_PI/$community_num),
-        'color' => $result[0]['n.Color'],
-        'size' => 1
-      ];
-      array_push($community_list, $community_info);
-    }
+    // for($community = 0; $community < $community_num; $community++) {
+    //   $q = 'MATCH (n:User{CommunityID:'.$community.'}) RETURN count(n),n.Color';
+    //   $result = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+      
+    //   $community_stat = [
+    //     'Member' => $result[0]['count(n)'],
+    //     'Modularity Class' => $community
+    //   ];
+
+    //   $community_info = [
+    //     'id' => $community,
+    //     'label' => "Community: ".$community,
+    //     'attributes' => $community_stat,
+    //     'x' => 10*cos(2 * $community * M_PI/$community_num),
+    //     'y' => 10*sin(2 * $community * M_PI/$community_num),
+    //     'color' => $result[0]['n.Color'],
+    //     'size' => 1
+    //   ];
+    //   array_push($community_list, $community_info);
+    // }
 
     $edge_list = array();
 
-    $q = 'Match(n:User)-[r:Call]->(m:User) Return n.CommunityID,m.CommunityID';
-    $edges = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-    $edge_id = 5421;
-    foreach ($edges as $edge) {
-      $edge_info = [
-        'id' => $edge_id,
-        'source' => $edge['n.CommunityID'],
-        'target' => $edge['m.CommunityID'],
-        'color' => '',
-        'size' => 1
-      ];
-      array_push($edge_list, $edge_info);
-      $edge_id++;
-    }
+    $q = 'MATCH (n:User_Com)-[r:Call]->(m:User_Com) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        $edge_list = array();
+        foreach ($results as $result) {
+            $edge_prop = [
+                'duration' => $result['r']['Duration'],
+                'startDate' => $result['r']['StartDate'],
+                'startTime' => $result['r']['StartTime'],
+                'callDay' => $result['r']['CallDay']
+            ];
+            $edge_info = [
+              'target' => $result['m_id'],
+              'color' => '',
+              'label' => '',
+              'source' => $result['n_id'],
+              'attributes' => $edge_prop,
+              'id' => $result['r_id'],
+              'size' => 1
+            ];
+            array_push($edge_list, $edge_info);
+        }
+
+    // $q = 'Match(n:User)-[r:Call]->(m:User) Return n.CommunityID,m.CommunityID';
+    // $edges = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+    // $edge_id = 5421;
+    // foreach ($edges as $edge) {
+    //   $edge_info = [
+    //     'id' => $edge_id,
+    //     'source' => $edge['n.CommunityID'],
+    //     'target' => $edge['m.CommunityID'],
+    //     'color' => '',
+    //     'size' => 1
+    //   ];
+    //   array_push($edge_list, $edge_info);
+    //   $edge_id++;
+    // }
 
     return response()->json(['nodes' => $community_list, 'edges' => $edge_list]); 
   }

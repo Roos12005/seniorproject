@@ -148,6 +148,7 @@ public class DBAccess {
                 con.valueOf(r.property("duration")).GTE(0),
                 RETURN.value(r),
             });
+
 //            
 //            icList.add(RETURN.value(r));
 //            IClause[] iclauses = new IClause[icList.size()];
@@ -177,6 +178,9 @@ public class DBAccess {
             for(GrRelation gr : relationships) {
                 GrNode sNode = gr.getStartNode();
                 GrNode eNode = gr.getEndNode();
+
+                System.out.println(sNode.getId());
+                System.out.println(eNode.getId());
 
                 List<GrProperty> sProps = sNode.getProperties();
                 List<GrProperty> eProps = eNode.getProperties();
@@ -262,7 +266,7 @@ public class DBAccess {
         return null;
     }
     
-    public void store(NodeIterable nodes, EdgeIterable edges) {
+    public void store(NodeIterable nodes, List<Edge> edges) {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);
@@ -305,7 +309,7 @@ public class DBAccess {
         }
     }
 
-    public void storeCommunity(NodeIterable nodes, EdgeIterable edges) {
+    public void storeCommunity(NodeIterable nodes, List<Edge> edges) {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);
@@ -325,6 +329,10 @@ public class DBAccess {
             
             for(Edge e : edges) {
                 GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
+                rel.addProperty("Duration", e.getDuration());
+                rel.addProperty("StartDate", e.getStartDate());
+                rel.addProperty("StartTime", e.getStartTime());
+                rel.addProperty("CallDay", e.getCallDay());
             }
             List<JcError> errors = graph.store();
             if (!errors.isEmpty())

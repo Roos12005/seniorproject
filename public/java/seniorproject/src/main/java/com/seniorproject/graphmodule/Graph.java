@@ -19,7 +19,7 @@ import java.util.Set;
 public class Graph {
     private EdgeIterable edges;
     private NodeIterable nodes;
-    
+    private List<Edge> fullEdges;
     private Map<Integer, NodeIterable> neighbors;
     
     private Map<Integer, EdgeIterable> outEdges;
@@ -28,6 +28,7 @@ public class Graph {
     public Graph(Set<Node> nodes, List<Edge> edges){
         this.nodes = new NodeIterable();
         this.edges = new EdgeIterable();
+        this.fullEdges = edges;
         this.neighbors = new HashMap<>();
         this.outEdges = new HashMap<>();
         this.allEdges = new HashMap<>();
@@ -184,5 +185,9 @@ public class Graph {
 
     public int getNodeCount(){
         return nodes.count();
+    }
+    
+    public List<Edge> getFullEdges() {
+        return this.fullEdges;
     }
 }

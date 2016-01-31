@@ -160,7 +160,9 @@ public class SocialNetworkAnalysis {
         
         markColor(hgraph, tot.size());
         
-        (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
+
+        //(new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
+        (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges());
 
         if(comOfCom){
             Set<Node> comNodes = new HashSet<>();
@@ -185,7 +187,7 @@ public class SocialNetworkAnalysis {
                 int comSource = hgraph.getNodes().get(edge.getSource()).getCommunityID();
                 int comTarget = hgraph.getNodes().get(edge.getTarget()).getCommunityID();
                 if(comSource != comTarget){
-                    comEdges.add(new Edge(comSource,comTarget,1.0f));
+                    comEdges.add(new Edge(comSource,comTarget,1.0f,edge.getStartDate(),edge.getStartTime(),edge.getCallDay(),edge.getDuration()));  
                 }
             }
             
@@ -193,7 +195,7 @@ public class SocialNetworkAnalysis {
             GraphDistance comDis = new GraphDistance(comGraph); 
             comDis.execute(comGraph);
             System.out.println("Calculating Community Graph Distance ... Done!");   
-            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getEdges());       
+            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges());       
         }
     }
 }
