@@ -5943,3 +5943,8 @@ right: -1px;
     margin-right: 20px;
     margin-top: -12px;
 }
+
+.round-add-button {
+    border-radius: 100%; 
+    padding: 10px 12px;
+}

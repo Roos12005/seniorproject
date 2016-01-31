@@ -12,7 +12,6 @@
 !function(){
     'use strict';
 
-
     function addPFilterListener() {
         $(".preprocess-filter").on('click', function() {
             var pid = $(this).attr('data-pid');
@@ -138,6 +137,220 @@
 
     }
 
+    function intArrayToUnary(arr, size) {
+        var result = '';
+        var c = 0;
+        for(var idx=0;idx<size;idx+=1) {
+            if(idx == arr[c]) {
+                result += 1;
+                c += 1;
+            } else {
+                result += 0;
+            }
+        }
+        return result;
+    }
+
+    function initPreprocessForm() {
+        // hide preprocess form until user clicked on add button
+        $('#preprocess-form-wrapper').hide();
+        
+        // force community mode checkbox to be checked when community profiling checkbox is checked
+        $('#preprocess-community-profiling-mode').on('change', function(){
+            if(this.checked) {
+                $('#preprocess-community-mode').prop('checked',this.checked);
+            }
+        });
+        // force community profiling mode checkbox to be unchecked when community checkbox is unchecked
+        $('#preprocess-community-mode').on('change', function(){
+            if(!this.checked) {
+                $('#preprocess-community-profiling-mode').prop('checked',this.checked);
+            }
+        });
+
+        // add listener to preprocess form
+        // submit button
+        $('#submit-preprocess').on('click', function() {
+            // submit form
+            var days = $('.preprocess-days:checked').map(function(_, el) {
+                return $(el).val();
+            }).get();
+            days = intArrayToUnary(days,7);
+            if(days.indexOf('1') < 0) {
+                alert('Please select at least one day.');
+                return;
+            }
+
+            var carriers = $('.preprocess-carriers:checked').map(function(_, el) {
+                return $(el).val();
+            }).get();
+            carriers = intArrayToUnary(carriers,5);
+            if(carriers.indexOf('1') < 0) {
+                alert('Please select at least one carriers.');
+                return;
+            }
+
+            var mode = $('.preprocess-mode:checked').map(function(_, el) {
+                return $(el).val();
+            }).get();
+            mode = intArrayToUnary(mode,4);
+            if(mode.indexOf('1') < 0) {
+                alert('Please select at least one mode.');
+                return;
+            }
+            
+
+            var submit = {
+                'date' : $('#preprocess-date').val(),
+                'days' : days,
+                'periodMin' : $('#preprocess-periodFrom').val() == ""? 0 : $('#preprocess-periodFrom').val(),
+                'periodMax' : $('#preprocess-periodTo').val() == ""? -1 : $('#preprocess-periodTo').val(),
+                'durationMin' : toNotExceedInteger($('#preprocess-durationFrom').val()) == ""? 0 : toNotExceedInteger($('#preprocess-durationFrom').val()),
+                'durationMax' : toNotExceedInteger($('#preprocess-durationTo').val()) == ""? -1 : toNotExceedInteger($('#preprocess-durationTo').val()),
+                'callsMin' : toNotExceedInteger($('#preprocess-callsFrom').val()) == ""? 0 : toNotExceedInteger($('#preprocess-callsFrom').val()),
+                'callsMax' : toNotExceedInteger($('#preprocess-callsTo').val()) == ""? -1 : toNotExceedInteger($('#preprocess-callsTo').val()),
+                'carriers' : carriers,
+                'mode' : mode
+
+            }
+            console.log('Preprocess Form submission : ');
+            console.log(submit);
+
+            // TODO : ajax
+
+        });
+
+        // cancel button
+        $('#cancel-preprocess').on('click', function() {
+            // clear all fields
+            $('#preprocess-form')[0].reset();
+
+            // hide preprocess form and show add button
+            $('#new-preprocess').show(300);
+            $('#preprocess-form-wrapper').hide();
+        });
+
+        // add button listener
+        $('#new-preprocess').on('click', function() {
+            // hide add button and show preprocess form
+            $('#new-preprocess').hide();
+            $('#preprocess-form-wrapper').show(300);
+        });
+    }
+
+    function initBatchForm() {
+        // hide batch form until user clicked on add button
+        $('#batch-form').hide();
+
+        // add listener to batch form
+        // submit button
+        $('#submit-batch').on('click', function() {
+            // submit form
+            var days = $('.batch-days:checked').map(function(_, el) {
+                return $(el).val();
+            }).get();
+            days = intArrayToUnary(days,7);
+            if(days.indexOf('1') < 0) {
+                alert('Please select at least one day.');
+                return;
+            }
+
+            var carriers = $('.batch-carriers:checked').map(function(_, el) {
+                return $(el).val();
+            }).get();
+            carriers = intArrayToUnary(carriers,5);
+            if(carriers.indexOf('1') < 0) {
+                alert('Please select at least one carriers.');
+                return;
+            }
+
+            var mode = $('.batch-mode:checked').map(function(_, el) {
+                return $(el).val();
+            }).get();
+            mode = intArrayToUnary(mode,4);
+            if(mode.indexOf('1') < 0) {
+                alert('Please select at least one mode.');
+                return;
+            }
+
+            var validator = new Validator();
+
+            var durationMin = validator.validateMinRange($('#batch-durationFrom').val());
+            var durationMax = validator.validateMaxRange($('#batch-durationTo').val());
+            if(durationMin > durationMax && durationMax !== -1) {
+                alert('Minimum duration is exceeded the Maximun duration.');
+                return;
+            }
+
+            var callsMin = validator.validateMinRange($('#batch-callsFrom').val());
+            var callsMax = validator.validateMaxRange($('#batch-callsTo').val());
+            if(callsMin > callsMax && callsMax !== -1) {
+                alert('Minimum calls is exceeded the Maximun calls.');
+                return;
+            }
+
+            var periodMin = validator.validateMinTime($('#batch-periodFrom').val());
+            var periodMax = validator.validateMaxTime($('#batch-periodTo').val());
+            if(periodMin > periodMax && periodMax !== -1) {
+                alert('Minimum period is exceeded the Maximun period.');
+                return;
+            }
+
+            var submit = {
+                'date' : $('#batch-date').val(),
+                'days' : days,
+                'periodMin' : periodMin,
+                'periodMax' : periodMax,
+                'durationMin' : durationMin,
+                'durationMax' : durationMax,
+                'callsMin' : callsMin,
+                'callsMax' : callsMax,
+                'carriers' : carriers,
+                'mode' : mode
+
+            }
+            console.log('Batch Form submission : ');
+            console.log(submit);
+
+            // TODO : ajax
+        });
+
+        // cancel button
+        $('#cancel-batch').on('click', function() {
+            // clear all fields
+            $('#batch-form')[0].reset();
+
+            // hide batch form and show add button
+            $('#new-batch').show(300);
+            $('#batch-form').hide();
+
+            
+        });
+
+        // add button listener
+        $('#new-batch').on('click', function() {
+            // hide add button and show batch form
+            $('#new-batch').hide();
+            $('#batch-form').show(300);
+        });
+    }
+
+    function addInputFormMasking() {
+        var notOverTwentyFour = function(val) {
+            return parseFloat(val) > 24.00 ? '24.\0\0' : '00.00';
+        }
+        $('.time-mask').mask('00.00',  {
+            onKeyPress: function(val, e, field, options) {
+                field.mask(notOverTwentyFour.apply({}, arguments), options);
+            },
+            clearIfNotMatch: true
+
+        });
+        $('.integer-mask').mask("#", {reverse: true})
+    }
+
+    
+
     /**
      *  @brief Main function of this file
      *
@@ -148,6 +361,9 @@
         addPFilterListener();
         addTFilterListener();
         initPagination();
+        initPreprocessForm();
+        initBatchForm();
+        addInputFormMasking();
     }();
 
 }();
