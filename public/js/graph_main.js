@@ -22,6 +22,7 @@
     var currentHilight = 'default';
     var initForce = false;
     var compute_com = false;
+    var activateClick = false;
 
     var filter = {
         startDate : [19700101, 21000101],
@@ -202,8 +203,8 @@
                         carrier[3] += 1;
                     }
                     if (!communities[user_info['attributes']['Modularity Class']]) {
-                       communities[user_info['attributes']['Modularity Class']] = 1;
-                       color_data.push(user_info['color']);
+                        communities[user_info['attributes']['Modularity Class']] = 1;
+                        color_data[user_info['attributes']['Modularity Class']] = user_info['color'];
                     }
                     else {
                         communities[user_info['attributes']['Modularity Class']] += 1;
@@ -348,24 +349,17 @@
         });
 
         // Add Click Listener to all Nodes
-        s.bind('clickNode', clickNodeListener);
-        if(compute_com){
-            s.bind('doubleClickNode', doubleClickCommunityListener);
-        } else {
-            s.bind('doubleClickNode', doubleClickNodeListener);
+        if(!activateClick){
+            s.bind('clickNode', clickNodeListener);
+            if(compute_com){
+                s.bind('doubleClickNode', doubleClickCommunityListener);
+            } else {
+                s.bind('doubleClickNode', doubleClickNodeListener);
+            }
+            activateClick = true;
         }
 
-
         // Display Graph using sigma object
-        // if(initForce) {
-        //     s.refresh();
-        // } else {
-        //     initForce = true;
-        //     s.startForceAtlas2({});
-        //     setTimeout(function () {
-        //         s.stopForceAtlas2();
-        //     }, 500);
-        // }
         s.startForceAtlas2({});
         setTimeout(function () {
             s.killForceAtlas2();
@@ -384,6 +378,11 @@
         nodes.forEach(function(node) {
             removeNode(node);
         });
+
+        s.startForceAtlas2({});
+        setTimeout(function () {
+            s.killForceAtlas2();
+        }, 500);
 
         s.refresh();
     }
@@ -461,7 +460,6 @@
 
      function doubleClickNodeListener(node) {
         // TODO : Display only selected community
-        // console.log(nodeData['attributes']['Modularity Class']);
         var nodeData = updateInformation(node);
         // Show back button on the top right of the div
         document.getElementsByClassName('back-section')[0].style.display = 'block';
@@ -480,50 +478,38 @@
         var nodeData = updateInformation(node);
         // Show back button on the top right of the div
         document.getElementsByClassName('back-section')[0].style.display = 'block';
-        var plotNodes = [];
+        var selectedCommunity = nodeData['attributes']['Modularity Class'];
+        var communityData = [];
         clearGraph();
-        // s.refresh();
 
         ajaxSetup();
         $.ajax({
             type: "GET",
-            url: "http://localhost/seniorproject/public/getCDR",
-            data : {},
+            url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity",
+            data : {"senddata":selectedCommunity},
             success: function(e){
-                console.log(e);
-                graphData = e;
-                graphData.nodes.forEach(function(node) {
-        //     addNode(node);
-        //     numIDMapper[node.label] = node.id;
-            console.log(node.id);
-         });
+                 console.log(e);
+                 communityData = e;
+
+                 numIDMapper = {};
+                // Add all returned nodes to sigma object
+                 communityData.nodes.forEach(function(n) {
+                    addNode(n);
+                    numIDMapper[n.label] = n.id;
+                 });
+                // Add all return edges to sigma object
+                communityData.edges.forEach(function(edge) {
+                    addEdge(edge);
+                });
+
+                s.startForceAtlas2({});
+                setTimeout(function () {
+                    s.killForceAtlas2();
+                }, 500);
+
+                s.refresh();
             }
-        });
-        console.log("passss");
-        numIDMapper = {};
-        // Add all returned nodes to sigma object
-        graphData.nodes.forEach(function(node) {
-        //     addNode(node);
-        //     numIDMapper[node.label] = node.id;
-            console.log(node.id);
-         });
-
-        // // Add all return edges to sigma object
-        // graphData.edges.forEach(function(edge) {
-        //     addEdge(edge);
-        // });
-
-        // // Display Graph using sigma object
-        // if(initForce) {
-        //     s.refresh();
-        // } else {
-        //     initForce = true;
-        //     s.startForceAtlas2({});
-        //     setTimeout(function () {
-        //         s.stopForceAtlas2();
-        //     }, 500);
-        // }
-        
+        });        
      }
 
      /**  

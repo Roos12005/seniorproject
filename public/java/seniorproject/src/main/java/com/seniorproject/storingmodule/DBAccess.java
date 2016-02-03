@@ -149,6 +149,13 @@ public class DBAccess {
                 RETURN.value(r),
             });
 
+            // MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
+            //     WITH.count().value(r).AS(degree),
+            //     WITH.value(a),
+            //     WHERE.valueOf(degree).GT(1),
+            //     RETURN.value(a),
+            //     RETURN.value(degree)
+
 //            
 //            icList.add(RETURN.value(r));
 //            IClause[] iclauses = new IClause[icList.size()];

@@ -641,7 +641,7 @@
                         <div class="col-lg-6">
                             <select multiple name="e2" id="e2" style="width:300px" class="populate">
                             </select>
-                            <input type="hidden" name="senddata" id="senddata" value="32141">  
+                            <input type="hidden" name="senddata" id="senddata" value="">  
                         </div>
                     </div>
                     <div style="float: right;">

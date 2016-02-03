@@ -25,8 +25,7 @@ Route::get('getCommunities','AnalysisController@getCommunities');
 Route::get('getNodeCommunity','AnalysisController@getNodeCommunity');
 Route::get('getCommunityOfCommunity','AnalysisController@getCommunityOfCommunity');
 Route::get('getCarrier','AnalysisController@getCarrier');
-
-
+Route::get('getNodeInSelectedCommunity','AnalysisController@getNodeInSelectedCommunity');
 
 Route::get('/test','AnalysisController@test');
 
