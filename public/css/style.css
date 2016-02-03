@@ -5948,3 +5948,7 @@ right: -1px;
     border-radius: 100%; 
     padding: 10px 12px;
 }
+
+.margin-right-4 {
+    margin-right: 4px;
+}

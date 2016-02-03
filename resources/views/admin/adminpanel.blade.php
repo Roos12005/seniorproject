@@ -11,7 +11,7 @@
 
 
 @section('content')
-
+<meta name="csrf-token" content="{{ csrf_token() }}" />
 
 <div class="row">
     <div class="col-sm-12">
@@ -109,6 +109,7 @@
                                 <option value="2015102">Oct - Week 2</option>
                                 <option value="2015103">Oct - Week 3</option>
                                 <option value="2015104">Oct - Week 4</option>
+                                <option value="2015105">Oct - Week 5</option>
                             </optgroup>
                             <optgroup label="November 2015">
                                 <option value="2015110">Nov - Month</option>
@@ -116,6 +117,7 @@
                                 <option value="2015112">Nov - Week 2</option>
                                 <option value="2015113">Nov - Week 3</option>
                                 <option value="2015114">Nov - Week 4</option>
+                                <option value="2015115">Nov - Week 5</option>
                             </optgroup>
                         </select>
                     </div>
@@ -326,7 +328,7 @@
                             <th>Progress</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="progress-table-body">
                         @foreach($table as $key => $row)
                         <tr>
                             <td><a href="#">{{ $key + 1 }}</a></td>
@@ -365,145 +367,155 @@
             <button id="new-batch" class="btn btn-default round-add-button">
                 <i class="fa fa-plus"></i>
             </button>
-            <div class="col-lg-12" id="batch-form">
+            <div class="col-lg-12" id="batch-form-wrapper">
                 <header class="panel-heading m-bot15">
                   ADD NEW PRE-PROCESS DATA
               </header>   
               <div class="col-md-12">
 
                 <form action="#" class="form-horizontal bucket-form" id="batch-form" onsubmit="return false;">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Date</label>
-                    <div class="col-sm-6">
-                        <select class="form-control" id="batch-date">
-                            <optgroup label="September 2015">
-                                <option value="2015090">Sep - Month</option>
-                                <option value="2015091">Sep - Week 1</option>
-                                <option value="2015092">Sep - Week 2</option>
-                            </optgroup>
-                            <optgroup label="October 2015">
-                                <option value="2015100">Oct - Month</option>
-                                <option value="2015101">Oct - Week 1</option>
-                                <option value="2015102">Oct - Week 2</option>
-                                <option value="2015103">Oct - Week 3</option>
-                                <option value="2015104">Oct - Week 4</option>
-                            </optgroup>
-                            <optgroup label="November 2015">
-                                <option value="2015110">Nov - Month</option>
-                                <option value="2015111">Nov - Week 1</option>
-                                <option value="2015112">Nov - Week 2</option>
-                                <option value="2015113">Nov - Week 3</option>
-                                <option value="2015114">Nov - Week 4</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Days</label>
-                    <div class="col-lg-6">
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-days" value="0"> Sun
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-days" value="1"> Mon
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-days" value="2"> Tue
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-days" value="3"> Wed
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-days" value="4"> Thu
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-days" value="5"> Fri
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-days" value="6"> Sat
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Period</label>
-                    <div class="col-lg-6">
-                        <div class="input-group input-medium" data-time="00:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control time-filter time-mask" id="batch-periodFrom" name="from">
-                            <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control time-filter time-mask" id="batch-periodTo" name="to">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Description</label>
+                        <div class="col-lg-6">
+                                <input type="text" class="form-control" id="batch-description">
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Duration</label>
-                    <div class="col-lg-6">
-                        <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control integer-mask" id="batch-durationFrom" name="from">
-                            <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control integer-mask" id="batch-durationTo" name="to">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Date</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" id="batch-date">
+                                <optgroup label="September 2015">
+                                    <option value="2015090">Sep - Month</option>
+                                    <option value="2015091">Sep - Week 1</option>
+                                    <option value="2015092">Sep - Week 2</option>
+                                </optgroup>
+                                <optgroup label="October 2015">
+                                    <option value="2015100">Oct - Month</option>
+                                    <option value="2015101">Oct - Week 1</option>
+                                    <option value="2015102">Oct - Week 2</option>
+                                    <option value="2015103">Oct - Week 3</option>
+                                    <option value="2015104">Oct - Week 4</option>
+                                    <option value="2015105">Oct - Week 5</option>
+                                </optgroup>
+                                <optgroup label="November 2015">
+                                    <option value="2015110">Nov - Month</option>
+                                    <option value="2015111">Nov - Week 1</option>
+                                    <option value="2015112">Nov - Week 2</option>
+                                    <option value="2015113">Nov - Week 3</option>
+                                    <option value="2015114">Nov - Week 4</option>
+                                    <option value="2015115">Nov - Week 5</option>
+                                </optgroup>
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Calls</label>
-                    <div class="col-lg-6">
-                        <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control" id="batch-callsFrom" name="from" disabled>
-                            <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control" id="batch-callsTo" name="to" disabled>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Days</label>
+                        <div class="col-lg-6">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-days" value="0"> Sun
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-days" value="1"> Mon
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-days" value="2"> Tue
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-days" value="3"> Wed
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-days" value="4"> Thu
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-days" value="5"> Fri
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-days" value="6"> Sat
+                            </label>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Carrier</label>
-                    <div class="col-lg-6">
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-carriers" value="0" checked> AIS
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-carriers" value="1"> TRUE
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-carriers" value="2"> DTAC
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-carriers" value="3"> JAS
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-carriers" value="4"> Others
-                        </label>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Period</label>
+                        <div class="col-lg-6">
+                            <div class="input-group input-medium" data-time="00:00" data-time-format="hh:mm">
+                                <input type="text" class="form-control time-filter time-mask" id="batch-periodFrom" name="from">
+                                <span class="input-group-addon">To</span>
+                                <input type="text" class="form-control time-filter time-mask" id="batch-periodTo" name="to">
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">What do you want?</label>
-                    <div class="col-lg-9">
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-mode" value="0"> Centrality
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="batch-community-mode" class="batch-mode" value="1"> Community
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="batch-mode" value="2"> Customer Profiling
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="batch-community-profiling-mode" class="batch-mode" value="3"> Community Profiling
-                        </label>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Duration</label>
+                        <div class="col-lg-6">
+                            <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
+                                <input type="text" class="form-control integer-mask" id="batch-durationFrom" name="from">
+                                <span class="input-group-addon">To</span>
+                                <input type="text" class="form-control integer-mask" id="batch-durationTo" name="to">
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="text-center">
-                    <button class="btn btn-success" id="submit-batch">Submit</button>
-                    <button class="btn btn-danger" id="cancel-batch">Cancel</button>
-                </div>  
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Calls</label>
+                        <div class="col-lg-6">
+                            <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
+                                <input type="text" class="form-control" id="batch-callsFrom" name="from" disabled>
+                                <span class="input-group-addon">To</span>
+                                <input type="text" class="form-control" id="batch-callsTo" name="to" disabled>
+                            </div>
+                        </div>
+                    </div>
 
-            </form>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Carrier</label>
+                        <div class="col-lg-6">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-carriers" value="0" checked> AIS
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-carriers" value="1"> TRUE
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-carriers" value="2"> DTAC
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-carriers" value="3"> JAS
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-carriers" value="4"> Others
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">What do you want?</label>
+                        <div class="col-lg-9">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-mode" value="0"> Centrality
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" id="batch-community-mode" class="batch-mode" value="1"> Community
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" class="batch-mode" value="2"> Customer Profiling
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" id="batch-community-profiling-mode" class="batch-mode" value="3"> Community Profiling
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-success" id="submit-batch">Submit</button>
+                        <button class="btn btn-danger" id="cancel-batch">Cancel</button>
+                    </div>  
+
+                </form>
             </div>
         </div>
 
@@ -623,6 +635,7 @@
 {!! Html::script('js/data-tables/jquery.dataTables.js'); !!}
 {!! Html::script('js/data-tables/DT_bootstrap.js'); !!}
 {!! Html::script('js/validator.js'); !!}
+{!! Html::script('js/date_helpers.js'); !!}
 {!! Html::script('js/admin_panel.js'); !!}
 
 

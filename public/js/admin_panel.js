@@ -58,6 +58,30 @@
         });
     }
 
+    function rebindTFilterListener() {
+        $(".table-filter").unbind();
+        $(".table-filter").on('click', function() {
+            var tid = $(this).attr('data-tid');
+            var tag = $('#tf-' + tid);
+            var props = {
+                'date' : tag.attr('data-date'),
+                'carrier' : tag.attr('data-carrier'),
+                'period' : tag.attr('data-period'),
+                'noOfCall' : tag.attr('data-noOfCall'),
+                'duration' : tag.attr('data-duration')
+            };
+            
+            $('#tf-date').html(props.date);
+            $('#tf-carrier').html(props.carrier);
+            $('#tf-period').html(props.period);
+            $('#tf-noOfCall').html(props.noOfCall);
+            $('#tf-duration').html(props.duration);
+
+            console.log(props);
+            $('#tableModal').modal('show');
+        });
+    }
+
     function initPagination() {
         $('#preprocess-table').dataTable({
             "aLengthMenu": [
@@ -262,7 +286,7 @@
 
     function initBatchForm() {
         // hide batch form until user clicked on add button
-        $('#batch-form').hide();
+        $('#batch-form-wrapper').hide();
 
         // add listener to batch form
         // submit button
@@ -319,22 +343,23 @@
             }
 
             var submit = {
-                'date' : $('#batch-date').val(),
-                'days' : days,
-                'periodMin' : periodMin,
-                'periodMax' : periodMax,
-                'durationMin' : durationMin,
-                'durationMax' : durationMax,
-                'callsMin' : callsMin,
-                'callsMax' : callsMax,
-                'carriers' : carriers,
-                'mode' : mode
-
+                'filters' : {
+                    'startDate' : $('#batch-date').val(),
+                    'callDay' : days,
+                    'startTime' : [periodMin, periodMax],
+                    'duration' : [durationMin, durationMax],
+                    // 'callsMin' : callsMin,
+                    // 'callsMax' : callsMax,
+                    'rnCode' : carriers
+                },
+                'mode' : mode,
+                'description' : $('#batch-description').val()
             }
             console.log('Batch Form submission : ');
             console.log(submit);
 
             // TODO : ajax
+            getEstimation(submit, 'batch');
         });
 
         // cancel button
@@ -344,16 +369,19 @@
 
             // hide batch form and show add button
             $('#new-batch').show(300);
-            $('#batch-form').hide();
+            $('#batch-form-wrapper').hide();
 
             
         });
 
         // add button listener
         $('#new-batch').on('click', function() {
+            // clear all fields
+            $('#batch-form')[0].reset();
+
             // hide add button and show batch form
             $('#new-batch').hide();
-            $('#batch-form').show(300);
+            $('#batch-form-wrapper').show(300);
         });
     }
 
@@ -371,7 +399,90 @@
         $('.integer-mask').mask("#", {reverse: true})
     }
 
-    
+    /**
+     *  @brief  Basic setuo for AJAX call.
+     *
+     *  This function must be called everytime before using ajax call.
+     *  This function contains CSRF generator which will generate
+     *  a CSRF token from page cookie.
+     *
+     *  Note that CSRF must be placed in HTML file that includes this script.
+     *  Otherwise, backend side will reject any AJAX call.
+     *
+     *  @return void
+     */
+    function ajaxSetup(){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    }
+
+    function getEstimation(d, type) {
+        ajaxSetup();
+        $.ajax({
+            type: "POST",
+            url: "http://localhost/seniorproject/public/getEstimation",
+            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode']},
+            success: function(e){
+                console.log(e);
+                if(type == 'batch') {
+                    // TODO : modal ask for confirmation before start Executing
+                    var dh = new DateHelper();
+                    var f = e['filters'];
+                    var idCol = '<td><a href="#">New</a></td>';
+                    var dateCol = '<td>' + dh.toDateFormat(f['startDate'][0]) + ' - ' + dh.toDateFormat(f['startDate'][1]) + '</td>';
+                    var descCol = '<td><a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="'+'"><i class="fa fa-info"></i></a> '+d['description']+'<span id="tf-'+'" data-date="'+'" data-noOfCall="'+'"data-duration="'+'" data-period="'+'" data-carrier="'+'"></span></td>';
+                    var customerCol = '<td class="text-center">'+e['customers']+'</td>';
+                    var sizeCol = '<td class="text-center">-</td>';
+                    var actionCol = '<td><span class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></span><span class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></span><span class="label label-danger label-mini"><i class="fa fa-times"></i></span></td>';
+                    var statusCol = '<td><span class="label label-warning label-mini">Processing</span></td>';
+                    var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success"></div></div></td>';
+                    $('#progress-table-body').append('<tr>' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
+                    rebindTFilterListener();
+                    // hide batch form and show add button
+                    $('#new-batch').show(300);
+                    $('#batch-form-wrapper').hide();
+                }
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+            }
+        });
+    }
+
+    function submitForm(d, type) {
+        ajaxSetup();
+        $.ajax({
+            type: "POST",
+            url: "http://localhost/seniorproject/public/processSetup",
+            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode']},
+            success: function(e){
+                console.log(e);
+                if(type == 'batch') {
+                    var dh = new DateHelper();
+                    var f = e['filters'];
+                    var idCol = '<td><a href="#">New</a></td>';
+                    var dateCol = '<td>' + dh.toDateFormat(f['startDate'][0]) + ' - ' + dh.toDateFormat(f['startDate'][1]) + '</td>';
+                    var descCol = '<td><a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="'+'"><i class="fa fa-info"></i></a>'+'<span id="tf-'+'" data-date="'+'" data-noOfCall="'+'"data-duration="'+'" data-period="'+'" data-carrier="'+'"></span></td>';
+                    var customerCol = '<td class="text-center">'+e['customers']+'</td>';
+                    var sizeCol = '<td class="text-center">-</td>';
+                    var actionCol = '<td><span class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></span><span class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></span><span class="label label-danger label-mini"><i class="fa fa-times"></i></span></td>';
+                    var statusCol = '<td><span class="label label-warning label-mini">Processing</span></td>';
+                    var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success"></div></div></td>';
+                    $('#progress-table-body').append('<tr>' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
+
+                    // hide batch form and show add button
+                    $('#new-batch').show(300);
+                    $('#batch-form-wrapper').hide();
+                }
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+            }
+        });
+    }
 
     /**
      *  @brief Main function of this file

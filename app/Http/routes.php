@@ -19,7 +19,8 @@ Route::get('/','AnalysisController@getIndex');
 Route::post('processData','AnalysisController@processData');
 Route::get('runMaven','AnalysisController@runMaven');
 Route::get('/aboutus','AboutUsController@getAboutUs');
-
+Route::post('/getEstimation','AdminController@getEstimation');
+Route::post('/processSetup','AdminController@processSetup');
 //Get Data
 Route::get('getCDR','AnalysisController@getCDR');
 
