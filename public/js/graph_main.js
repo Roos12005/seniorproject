@@ -29,6 +29,7 @@
         callDay : ['.+'],
         startTime : [0.0, 24.00],
         duration : [0, 99999],
+        //noOfCall : [0,999],
         rnCode : ['.+'],
         ComOfCom : 0
     };
@@ -768,13 +769,23 @@
         $.each($('.carrier-checkbox:checked'), function() {
             carrier.push($(this).val());
         });
-    
+
+        var check = [19700101, 21000101];
+
+        if($('#e1').val() == '19700101'){
+            check = [19700101, 21000101];
+        } else {
+            if($('#e1').val().substr(6,2) == '01') check = [$('#e1').val(),$('#e1').val().substr(0,6) + '07'];
+            else if($('#e1').val().substr(6,2) == '08') check = [$('#e1').val(),$('#e1').val().substr(0,6) + '14'];
+            else if($('#e1').val().substr(6,2) == '15') check = [$('#e1').val(),$('#e1').val().substr(0,6) + '21'];
+            else if($('#e1').val().substr(6,2) == '22') check = [$('#e1').val(),$('#e1').val().substr(0,6) + '31'];
+        }
+
         filter = {
-            startDate : [$('#e1').val(),$('#e1').val().substr(6,2) == '01'? $('#e1').val().substr(0,6) + '15' : $('#e1').val().substr(0,6) + '31'],
-            callDay : day.length == 0? ['.+'] : day,
+            startDate : check,
             startTime : $('#callPeriodFrom').val() == ''? [0.0, 24.00] : [$('#callPeriodFrom').val(), $('#callPeriodTo').val()],
             duration : $('#callDurationFrom').val() == ''? [1, 99999] : [$('#callDurationFrom').val(), $('#callDurationTo').val()],
-            // noOfCall : $('#noOfCallFrom').val() == ''? [] : [$('#noOfCallFrom').val(), $('#noOfCallTo').val()],
+            //noOfCall : $('#noOfCallFrom').val() == ''? [1,999] : [$('#noOfCallFrom').val(), $('#noOfCallTo').val()],
             rnCode : carrier.length == 0? ['.+'] : carrier,
             ComOfCom : 0
         }

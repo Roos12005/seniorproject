@@ -143,20 +143,13 @@ public class DBAccess {
                 
                 System.out.println(key + " ---- " + tmpRegex);
             }
+            System.out.println(con.valueOf(r.property("duration")));
             query.setClauses(new IClause[]{
                 MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
                 con.valueOf(r.property("duration")).GTE(0),
                 RETURN.value(r),
             });
 
-            // MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
-            //     WITH.count().value(r).AS(degree),
-            //     WITH.value(a),
-            //     WHERE.valueOf(degree).GT(1),
-            //     RETURN.value(a),
-            //     RETURN.value(degree)
-
-//            
 //            icList.add(RETURN.value(r));
 //            IClause[] iclauses = new IClause[icList.size()];
 //            icList.toArray(iclauses);
@@ -185,9 +178,6 @@ public class DBAccess {
             for(GrRelation gr : relationships) {
                 GrNode sNode = gr.getStartNode();
                 GrNode eNode = gr.getEndNode();
-
-                System.out.println(sNode.getId());
-                System.out.println(eNode.getId());
 
                 List<GrProperty> sProps = sNode.getProperties();
                 List<GrProperty> eProps = eNode.getProperties();

@@ -562,9 +562,9 @@
                             <label class="control-label col-md-3" >Number of Call</label>
                             <div class="col-md-6">
                                 <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
-                                    <input type="text" class="form-control" id="noOfCallFrom" name="from" disabled>
+                                    <input type="text" class="form-control" id="noOfCallFrom" name="from" value="0" disabled="">
                                     <span class="input-group-addon">To</span>
-                                    <input type="text" class="form-control" id="noOfCallTo" name="to" disabled>
+                                    <input type="text" class="form-control" id="noOfCallTo" name="to" value="999" disabled="">
                                 </div>
                             </div>
                         </div>

@@ -139,14 +139,14 @@ class AnalysisController extends Controller{
 
         $query = substr($query,0,strlen($query)-4);
 
-        // $q = 'MATCH (n:User) RETURN distinct n.CommunityID';
-        // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        // $communities_num = count($results);
+        $q = 'MATCH (n:User) RETURN distinct n.CommunityID';
+        $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        $communities_num = count($results);
 
         $communities_list = array();
-        // for ($x = 0; $x < $communities_num; $x++) {
-        //   $communities_list[$x] = array();
-        // }
+        for ($x = 0; $x < $communities_num; $x++) {
+          $communities_list[$x] = array();
+        }
 
         $r = 'MATCH (n:User) '.(string)$query.' RETURN n, n.CommunityID';
         $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
@@ -163,21 +163,15 @@ class AnalysisController extends Controller{
               'Promotion' => $result['n']['Promotion']
             ];
 
-            //array_push($communities_list[$result['n']['CommunityID']], $user_info);
-          array_push($communities_list, $user_info);
+          array_push($communities_list[$result['n']['CommunityID']], $user_info);
         }
 
-        // for ($x = 0; $x < count($communities_list); $x++) {
-        //   usort($communities_list[$x], function($a,$b){
-        //     if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
-        //     return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
-        //   });
-        // }
-
-        usort($communities_list, function($a,$b){
-          if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
-          return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
-        });
+        for ($x = 0; $x < count($communities_list); $x++) {
+          usort($communities_list[$x], function($a,$b){
+            if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
+            return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
+          });
+        }
 
         return response()->json($communities_list);
     } 

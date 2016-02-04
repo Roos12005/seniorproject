@@ -52,12 +52,11 @@
                     $('#export-data').removeClass('btn-warning').addClass('btn-success');
                     $('#export-data i').removeClass('fa-refresh').addClass('fa-check');
 
-                    // for(var i in selectedCommunities){
-                    //     export_communities = export_communities.concat(e[selectedCommunities[i]]);
-                    // }
-                    // console.log(export_communities);
-                    //JSONToCSVConvertor(export_communities, "Call Detail Records", true);
-                    JSONToCSVConvertor(e, "Call Detail Records", true);
+                    for(var i in selectedCommunities){
+                        export_communities = export_communities.concat(e[selectedCommunities[i]]);
+                    }
+                    console.log(export_communities);
+                    JSONToCSVConvertor(export_communities, "Call Detail Records", true);
                     // TODO : trigger button
                     graphStatus['export-data'] = 1;
                     discardExport();
