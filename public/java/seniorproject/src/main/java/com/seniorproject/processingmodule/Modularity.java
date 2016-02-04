@@ -20,12 +20,12 @@ public class Modularity {
     public static final String MODULARITY_CLASS = "modularity_class";
     private CommunityStructure structure;
     private double resolution = 1.;
-    
+    private int outNum = 0;
     public Modularity(Graph hgraph) {
     	this.structure = new Modularity.CommunityStructure(hgraph);
     }
     class CommunityStructure {
-    	HashMap<Community, Float>[] nodeConnectionsWeight;
+    	HashMap<Community, Double>[] nodeConnectionsWeight;
         HashMap<Community, Integer>[] nodeConnectionsCount;
         HashMap<Node, Integer> map;
         Community[] nodeCommunities;
@@ -72,7 +72,7 @@ public class Modularity {
                         continue;
                     }
                     int neighbor_index = map.get(neighbor);
-                    float weight = 1; // TODO : change to actual weight
+                    double weight = 1; // TODO : change to actual weight
 
                     weights[node_index] += weight;
                     Edge me = new Edge(node_index, neighbor_index, weight);
@@ -101,7 +101,7 @@ public class Modularity {
                 neighbor = e.getTarget();
 
                 //Remove Node Connection to this community
-                Float neighEdgesTo = nodeConnectionsWeight[neighbor].get(to);
+                Double neighEdgesTo = nodeConnectionsWeight[neighbor].get(to);
                 if (neighEdgesTo == null) {
                     nodeConnectionsWeight[neighbor].put(to, e.getWeight());
                 } else {
@@ -115,7 +115,7 @@ public class Modularity {
                 }
 
                 Community adjCom = nodeCommunities[neighbor];
-                Float wEdgesto = adjCom.connectionsWeight.get(to);
+                Double wEdgesto = adjCom.connectionsWeight.get(to);
                 if (wEdgesto == null) {
                     adjCom.connectionsWeight.put(to, e.getWeight());
                 } else {
@@ -129,7 +129,7 @@ public class Modularity {
                     adjCom.connectionsCount.put(to, cEdgesto + 1);
                 }
 
-                Float nodeEdgesTo = nodeConnectionsWeight[node].get(adjCom);
+                Double nodeEdgesTo = nodeConnectionsWeight[node].get(adjCom);
                 if (nodeEdgesTo == null) {
                     nodeConnectionsWeight[node].put(adjCom, e.getWeight());
                 } else {
@@ -144,7 +144,7 @@ public class Modularity {
                 }
 
                 if (to != adjCom) {
-                    Float comEdgesto = to.connectionsWeight.get(adjCom);
+                    Double comEdgesto = to.connectionsWeight.get(adjCom);
                     if (comEdgesto == null) {
                         to.connectionsWeight.put(adjCom, e.getWeight());
                     } else {
@@ -170,7 +170,7 @@ public class Modularity {
 
                 ////////
                 //Remove Node Connection to this community
-                Float edgesTo = nodeConnectionsWeight[neighbor].get(community);
+                Double edgesTo = nodeConnectionsWeight[neighbor].get(community);
                 int countEdgesTo = nodeConnectionsCount[neighbor].get(community);
                 if (countEdgesTo - 1 == 0) {
                     nodeConnectionsWeight[neighbor].remove(community);
@@ -183,7 +183,7 @@ public class Modularity {
                 ///////////////////
                 //Remove Adjacency Community's connection to this community
                 Community adjCom = nodeCommunities[neighbor];
-                Float oEdgesto = adjCom.connectionsWeight.get(community);
+                Double oEdgesto = adjCom.connectionsWeight.get(community);
                 int oCountEdgesto = adjCom.connectionsCount.get(community);
                 if (oCountEdgesto - 1 == 0) {
                     adjCom.connectionsWeight.remove(community);
@@ -198,7 +198,7 @@ public class Modularity {
                 }
 
                 if (adjCom != community) {
-                    Float comEdgesto = community.connectionsWeight.get(adjCom);
+                    Double comEdgesto = community.connectionsWeight.get(adjCom);
                     Integer comCountEdgesto = community.connectionsCount.get(adjCom);
                     if (comCountEdgesto - 1 == 0) {
                         community.connectionsWeight.remove(adjCom);
@@ -209,7 +209,7 @@ public class Modularity {
                     }
                 }
 
-                Float nodeEgesTo = nodeConnectionsWeight[node].get(adjCom);
+                Double nodeEgesTo = nodeConnectionsWeight[node].get(adjCom);
                 Integer nodeCountEgesTo = nodeConnectionsCount[node].get(adjCom);
                 if (nodeCountEgesTo - 1 == 0) {
                     nodeConnectionsWeight[node].remove(adjCom);
@@ -254,7 +254,7 @@ public class Modularity {
                 newInvMap.put(index, hidden);
                 for (Community adjCom : iter) {
                     int target = communities.indexOf(adjCom);
-                    float weight = com.connectionsWeight.get(adjCom);
+                    double weight = com.connectionsWeight.get(adjCom);
                     if (target == index) {
                         weightSum += 2. * weight;
                     } else {
@@ -292,7 +292,7 @@ public class Modularity {
     	double weightSum;
         CommunityStructure structure;
         LinkedList<Integer> nodes;
-        HashMap<Community, Float> connectionsWeight;
+        HashMap<Community, Double> connectionsWeight;
         HashMap<Community, Integer> connectionsCount;
 
         public int size() {
@@ -365,6 +365,7 @@ public class Modularity {
 
             if (someChange) {
                 theStructure.zoomOut();
+                outNum++;
             }
         }
 
@@ -402,10 +403,10 @@ public class Modularity {
     }
     
     private double q(int node, Community community, CommunityStructure theStructure, double currentResolution) {
-        Float edgesToFloat = theStructure.nodeConnectionsWeight[node].get(community);
+        Double edgesToDouble = theStructure.nodeConnectionsWeight[node].get(community);
         double edgesTo = 0;
-        if (edgesToFloat != null) {
-            edgesTo = edgesToFloat.doubleValue();
+        if (edgesToDouble != null) {
+            edgesTo = edgesToDouble.doubleValue();
         }
         double weightSum = community.weightSum;
         double nodeWeight = theStructure.weights[node];
@@ -422,6 +423,7 @@ public class Modularity {
     public int[] buildCommunities(Graph hgraph){
         int[] comStructure = new int[hgraph.getNodeCount()];
         computeModularity(hgraph, structure, comStructure, resolution);
+        System.out.println("Total Zoom out : " + outNum);
         return comStructure;
     }
     

@@ -27,6 +27,7 @@ public class Node {
     private String gender;
     private String rnCode;
     private String promotion;
+    private int member;
 
     private String color;
 
@@ -40,6 +41,7 @@ public class Node {
         this.rnCode = "null";
         this.gender = "null";
         this.promotion = "null";
+        this.member = 0;
     }
 
     public int getID() {
@@ -174,4 +176,17 @@ public class Node {
         this.color = color;
     }
 
+    /**
+     * @return the color
+     */
+    public int getMember() {
+        return member;
+    }
+
+    /**
+     * @param color the color to set
+     */
+    public void setMember(int member) {
+        this.member = member;
+    }
 }

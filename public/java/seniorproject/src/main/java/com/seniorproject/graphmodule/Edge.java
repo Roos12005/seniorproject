@@ -12,14 +12,14 @@ package com.seniorproject.graphmodule;
 public class Edge {
     int source;
     int target;
-    float weight;
+    double weight;
     int duration;
     String startDate;
     String startTime;
     String callDay;
 
 
-    public Edge(int s, int t, float w, String sd, String st, String cd, int d) {
+    public Edge(int s, int t, double w, String sd, String st, String cd, int d) {
         source = s;
         target = t;
         duration = d;
@@ -29,7 +29,7 @@ public class Edge {
         weight = w;
     }
 
-    public Edge(int s, int t, float w) {
+    public Edge(int s, int t, double w) {
         source = s;
         target = t;
         weight = w;
@@ -51,11 +51,11 @@ public class Edge {
         this.target = target;
     }
 
-    public float getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(float weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
@@ -89,5 +89,9 @@ public class Edge {
 
     public void setCallDay(String callDay) {
         this.callDay = callDay;
+    }
+    
+    public void increaseWeight(double f) {
+        this.weight += f;
     }
 }

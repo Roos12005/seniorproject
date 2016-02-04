@@ -5,10 +5,15 @@
  */
 package com.seniorproject.processingmodule;
 
+import au.com.bytecode.opencsv.CSVReader;
+import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.Graph;
 import com.seniorproject.graphmodule.Node;
+import com.seniorproject.graphmodule.NodeIterable;
+import com.seniorproject.graphmodule.EdgeIterable;
 import com.seniorproject.storingmodule.DBAccess;
 import java.awt.Color;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,19 +58,45 @@ public class SocialNetworkAnalysis {
     }
     
     public static void main(String[] args) throws IOException {
-//        if(args[0].equals("0")) {
-//            // full graph with args[1] as start date
+        // temporary read csv for testing performance
+        long startTime = System.currentTimeMillis();
+//        CSVReader reader = new CSVReader(new FileReader("sampledata.csv"));
+//    	String [] nextLine;
+//        Set<Node> nodes = new HashSet<Node>();
+//        List<Edge> edges = new ArrayList<Edge>();
+//    	Node a,b;
+////    	reader.readNext();
+//        int i = 0;
+//        Map<String, Integer> mapperID = new HashMap<>();
+//        int countedge = 0;
+//        while ((nextLine = reader.readNext()) != null) {
+//            countedge++;
+//        	if(!mapperID.containsKey(nextLine[0])) mapperID.put(nextLine[0], i);
+//                if(!mapperID.containsKey(nextLine[1])) mapperID.put(nextLine[1], i + 500000000);
+//                a = new Node(mapperID.get(nextLine[0]));
+//        	b = new Node(mapperID.get(nextLine[1]));
+//        	nodes.add(a);
+//        	nodes.add(b);
+//        	
+////        	Edge e = new Edge(Integer.parseInt(nextLine[0]),Integer.parseInt(nextLine[1]),Integer.parseInt(nextLine[2]));
+//        	Edge e = new Edge(mapperID.get(nextLine[0]),mapperID.get(nextLine[1]),1);
+//        	edges.add(e);
+//                i++;
 //        }
-        
+//        
+//    	reader.close();
+//        Graph hgraph = new Graph(nodes,edges);
+
+        // ------------------------------------------
         Map<String, List<Double>> comparableFilters = new HashMap<>();
         Map<String, List<String>> stringFilters = new HashMap<>();
+        boolean comOfCom = args[args.length-1].equals("1")?true:false;
         
-        for(int i=1; i<args.length; i++) {
+        for(int i=1; i<args.length - 4; i++) {
             String key = args[i++];
             int is_number = Integer.parseInt(args[i++]);
             int args_len = Integer.parseInt(args[i++]);
-            
-            
+
             if(is_number == 1) {
                 List<Double> tmp = new ArrayList<>();
                 for(int j=0; j<args_len; j++, i++) {
@@ -81,39 +112,35 @@ public class SocialNetworkAnalysis {
             }
             i--;
         }
-        
-//        
-//        for(Entry<String, List<Float>> entry : comparableFilters.entrySet()) {
-//            String key = entry.getKey();
-//            List<Float> value = entry.getValue();
-//            System.out.print(key + " - ");
-//            for(Float s : value) {
-//                System.out.print(s + " ");
-//            }
-//            System.out.println();
-//        }
-        
-        
+
         Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters);
+        long readDataTime = System.currentTimeMillis();
+        System.out.println("Reading Data ... Done! exec time : " + (readDataTime-startTime) + " ms");
+    	
         for(Node node : hgraph.getNodes()) {
             System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
         }
-    	System.out.println("Building Graph ... Done!");
+        long buildGraphTime = System.currentTimeMillis();
+    	System.out.println("Building Graph ... Done! exec time : " + (buildGraphTime-startTime) + " ms");
         GraphDistance dis = new GraphDistance(hgraph);
         dis.execute(hgraph);
-        System.out.println("Calculating Graph Distance ... Done!");
+        long calTime = System.currentTimeMillis();
+        System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime-buildGraphTime) + " ms");
 
         
         Modularity mod = new Modularity(hgraph);
     	// Compute Modularity Class
     	int[] com = mod.buildCommunities(hgraph);
     	// TODO : Output com
+        
+        long comTime = System.currentTimeMillis();
+        System.out.println("Detecting Communities ... Done! exec time : " + (comTime-calTime) + " ms");
     	int aa = 0;
     	Set<Integer> tot = new HashSet<>();
 
         int idx = 0;
         for(Node node : hgraph.getNodes()) {
-            System.out.println(node.getID() + " : " + com[idx]);
+//            System.out.println(node.getID() + " : " + com[idx]);
             node.setCommunityID(com[idx]);
             tot.add(com[idx]);
             idx++;
@@ -121,19 +148,54 @@ public class SocialNetworkAnalysis {
     	System.out.println("-------------------------------------------");
     	System.out.println("Total of Communities : " + tot.size());
     	System.out.println("-------------------------------------------");
-    	for(Integer co : tot) {
-    		System.out.println(co);
-    	}
-        System.out.println("-------------------------------------------");
-        System.out.println("Network Diameter");
-        for(Node node : hgraph.getNodes()){
-            System.out.println("Node " + node.getID() + " : BC = " + node.getBetweenness() + " CC = " + node.getCloseness() + " EC = " + node.getEccentricity());
-        }
+//    	for(Integer co : tot) {
+//    		System.out.println(co);
+//    	}
+//        System.out.println("-------------------------------------------");
+//        System.out.println("Network Diameter");
+//        for(Node node : hgraph.getNodes()){
+//            System.out.println("Node " + node.getID() + " : BC = " + node.getBetweenness() + " CC = " + node.getCloseness() + " EC = " + node.getEccentricity());
+//        }
         
         
         markColor(hgraph, tot.size());
         
-        
-        (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
+
+        //(new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
+        (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges());
+
+        if(comOfCom){
+            Set<Node> comNodes = new HashSet<>();
+            List<Edge> comEdges = new ArrayList<>();
+            int[] comMember = new int[tot.size()];
+            String[] comColor = new String[tot.size()];
+
+            for(Node node : hgraph.getNodes()){
+                comMember[node.getCommunityID()]++;
+                comColor[node.getCommunityID()] = node.getColor();
+            }
+
+            for(int id = 0; id < tot.size(); id++){
+                Node node = new Node(id);
+                node.setCommunityID(id);
+                node.setMember(comMember[id]);
+                node.setColor(comColor[id]);
+                comNodes.add(node);
+            }
+
+            for(Edge edge : hgraph.getEdges()){
+                int comSource = hgraph.getNodes().get(edge.getSource()).getCommunityID();
+                int comTarget = hgraph.getNodes().get(edge.getTarget()).getCommunityID();
+                if(comSource != comTarget){
+                    comEdges.add(new Edge(comSource,comTarget,1.0f,edge.getStartDate(),edge.getStartTime(),edge.getCallDay(),edge.getDuration()));  
+                }
+            }
+            
+            Graph comGraph = new Graph(comNodes,comEdges);
+            GraphDistance comDis = new GraphDistance(comGraph); 
+            comDis.execute(comGraph);
+            System.out.println("Calculating Community Graph Distance ... Done!");   
+            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges());       
+        }
     }
 }
