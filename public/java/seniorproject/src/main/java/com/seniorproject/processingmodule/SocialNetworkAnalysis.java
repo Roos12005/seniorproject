@@ -91,7 +91,7 @@ public class SocialNetworkAnalysis {
         Map<String, List<Double>> comparableFilters = new HashMap<>();
         Map<String, List<String>> stringFilters = new HashMap<>();
         boolean comOfCom = args[args.length-1].equals("1")?true:false;
-        
+        String tid = args[0];
         for(int i=1; i<args.length - 4; i++) {
             String key = args[i++];
             int is_number = Integer.parseInt(args[i++]);
@@ -162,7 +162,7 @@ public class SocialNetworkAnalysis {
         
 
         //(new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
-        (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges());
+        (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges(), tid);
 
         if(comOfCom){
             Set<Node> comNodes = new HashSet<>();
@@ -195,7 +195,7 @@ public class SocialNetworkAnalysis {
             GraphDistance comDis = new GraphDistance(comGraph); 
             comDis.execute(comGraph);
             System.out.println("Calculating Community Graph Distance ... Done!");   
-            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges());       
+            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges(), tid);       
         }
     }
 }

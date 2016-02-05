@@ -263,13 +263,14 @@
                     </thead>
                     <tbody>
                         @foreach($table as $key => $row)
+                        @if ($row['type'] == 0)
                         <tr>
                             <td><a href="#">{{ $key + 1 }}</a></td>
                             <td>{{ $row['date'] }}</td>
                             <td>
                                 <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
                                 {{ $row['description'] }}
-                                <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}"
+                                <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
                                 data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}">
                             </span>
                         </td>
@@ -294,6 +295,7 @@
                             </div>
                         </td>
                     </tr>
+                    @endif
                     @endforeach
                 </tbody>
             </table> 
@@ -330,13 +332,14 @@
                     </thead>
                     <tbody id="progress-table-body">
                         @foreach($table as $key => $row)
+                        @if ($row['type'] == 1)
                         <tr>
                             <td><a href="#">{{ $key + 1 }}</a></td>
                             <td>{{ $row['date'] }}</td>
                             <td>
                                 <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
                                 {{ $row['description'] }}
-                                <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}"
+                                <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
                                 data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}">
                             </span>
                         </td>
@@ -361,6 +364,7 @@
                             </div>
                         </td>
                     </tr>
+                    @endif
                     @endforeach
                 </tbody>
             </table>
@@ -544,7 +548,7 @@
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">Day</label>
                         <div class="col-lg-6">
-                            <p class="form-control-static" id="pf-day">-</p>
+                            <p class="form-control-static" id="pf-days">-</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -596,7 +600,7 @@
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">Day</label>
                         <div class="col-lg-6">
-                            <p class="form-control-static" id="tf-day">-</p>
+                            <p class="form-control-static" id="tf-days">-</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -629,6 +633,26 @@
     </div>
 </div>
 
+<!-- Table Information Modal-->
+<div aria-hidden="true" aria-labelledby="estimationModalLabel" role="dialog" tabindex="-1" id="estimationModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Execution time estimation</h4>
+            </div>
+            <div class="modal-body text-center">
+                <p>This process will take approximately <span id="exectime"></span>. Are you sure to start this proess ?</p>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <button class="btn btn-success" id="begin-batch">Submit</button>
+                    <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Close</button>
+                </div> 
+            </div>  
+        </div>
+    </div>
+</div>
 @section('bottom-script')
 {!! Html::script('js/jquery.js'); !!}
 {!! Html::script('js/jquery.maskedinput.js'); !!}

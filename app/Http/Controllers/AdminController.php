@@ -14,32 +14,30 @@ class AdminController extends Controller{
             ->setAutoFormatResponse(true)
             ->build();
         
-
         $q = 'MATCH (n:table) RETURN n, ID(n) as tid';
         $results_table = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $ret_table = array();
-        $curr_time = Carbon\Carbon::now()->timestamp;
         foreach($results_table as $r) {
-            $tmp_prog = ($curr_time - $r['n']['startExecTime'])/$r['n']['estimatedExecTime'];
-            $progress = $tmp_prog > 1? '100' : $tmp_prog*100;
-            $status = $tmp_prog >= 1? 'Ready' : 'Processing'; 
-
+            
+            $formatted_date = \App\Http\Helpers\DateHelper::getStartEndDate(substr($r['n']['startDate'],0,6), substr($r['n']['startDate'],6));
+            $progress = \App\Http\Helpers\ExecHelper::calculateProgress($r['n']['startExecTime'], $r['n']['estimatedExecTime']);
             $tmp = [
                 'id' => $r['tid'],
                 'description' => $r['n']['description'],
-                'noOfCall' => $r['n']['noOfCallMax'] == -1? 
-                                '> ' . $r['n']['noOfcallMin'] : $r['n']['noOfcallMin'] . ' - ' . $r['n']['noOfCallMax'],
+                'noOfCall' => 'Not yet Support!',
                 'duration' => $r['n']['durationMax'] == -1? 
-                                '> ' . $r['n']['durationMin'] : $r['n']['durationMin'] . ' - ' . $r['n']['durationMax'],
-                'date' => $r['n']['startDate'] . ' - ' . $r['n']['endDate'],
+                                'More than ' . $r['n']['durationMin'] : $r['n']['durationMin'] . ' - ' . $r['n']['durationMax'],
+                'date' => $formatted_date['startDate'] . ' - ' . $formatted_date['endDate'],
                 'customers' => number_format($r['n']['customers']),
-                'size' => $r['n']['size'] . ' GB',
-                'carrier' => $r['n']['carrier'],
-                'days' => '',
-                'period' => '',
-                'status' => $status,
-                'progress' => $progress
-
+                'size' => $r['n']['size'],
+                'carrier' => \App\Http\Helpers\UnaryHelper::unaryToCarrierReadable($r['n']['rnCode']),
+                'days' => \App\Http\Helpers\UnaryHelper::unaryToDaysReadable($r['n']['callDay']),
+                'period' => $r['n']['endTime'] == -1? 
+                                'More than ' . $r['n']['startTime'] : $r['n']['startTime'] . ' - ' . $r['n']['endTime'],
+                'mode' => $r['n']['mode'],
+                'progress' => $progress['progress'],
+                'status' => $progress['status'],
+                'type' => $r['n']['type']
             ];
             array_push($ret_table, $tmp);
         }
@@ -72,17 +70,14 @@ class AdminController extends Controller{
         $rec = Request::all();
         $filters = $rec['filter'];
         $type = $rec['type'];
-        $startEndDate = \App\Http\Helpers\DateHelper::getStartEndDate(substr($filters['startDate'],0,6), substr($filters['startDate'],6));
-        $filters['startDate'] = [$startEndDate['startDate'], $startEndDate['endDate']];
         $mode = \App\Http\Helpers\UnaryHelper::unaryToMode($rec['mode']);
 
         if($type == 'batch') {
             $filters = \App\Http\Helpers\ExecHelper::prepareData($filters);
             $info = \App\Http\Helpers\ExecHelper::estimateResource($filters);
             $ret = [
-                'customers' => $info['nodes'],
-                'execTime' => 100,
-                'filters' => $filters
+                'customers' => $info['customers']['nodes'],
+                'execTime' => $info['execTime']
             ];
             return $ret;
         } elseif ($type == 'preprocess') {
@@ -94,23 +89,44 @@ class AdminController extends Controller{
    }
 
    public function processSetup() {
-        // TODO : flag Mode in processing
+        $client = ClientBuilder::create()
+            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
+            ->setAutoFormatResponse(true)
+            ->build();
         $rec = Request::all();
         $filters = $rec['filter'];
         $type = $rec['type'];
-        $startEndDate = \App\Http\Helpers\DateHelper::getStartEndDate(substr($filters['startDate'],0,6), substr($filters['startDate'],6));
-        $filters['startDate'] = [$startEndDate['startDate'], $startEndDate['endDate']];
-        $mode = \App\Http\Helpers\UnaryHelper::unaryToMode($rec['mode']);
+        
 
         if($type == 'batch') {
+            $q = "CREATE (n:table {
+                    type: 1, 
+                    startDate: " . $filters['startDate'] . ",
+                    callDay : " . $filters['callDay'] . ",
+                    rnCode : " . $filters['rnCode'] . ",
+                    startTime : " . $filters['startTime'][0] . ",
+                    endTime: " . $filters['startTime'][1] . ",
+                    durationMin: " . $filters['duration'][0] . ",
+                    durationMax: " . $filters['duration'][1] . ",
+                    description : '" . $rec['description'] . "',
+                    mode : " . $rec['mode'] . ",
+                    customers : " . $rec['others']['customers'] .",
+                    startExecTime: " . Carbon\Carbon::now()->timestamp . ",
+                    size: '- ',
+                    estimatedExecTime: " . $rec['others']['estimatedExecTime'] . "
+                }) RETURN ID(n) as nid";
+            $results_table = $client->sendCypherQuery($q)->getResult()->getTableFormat();
             $filters = \App\Http\Helpers\ExecHelper::prepareData($filters);
-            $res = \App\Http\Helpers\ExecHelper::beginProcess($filters);
-            $info = \App\Http\Helpers\ExecHelper::estimateResource($filters);
+            $mode = \App\Http\Helpers\UnaryHelper::unaryToMode($rec['mode']);
+            $res = \App\Http\Helpers\ExecHelper::beginProcess($filters, $results_table[0]['nid']);
+
+
             $ret = [
-                'customers' => $info['nodes'],
-                'execTime' => 100,
-                'filters' => $filters
+                'filters' => $filters,
+                'nid' => $results_table[0]['nid'],
+                'mode' => $mode
             ];
+
             return $ret;
         } elseif ($type == 'preprocess') {
             

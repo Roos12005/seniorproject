@@ -27,6 +27,18 @@ class UnaryHelper {
         return substr($result,1);
     }
 
+    public static function unaryToDaysReadable($u) {
+        $arrChar = str_split($u);
+        $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        $result = "";
+        foreach($arrChar as $key => $c) {
+            if($c == "1") {
+                $result = $result . ', ' . $days[$key];
+            }
+        }
+        return substr($result,2);
+    }
+
     public static function unaryToCarrier($u) {
         $arrChar = str_split($u);
         $days = ['AIS', 'TRUE', 'DTAC', 'JAS', 'Others'];
@@ -49,6 +61,18 @@ class UnaryHelper {
             }
         }
         return substr($result,1);
+    }
+
+    public static function unaryToCarrierReadable($u) {
+        $arrChar = str_split($u);
+        $days = ['AIS', 'TRUE', 'DTAC', 'JAS', 'Others'];
+        $result = "";
+        foreach($arrChar as $key => $c) {
+            if($c == "1") {
+                $result = $result . ', ' . $days[$key];
+            }
+        }
+        return substr($result,2);
     }
 
     public static function unaryToMode($u) {

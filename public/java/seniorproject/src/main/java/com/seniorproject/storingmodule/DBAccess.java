@@ -263,17 +263,17 @@ public class DBAccess {
         return null;
     }
     
-    public void store(NodeIterable nodes, List<Edge> edges) {
+    public void store(NodeIterable nodes, List<Edge> edges, String tid) {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);
             
-            clearGraph("User", "User", "Call");
+//            clearGraph("User", "User", "Call");
             
             Map<Integer, GrNode> grnodes = new HashMap<>();
             for(Node n : nodes) {
                 GrNode tmp = graph.createNode();
-                tmp.addLabel("User");
+                tmp.addLabel("User" + tid);
                 tmp.addProperty("Number", n.getLabel());
                 tmp.addProperty("Eccentricity", n.getEccentricity());
                 tmp.addProperty("Betweenness", n.getBetweenness());
@@ -306,7 +306,7 @@ public class DBAccess {
         }
     }
 
-    public void storeCommunity(NodeIterable nodes, List<Edge> edges) {
+    public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);
@@ -314,7 +314,7 @@ public class DBAccess {
             Map<Integer, GrNode> grnodes = new HashMap<>();
             for(Node n : nodes) {
                 GrNode tmp = graph.createNode();
-                tmp.addLabel("User_Com");
+                tmp.addLabel("User_Com+tid);
                 tmp.addProperty("Member", n.getMember());
                 tmp.addProperty("Eccentricity", n.getEccentricity());
                 tmp.addProperty("Betweenness", n.getBetweenness());

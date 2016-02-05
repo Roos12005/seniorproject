@@ -3,10 +3,11 @@
 namespace App\Http\Helpers;
 
 use Neoxygen\NeoClient\ClientBuilder;
+use Carbon;
 
 class ExecHelper {
-    public static function beginProcess($filters){
-        $command = "java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0";
+    public static function beginProcess($filters, $id){
+        $command = "java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id;
         foreach ($filters as $key => $value) {
             $len = sizeof($value);
             $command = $command . ' ' . $key . ' ';
@@ -31,6 +32,8 @@ class ExecHelper {
     }
 
     public static function prepareData($filters) {
+        $startEndDate = \App\Http\Helpers\DateHelper::getStartEndDate(substr($filters['startDate'],0,6), substr($filters['startDate'],6));
+        $filters['startDate'] = [$startEndDate['startDate'], $startEndDate['endDate']];
         $filters['callDay'] = \App\Http\Helpers\UnaryHelper::unaryToDays($filters['callDay']);
         $filters['rnCode'] = \App\Http\Helpers\UnaryHelper::unaryToCarrier($filters['rnCode']);
         foreach ($filters as $key => $value) {
@@ -59,10 +62,22 @@ class ExecHelper {
         $q = $q . ' m.rnCode =~ "' . \App\Http\Helpers\UnaryHelper::arrToRegex($filters['rnCode']) . '"' . ' AND';
         $q = $q . ' r.callDay =~ "' . \App\Http\Helpers\UnaryHelper::arrToRegex($filters['callDay']) . '"';
 
-        $q = $q . ' RETURN count(r) as edges, count(DISTINCT m) as nodes';
+        $q = $q . ' RETURN count(r) as edges, count(DISTINCT n) as nodes';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        $ret = [
+            "customers" => $results[0],
+            "execTime" => 10000
+        ];
+        return $ret;
+    }
 
-        return $results[0];
+
+    public static function calculateProgress($start, $estimated) {
+        $now = Carbon\Carbon::now()->timestamp;
+        $tmp_prog = 1000*($now - $start)/$estimated;
+        $progress = $tmp_prog > 1? '100' : $tmp_prog*100;
+        $status = $tmp_prog >= 1? 'Ready' : 'Processing'; 
+        return ['progress' => $progress, 'status' => $status];
     }
 
     

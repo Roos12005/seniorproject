@@ -12,6 +12,9 @@
 !function(){
     'use strict';
 
+    var dh = new DateHelper();
+    var tmpStorage = {};
+
     function addPFilterListener() {
         $(".preprocess-filter").on('click', function() {
             var pid = $(this).attr('data-pid');
@@ -21,7 +24,8 @@
                 'carrier' : tag.attr('data-carrier'),
                 'period' : tag.attr('data-period'),
                 'noOfCall' : tag.attr('data-noOfCall'),
-                'duration' : tag.attr('data-duration')
+                'duration' : tag.attr('data-duration'),
+                'days' : tag.attr('data-days')
             };
             
             $('#pf-date').html(props.date);
@@ -29,7 +33,7 @@
             $('#pf-period').html(props.period);
             $('#pf-noOfCall').html(props.noOfCall);
             $('#pf-duration').html(props.duration);
-
+            $('#pf-days').html(props.days);
 
             $('#preprocessModal').modal('show');
         });
@@ -44,7 +48,8 @@
                 'carrier' : tag.attr('data-carrier'),
                 'period' : tag.attr('data-period'),
                 'noOfCall' : tag.attr('data-noOfCall'),
-                'duration' : tag.attr('data-duration')
+                'duration' : tag.attr('data-duration'),
+                'days' : tag.attr('data-days')
             };
             
             $('#tf-date').html(props.date);
@@ -52,7 +57,7 @@
             $('#tf-period').html(props.period);
             $('#tf-noOfCall').html(props.noOfCall);
             $('#tf-duration').html(props.duration);
-
+            $('#tf-days').html(props.days);
             console.log(props);
             $('#tableModal').modal('show');
         });
@@ -288,6 +293,11 @@
         // hide batch form until user clicked on add button
         $('#batch-form-wrapper').hide();
 
+        $('#begin-batch').on('click', function() {
+            $('#estimationModal').modal('hide');
+            submitForm();
+        });
+
         // add listener to batch form
         // submit button
         $('#submit-batch').on('click', function() {
@@ -399,6 +409,7 @@
         $('.integer-mask').mask("#", {reverse: true})
     }
 
+
     /**
      *  @brief  Basic setuo for AJAX call.
      *
@@ -424,26 +435,19 @@
         $.ajax({
             type: "POST",
             url: "http://localhost/seniorproject/public/getEstimation",
-            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode']},
+            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description']},
             success: function(e){
                 console.log(e);
                 if(type == 'batch') {
                     // TODO : modal ask for confirmation before start Executing
-                    var dh = new DateHelper();
-                    var f = e['filters'];
-                    var idCol = '<td><a href="#">New</a></td>';
-                    var dateCol = '<td>' + dh.toDateFormat(f['startDate'][0]) + ' - ' + dh.toDateFormat(f['startDate'][1]) + '</td>';
-                    var descCol = '<td><a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="'+'"><i class="fa fa-info"></i></a> '+d['description']+'<span id="tf-'+'" data-date="'+'" data-noOfCall="'+'"data-duration="'+'" data-period="'+'" data-carrier="'+'"></span></td>';
-                    var customerCol = '<td class="text-center">'+e['customers']+'</td>';
-                    var sizeCol = '<td class="text-center">-</td>';
-                    var actionCol = '<td><span class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></span><span class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></span><span class="label label-danger label-mini"><i class="fa fa-times"></i></span></td>';
-                    var statusCol = '<td><span class="label label-warning label-mini">Processing</span></td>';
-                    var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success"></div></div></td>';
-                    $('#progress-table-body').append('<tr>' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
-                    rebindTFilterListener();
-                    // hide batch form and show add button
-                    $('#new-batch').show(300);
-                    $('#batch-form-wrapper').hide();
+                    $('#exectime').html(dh.toReadable(e.execTime));
+                    $('#estimationModal').modal('show');
+                    tmpStorage = {
+                        "d" : d,
+                        "type" : type,
+                        "execTime" : e.execTime,
+                        "customers" : e.customers
+                    };
                 }
             },
             error: function(rs, e){
@@ -452,21 +456,27 @@
         });
     }
 
-    function submitForm(d, type) {
+    function submitForm() {
+        var d = tmpStorage['d'];
+        var type = tmpStorage['type'];
+        var others = {
+            'customers' : tmpStorage['customers'],
+            'estimatedExecTime' : tmpStorage['execTime'],
+        };
         ajaxSetup();
         $.ajax({
             type: "POST",
             url: "http://localhost/seniorproject/public/processSetup",
-            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode']},
+            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others},
             success: function(e){
                 console.log(e);
                 if(type == 'batch') {
-                    var dh = new DateHelper();
+                    
                     var f = e['filters'];
                     var idCol = '<td><a href="#">New</a></td>';
                     var dateCol = '<td>' + dh.toDateFormat(f['startDate'][0]) + ' - ' + dh.toDateFormat(f['startDate'][1]) + '</td>';
-                    var descCol = '<td><a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="'+'"><i class="fa fa-info"></i></a>'+'<span id="tf-'+'" data-date="'+'" data-noOfCall="'+'"data-duration="'+'" data-period="'+'" data-carrier="'+'"></span></td>';
-                    var customerCol = '<td class="text-center">'+e['customers']+'</td>';
+                    var descCol = '<td><a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></a>'+d['description']+'<span id="tf-'+'" data-date="'+'" data-noOfCall="'+'"data-duration="'+'" data-period="'+'" data-carrier="'+'"></span></td>';
+                    var customerCol = '<td class="text-center">'+others['customers']+'</td>';
                     var sizeCol = '<td class="text-center">-</td>';
                     var actionCol = '<td><span class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></span><span class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></span><span class="label label-danger label-mini"><i class="fa fa-times"></i></span></td>';
                     var statusCol = '<td><span class="label label-warning label-mini">Processing</span></td>';
