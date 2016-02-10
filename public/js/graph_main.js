@@ -16,20 +16,23 @@
     'use strict';
 
     var graphData = [];
+    var communityData = [];
     var colors = [];
     var numIDMapper = {};
     var s;
     var currentHilight = 'default';
-    var initForce = false;
-    var compute_com = false;
-    var activateClick = false;
+    var flag = {
+        compute_com : false,
+        activateClick : false,
+        clickListenerComOfCom : false
+    }
 
     var filter = {
         startDate : [19700101, 21000101],
         callDay : ['.+'],
         startTime : [0.0, 24.00],
         duration : [0, 99999],
-        //noOfCall : [0,999],
+        noOfCall : [0,999],
         rnCode : ['.+'],
         ComOfCom : 0
     };
@@ -350,14 +353,14 @@
         });
 
         // Add Click Listener to all Nodes
-        if(!activateClick){
+        if(!flag['activateClick']){
             s.bind('clickNode', clickNodeListener);
-            if(compute_com){
+            if(flag['compute_com']){
                 s.bind('doubleClickNode', doubleClickCommunityListener);
             } else {
                 s.bind('doubleClickNode', doubleClickNodeListener);
             }
-            activateClick = true;
+            flag['activateClick'] = true;
         }
 
         // Display Graph using sigma object
@@ -456,6 +459,7 @@
      *  @return void
      */
      function clickNodeListener(node) {
+        console.log(node.data.node.label);
         var nodeData = updateInformation(node);
      }
 
@@ -480,7 +484,6 @@
         // Show back button on the top right of the div
         document.getElementsByClassName('back-section')[0].style.display = 'block';
         var selectedCommunity = nodeData['attributes']['Modularity Class'];
-        var communityData = [];
         clearGraph();
 
         ajaxSetup();
@@ -509,6 +512,7 @@
                 }, 500);
 
                 s.refresh();
+                flag['clickListenerComOfCom'] = true;
             }
         });        
      }
@@ -530,25 +534,48 @@
         var communityRank = new Array();
         var bc = new Array();
         var cc = new Array();
-        graphData.nodes.forEach(function(n) {
-            if(n.id == nodeID) {
-                nodeData = n;
-            }
-            bc.push(parseFloat(n.attributes['Betweenness Centrality']));
-            cc.push(parseFloat(n.attributes['Closeness Centrality']));
-            if(compute_com){
-                communityRank[n.attributes['Modularity Class']] = n.attributes['Member'];
-            } else {
-                if (!communities[n.attributes['Modularity Class']]) {
-                   communities[n.attributes['Modularity Class']] = 1;
-                   communityRank[n.attributes['Modularity Class']] = 1;
+
+        if(!flag['clickListenerComOfCom']){
+            graphData.nodes.forEach(function(n) {
+                if(n.id == nodeID) {
+                    nodeData = n;
                 }
-                else {
-                    communities[n.attributes['Modularity Class']] += 1;
-                    communityRank[n.attributes['Modularity Class']] += 1;
+                bc.push(parseFloat(n.attributes['Betweenness Centrality']));
+                cc.push(parseFloat(n.attributes['Closeness Centrality']));
+                if(flag['compute_com']){
+                    communityRank[n.attributes['Modularity Class']] = n.attributes['Member'];
+                } else {
+                    if (!communities[n.attributes['Modularity Class']]) {
+                       communities[n.attributes['Modularity Class']] = 1;
+                       communityRank[n.attributes['Modularity Class']] = 1;
+                    }
+                    else {
+                        communities[n.attributes['Modularity Class']] += 1;
+                        communityRank[n.attributes['Modularity Class']] += 1;
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            communityData.nodes.forEach(function(n) {
+                if(n.id == nodeID) {
+                    nodeData = n;
+                }
+                bc.push(parseFloat(n.attributes['Betweenness Centrality']));
+                cc.push(parseFloat(n.attributes['Closeness Centrality']));
+                if(flag['compute_com']){
+                    communityRank[n.attributes['Modularity Class']] = n.attributes['Member'];
+                } else {
+                    if (!communities[n.attributes['Modularity Class']]) {
+                       communities[n.attributes['Modularity Class']] = 1;
+                       communityRank[n.attributes['Modularity Class']] = 1;
+                    }
+                    else {
+                        communities[n.attributes['Modularity Class']] += 1;
+                        communityRank[n.attributes['Modularity Class']] += 1;
+                    }
+                }
+            });
+        }
 
         bc.sort(function(a, b) {
           return b - a;
@@ -577,7 +604,7 @@
         document.getElementById('cc').innerHTML = cc.indexOf(nodeData.attributes['Closeness Centrality']) + ' (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
         document.getElementById('bc').innerHTML = bc.indexOf(nodeData.attributes['Betweenness Centrality']) + ' (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
         document.getElementById('comid').innerHTML = nodeData.attributes['Modularity Class'];
-        if(compute_com){
+        if(flag['compute_com']){
             document.getElementById('comrank').innerHTML = communityRank.indexOf(nodeData.attributes['Member']) + 1;
             document.getElementById('comsize').innerHTML = nodeData.attributes['Member'];
             document.getElementById('comnum').innerHTML = nodeData.attributes['Member'];
@@ -604,6 +631,7 @@
             clearGraph();
             s.stopForceAtlas2();
             plotFullGraph();
+            flag['clickListenerComOfCom'] = false;
         });
      }
 
@@ -785,7 +813,7 @@
             startDate : check,
             startTime : $('#callPeriodFrom').val() == ''? [0.0, 24.00] : [$('#callPeriodFrom').val(), $('#callPeriodTo').val()],
             duration : $('#callDurationFrom').val() == ''? [1, 99999] : [$('#callDurationFrom').val(), $('#callDurationTo').val()],
-            //noOfCall : $('#noOfCallFrom').val() == ''? [1,999] : [$('#noOfCallFrom').val(), $('#noOfCallTo').val()],
+            noOfCall : $('#noOfCallFrom').val() == ''? [1,999] : [$('#noOfCallFrom').val(), $('#noOfCallTo').val()],
             rnCode : carrier.length == 0? ['.+'] : carrier,
             ComOfCom : 0
         }
@@ -856,7 +884,7 @@
      function processCommunityData() {
         if(graphStatus['community-group'] == 0) {
             filter['ComOfCom'] = 1;
-            compute_com = true;
+            flag['compute_com'] = true;
             graphStatus['community-group'] = 1;
             $('#community-group').removeClass('btn-default').addClass('btn-warning');
             $('#community-group i').removeClass('fa-times').addClass('fa-refresh');
@@ -889,7 +917,7 @@
 
      function runGraph() {
         clearGraph();
-        if(compute_com){
+        if(flag['compute_com']){
             graphData = fetchCommunityData();
         } else {
             graphData = fetchData();

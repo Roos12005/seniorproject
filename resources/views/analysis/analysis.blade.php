@@ -53,7 +53,7 @@
                 </div>
                 <div class="col-md-5">
                     <div class="col-sm-12" style="padding-bottom: 5px;">
-                    <span> Graph Hi-light </span>
+                    <span> Graph Hilight </span>
                         <div class="clearfix separate-line"></div>
                     </div>
                     <div class="col-sm-12">  
@@ -562,9 +562,9 @@
                             <label class="control-label col-md-3" >Number of Call</label>
                             <div class="col-md-6">
                                 <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
-                                    <input type="text" class="form-control" id="noOfCallFrom" name="from" value="0" disabled="">
+                                    <input type="text" class="form-control" id="noOfCallFrom" name="from" value="0">
                                     <span class="input-group-addon">To</span>
-                                    <input type="text" class="form-control" id="noOfCallTo" name="to" value="999" disabled="">
+                                    <input type="text" class="form-control" id="noOfCallTo" name="to" value="999">
                                 </div>
                             </div>
                         </div>

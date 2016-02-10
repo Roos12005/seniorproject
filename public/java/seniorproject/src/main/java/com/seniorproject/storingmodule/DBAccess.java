@@ -123,8 +123,14 @@ public class DBAccess {
             for(Entry<String, List<Double>> entry : fFilters.entrySet()) {
                 String key = entry.getKey();
                 List<Double> value = entry.getValue();
-                  con = con.valueOf(r.property(key)).GTE(value.get(0)).AND();
-                  con = con.valueOf(r.property(key)).LTE(value.get(1)).AND();     
+                if(key.equals("noOfCall")){
+                    con = con.valueOf(a.property(key)).GTE(value.get(0)).AND();
+                    con = con.valueOf(a.property(key)).LTE(value.get(1)).AND();
+                    System.out.println(key + " ---- " + value.get(0) + " / " + value.get(1));
+                    continue;
+                }
+                con = con.valueOf(r.property(key)).GTE(value.get(0)).AND();
+                con = con.valueOf(r.property(key)).LTE(value.get(1)).AND();     
                 System.out.println(key + " ---- " + value.get(0) + " / " + value.get(1));
             }
 //            System.out.println("---------- S Filters ----------");
