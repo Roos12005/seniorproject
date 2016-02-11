@@ -98,12 +98,15 @@ public class DBAccess {
         // have a look at the DBProperties interface
         // the appropriate database access class will pick the properties it needs
         props.setProperty(DBProperties.SERVER_ROOT_URI, Config.HOST_NAME);
+        props.setProperty(DBProperties.PAGECACHE_MEMORY, "1024M");
+        props.setProperty(DBProperties.STRING_BLOCK_SIZE, "120");
+        props.setProperty(DBProperties.ARRAY_BLOCK_SIZE, "300");
 
         /**
          * connect to remote database via REST (SERVER_ROOT_URI property is
          * needed)
          */
-        dbAccess = DBAccessFactory.createDBAccess(DBType.REMOTE, props, Config.USERNAME, Config.PASSWORD);
+        dbAccess = DBAccessFactory.createDBAccess(DBType.IN_MEMORY, props, Config.USERNAME, Config.PASSWORD);
     }
    
     
@@ -119,34 +122,34 @@ public class DBAccess {
             JcRelation r = new JcRelation("Call");
             
             int j=0;
-            Concat con = WHERE.valueOf(r.property("duration")).GTE(-1).AND();
-            for(Entry<String, List<Double>> entry : fFilters.entrySet()) {
-                String key = entry.getKey();
-                List<Double> value = entry.getValue();
-                  con = con.valueOf(r.property(key)).GTE(value.get(0)).AND();
-                  con = con.valueOf(r.property(key)).LTE(value.get(1)).AND();     
-                System.out.println(key + " ---- " + value.get(0) + " / " + value.get(1));
-            }
-//            System.out.println("---------- S Filters ----------");
-            for(Entry<String, List<String>> entry : sFilters.entrySet()) {
-                String key = entry.getKey();
-                List<String> value = entry.getValue();
-                
-                String tmpRegex = value.get(0);
-                value.remove(0);
-                for(String tmp : value) {
-                    tmpRegex = tmpRegex + "|" + tmp;
-                }
-                con = con.BR_OPEN().valueOf(r.property(key)).REGEX(tmpRegex).OR()
-                        .BR_OPEN().valueOf(a.property(key)).REGEX(tmpRegex).AND()
-                        .valueOf(b.property(key)).REGEX(tmpRegex).BR_CLOSE().BR_CLOSE().AND();
-                
-                System.out.println(key + " ---- " + tmpRegex);
-            }
-            System.out.println(con.valueOf(r.property("duration")));
+//            Concat con = WHERE.valueOf(r.property("duration")).GTE(-1).AND();
+//            for(Entry<String, List<Double>> entry : fFilters.entrySet()) {
+//                String key = entry.getKey();
+//                List<Double> value = entry.getValue();
+//                  con = con.valueOf(r.property(key)).GTE(value.get(0)).AND();
+//                  con = con.valueOf(r.property(key)).LTE(value.get(1)).AND();     
+//                System.out.println(key + " ---- " + value.get(0) + " / " + value.get(1));
+//            }
+////            System.out.println("---------- S Filters ----------");
+//            for(Entry<String, List<String>> entry : sFilters.entrySet()) {
+//                String key = entry.getKey();
+//                List<String> value = entry.getValue();
+//                
+//                String tmpRegex = value.get(0);
+//                value.remove(0);
+//                for(String tmp : value) {
+//                    tmpRegex = tmpRegex + "|" + tmp;
+//                }
+//                con = con.BR_OPEN().valueOf(r.property(key)).REGEX(tmpRegex).OR()
+//                        .BR_OPEN().valueOf(a.property(key)).REGEX(tmpRegex).AND()
+//                        .valueOf(b.property(key)).REGEX(tmpRegex).BR_CLOSE().BR_CLOSE().AND();
+//                
+//                System.out.println(key + " ---- " + tmpRegex);
+//            }
+//            System.out.println(con.valueOf(r.property("duration")));
             query.setClauses(new IClause[]{
                 MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
-                con.valueOf(r.property("duration")).GTE(0),
+//                con.valueOf(r.property("duration")).GTE(0),
                 RETURN.value(r),
             });
 
@@ -273,7 +276,7 @@ public class DBAccess {
             Map<Integer, GrNode> grnodes = new HashMap<>();
             for(Node n : nodes) {
                 GrNode tmp = graph.createNode();
-                tmp.addLabel("User" + tid);
+                tmp.addLabel("Processed" + tid);
                 tmp.addProperty("Number", n.getLabel());
                 tmp.addProperty("Eccentricity", n.getEccentricity());
                 tmp.addProperty("Betweenness", n.getBetweenness());
@@ -310,11 +313,11 @@ public class DBAccess {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);
-            clearGraph("User_Com", "User_Com", "Call");
+            clearGraph("Processed_Com", "Processed_Com", "Call");
             Map<Integer, GrNode> grnodes = new HashMap<>();
             for(Node n : nodes) {
                 GrNode tmp = graph.createNode();
-                tmp.addLabel("User_Com+tid);
+                tmp.addLabel("Processed_Com"+tid);
                 tmp.addProperty("Member", n.getMember());
                 tmp.addProperty("Eccentricity", n.getEccentricity());
                 tmp.addProperty("Betweenness", n.getBetweenness());

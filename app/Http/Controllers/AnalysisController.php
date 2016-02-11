@@ -21,6 +21,12 @@ class AnalysisController extends Controller{
        
    }
 
+   public function main($id) {
+      return view('analysis.analysis', [
+                    'data_id' => $id
+                    ]);
+   }
+
     public function processData(Request $request) {
         $recieve = $request->all();
         
@@ -51,14 +57,14 @@ class AnalysisController extends Controller{
     }
 
     //Get all CDR
-    public function getCDR() {
+    public function getCDR($id) {
         $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
             ->build();
         
 
-        $q = 'MATCH (n:User) RETURN n, ID(n) as n_id';
+        $q = 'MATCH (n:Processed' . $id . ') RETURN n, ID(n) as n_id';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $node_list = array();
         $node_count = sizeof($results);
@@ -86,7 +92,7 @@ class AnalysisController extends Controller{
         }
 
 
-        $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $edge_list = array();
         foreach ($results as $result) {

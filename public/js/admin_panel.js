@@ -15,6 +15,15 @@
     var dh = new DateHelper();
     var tmpStorage = {};
 
+    function unaryModetoReadable(m) {
+        var result = "";
+        var mode = ['Centrality', 'Community', 'Customer Profiling', 'Community Profiling'];
+        for (var i = 0, len = m.length; i < len; i++) {
+            result = result + (m[i] == '1'? ', ' + mode[i] : '');
+        }
+        return result.substr(2);
+    }
+
     function addPFilterListener() {
         $(".preprocess-filter").on('click', function() {
             var pid = $(this).attr('data-pid');
@@ -25,7 +34,8 @@
                 'period' : tag.attr('data-period'),
                 'noOfCall' : tag.attr('data-noOfCall'),
                 'duration' : tag.attr('data-duration'),
-                'days' : tag.attr('data-days')
+                'days' : tag.attr('data-days'),
+
             };
             
             $('#pf-date').html(props.date);
@@ -49,7 +59,8 @@
                 'period' : tag.attr('data-period'),
                 'noOfCall' : tag.attr('data-noOfCall'),
                 'duration' : tag.attr('data-duration'),
-                'days' : tag.attr('data-days')
+                'days' : tag.attr('data-days'),
+                'mode' : tag.attr('data-calculation')
             };
             
             $('#tf-date').html(props.date);
@@ -58,6 +69,8 @@
             $('#tf-noOfCall').html(props.noOfCall);
             $('#tf-duration').html(props.duration);
             $('#tf-days').html(props.days);
+            $('#tf-calculation').html(unaryModetoReadable(props.mode));
+
             console.log(props);
             $('#tableModal').modal('show');
         });
@@ -73,7 +86,9 @@
                 'carrier' : tag.attr('data-carrier'),
                 'period' : tag.attr('data-period'),
                 'noOfCall' : tag.attr('data-noOfCall'),
-                'duration' : tag.attr('data-duration')
+                'duration' : tag.attr('data-duration'),
+                'days' : tag.attr('data-days'),
+                'mode' : tag.attr('data-calculation')
             };
             
             $('#tf-date').html(props.date);
@@ -81,9 +96,37 @@
             $('#tf-period').html(props.period);
             $('#tf-noOfCall').html(props.noOfCall);
             $('#tf-duration').html(props.duration);
+            $('#tf-days').html(props.days);
+            $('#tf-calculation').html(unaryModetoReadable(props.mode));
 
             console.log(props);
             $('#tableModal').modal('show');
+        });
+    }
+
+    function rebindPFilterListener() {
+        $(".preprocess-filter").unbind();
+        $(".preprocess-filter").on('click', function() {
+            var pid = $(this).attr('data-pid');
+            var tag = $('#pf-' + pid);
+            var props = {
+                'date' : tag.attr('data-date'),
+                'carrier' : tag.attr('data-carrier'),
+                'period' : tag.attr('data-period'),
+                'noOfCall' : tag.attr('data-noOfCall'),
+                'duration' : tag.attr('data-duration'),
+                'days' : tag.attr('data-days'),
+
+            };
+            
+            $('#pf-date').html(props.date);
+            $('#pf-carrier').html(props.carrier);
+            $('#pf-period').html(props.period);
+            $('#pf-noOfCall').html(props.noOfCall);
+            $('#pf-duration').html(props.duration);
+            $('#pf-days').html(props.days);
+
+            $('#preprocessModal').modal('show');
         });
     }
 
@@ -253,22 +296,30 @@
             }
 
             var submit = {
-                'date' : $('#preprocess-date').val(),
-                'days' : days,
-                'periodMin' : periodMin,
-                'periodMax' : periodMax,
-                'durationMin' : durationMin,
-                'durationMax' : durationMax,
-                'callsMin' : callsMin,
-                'callsMax' : callsMax,
-                'carriers' : carriers,
-                'mode' : mode
-            };
+                'filters' : {
+                    'startDate' : $('#preprocess-date').val(),
+                    'callDay' : days,
+                    'startTime' : [periodMin, periodMax],
+                    'duration' : [durationMin, durationMax],
+                    // 'callsMin' : callsMin,
+                    // 'callsMax' : callsMax,
+                    'rnCode' : carriers,
+                    'priority' : $('#preprocess-priority input[name="preprocess-priority"]:checked').val()
+                },
+                'mode' : mode,
+                'description' : $('#preprocess-description').val(),
+                
+            }
             console.log('Preprocess Form submission : ');
-            console.log(submit);
 
             // TODO : ajax
-
+            // getEstimation(submit, 'preprocess');
+            tmpStorage = {
+                "d" : submit,
+                "type" : 'preprocess',
+            };
+            console.log(submit);
+            submitForm();
         });
 
         // cancel button
@@ -438,17 +489,15 @@
             data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description']},
             success: function(e){
                 console.log(e);
-                if(type == 'batch') {
-                    // TODO : modal ask for confirmation before start Executing
-                    $('#exectime').html(dh.toReadable(e.execTime));
-                    $('#estimationModal').modal('show');
-                    tmpStorage = {
-                        "d" : d,
-                        "type" : type,
-                        "execTime" : e.execTime,
-                        "customers" : e.customers
-                    };
-                }
+                // TODO : modal ask for confirmation before start Executing
+                $('#exectime').html(dh.toReadable(e.execTime));
+                $('#estimationModal').modal('show');
+                tmpStorage = {
+                    "d" : d,
+                    "type" : type,
+                    "execTime" : e.execTime,
+                    "customers" : e.customers
+                };
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -473,12 +522,12 @@
                 if(type == 'batch') {
                     
                     var f = e['filters'];
-                    var idCol = '<td><a href="#">New</a></td>';
-                    var dateCol = '<td>' + dh.toDateFormat(f['startDate'][0]) + ' - ' + dh.toDateFormat(f['startDate'][1]) + '</td>';
-                    var descCol = '<td><a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></a>'+d['description']+'<span id="tf-'+'" data-date="'+'" data-noOfCall="'+'"data-duration="'+'" data-period="'+'" data-carrier="'+'"></span></td>';
+                    var idCol = '<td><a href="./analysis/' + e.nid + '">New</a></td>';
+                    var dateCol = '<td>' + f['startDate'] + '</td>';
+                    var descCol = '<td>'+d['description']+'</td>';
                     var customerCol = '<td class="text-center">'+others['customers']+'</td>';
                     var sizeCol = '<td class="text-center">-</td>';
-                    var actionCol = '<td><span class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></span><span class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></span><span class="label label-danger label-mini"><i class="fa fa-times"></i></span></td>';
+                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '" data-calculation="'+ e['mode'] +'"></span><div class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></div><div class="label label-danger label-mini"><i class="fa fa-times"></i></div></td>';
                     var statusCol = '<td><span class="label label-warning label-mini">Processing</span></td>';
                     var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success"></div></div></td>';
                     $('#progress-table-body').append('<tr>' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
@@ -486,6 +535,32 @@
                     // hide batch form and show add button
                     $('#new-batch').show(300);
                     $('#batch-form-wrapper').hide();
+                    rebindTFilterListener();
+                    $.ajax({
+                        type: "POST",
+                        url: "http://localhost/seniorproject/public/startProcess",
+                        data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others, 'nid' : e.nid},
+                        success: function(e){},
+                        error: function(rs, e){
+                            console.log(rs.responseText);
+                        }
+                    });
+                } else if(type == 'preprocess') {
+                    console.log(e);
+                    var f = e['filters'];
+                    var idCol = '<td><a href="#">New</a></td>';
+                    var descCol = '<td>' + d['description'] + '</td>';
+                    var cenModeCol = '<td>' + (d['mode'].substr(0,1) == 1? 'Yes' : 'No') + '</td>';
+                    var comModeCol = '<td>' + (d['mode'].substr(1,1) == 1? 'Yes' : 'No') + '</td>';
+                    var custProModeCol = '<td>' + (d['mode'].substr(2,1) == 1? 'Yes' : 'No') + '</td>';
+                    var comProModeCol = '<td>' + (d['mode'].substr(3,1) == 1? 'Yes' : 'No') + '</td>';
+                    var filtersCol = '<td><a href="#" data-toggle="modal" class="preprocess-filter" data-pid="' + e.nid + '"> Click to see filters </a><span id="pf-' + e.nid + '" data-date="" data-noOfCall="" data-days="" data-duration="" data-period="" data-carrier=""></span></td>';
+                    var priorityCol = '<td>' + (d['filters']['priority'] == 3? 'High' : d['filters']['priority'] == 2? 'Medium' : 'Low') + '</td>';
+                    var actionCol = '<td><span class="label label-default label-mini margin-right-4"><i class="fa fa-cog"></i></span><span class="label label-danger label-mini margin-right-4"><i class="fa fa-times"></i></span></td>';
+                    $('#preprocess-table-body').append('<tr>' + idCol + descCol + cenModeCol + comModeCol + custProModeCol + comProModeCol + filtersCol + priorityCol + actionCol + '</tr>');
+                    $('#new-preprocess').show(300);
+                    $('#preprocess-form-wrapper').hide();
+                    rebindPFilterListener();
                 }
             },
             error: function(rs, e){

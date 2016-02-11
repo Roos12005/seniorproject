@@ -50,11 +50,11 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="preprocess-table">
+                <tbody id="preprocess-table-body">
 
 
 
-                    @foreach($preprocess as $key => $p)
+                    @foreach($preprocess_settings as $key => $p)
                     <tr>
                         <td><a href="#">{{$key + 1}}</a></td>
                         <td>
@@ -70,12 +70,12 @@
                             <a href="#" data-toggle="modal" class="preprocess-filter" data-pid="{{$p['id']}}">
                                 Click to see filters
                             </a>
-                            <span id="pf-{{$p['id']}}" data-date="{{$p['date']}}" data-noOfCall="{{$p['noOfCall']}}"
+                            <span id="pf-{{$p['id']}}" data-date="{{$p['date']}}" data-noOfCall="{{$p['noOfCall']}}" data-days="{{$p['days']}}"
                             data-duration="{{$p['duration']}}" data-period="{{$p['period']}}" data-carrier="{{$p['carrier']}}">
                         </span>
                     </td>
 
-                    <td>High</td>
+                    <td>{{ $p['priority'] }}</td>
                     <td>
                         <span class="label label-default label-mini"><i class="fa fa-cog"></i></span>
                         <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
@@ -94,30 +94,33 @@
           <div class="col-md-12">
 
             <form action="#" class="form-horizontal bucket-form" id="preprocess-form" onsubmit="return false;">
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Description</label>
+                    <div class="col-lg-6">
+                            <input type="text" class="form-control" id="preprocess-description">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Date</label>
                     <div class="col-sm-6">
                         <select class="form-control" id="preprocess-date">
-                            <optgroup label="September 2015">
-                                <option value="2015090">Sep - Month</option>
-                                <option value="2015091">Sep - Week 1</option>
-                                <option value="2015092">Sep - Week 2</option>
+                            <optgroup label="Month 1">
+                                <option value="0000010">Month 1</option>
+                                <option value="0000011">Week 1</option>
+                                <option value="0000012">Week 2</option>
+                                <option value="0000013">Week 3</option>
+                                <option value="0000014">Week 4</option>
+                                <option value="0000015">Week 5</option>
                             </optgroup>
-                            <optgroup label="October 2015">
-                                <option value="2015100">Oct - Month</option>
-                                <option value="2015101">Oct - Week 1</option>
-                                <option value="2015102">Oct - Week 2</option>
-                                <option value="2015103">Oct - Week 3</option>
-                                <option value="2015104">Oct - Week 4</option>
-                                <option value="2015105">Oct - Week 5</option>
-                            </optgroup>
-                            <optgroup label="November 2015">
-                                <option value="2015110">Nov - Month</option>
-                                <option value="2015111">Nov - Week 1</option>
-                                <option value="2015112">Nov - Week 2</option>
-                                <option value="2015113">Nov - Week 3</option>
-                                <option value="2015114">Nov - Week 4</option>
-                                <option value="2015115">Nov - Week 5</option>
+                            <optgroup label="Month 2">
+                                <option value="0000020">Month 2</option>
+                                <option value="0000021">Week 1</option>
+                                <option value="0000022">Week 2</option>
+                                <option value="0000023">Week 3</option>
+                                <option value="0000024">Week 4</option>
+                                <option value="0000025">Week 5</option>
                             </optgroup>
                         </select>
                     </div>
@@ -154,9 +157,9 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Period</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="00:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control time-filter time-mask" id="preprocess-periodFrom" name="from" value="00.00">
+                            <input type="text" class="form-control time-filter time-mask" id="preprocess-periodFrom" name="from">
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control time-filter time-mask" id="preprocess-periodTo" name="to" value="24.00">
+                            <input type="text" class="form-control time-filter time-mask" id="preprocess-periodTo" name="to">
                         </div>
                     </div>
                 </div>
@@ -165,9 +168,9 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Duration</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control integer-mask" id="preprocess-durationFrom" name="from" value="0">
+                            <input type="text" class="form-control integer-mask" id="preprocess-durationFrom" name="from">
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control integer-mask" id="preprocess-durationTo" name="to" value="">
+                            <input type="text" class="form-control integer-mask" id="preprocess-durationTo" name="to">
                         </div>
                     </div>
                 </div>
@@ -222,6 +225,21 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Set this task priority</label>
+                    <div class="col-lg-9" id="preprocess-priority">
+                        <label class="checkbox-inline">
+                            <input type="radio" class="preprocess-priority" name="preprocess-priority" value="3"> High
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="radio" class="preprocess-priority" name="preprocess-priority" value="2" checked> Medium
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="radio" class="preprocess-priority" name="preprocess-priority" value="1"> Low
+                        </label>
+                    </div>
+                </div>
+
                 <div class="text-center">
                     <button class="btn btn-success" id="submit-preprocess">Submit</button>
                     <button class="btn btn-danger" id="cancel-preprocess">Cancel</button>
@@ -262,10 +280,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($table as $key => $row)
-                        @if ($row['type'] == 0)
+                        @foreach($preprocess_jobs as $key => $row)
                         <tr>
-                            <td><a href="#">{{ $key + 1 }}</a></td>
+                            <td><a href="./analysis/{{$row['id']}}">{{ $key + 1 }}</a></td>
                             <td>{{ $row['date'] }}</td>
                             <td>
                                 <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
@@ -295,7 +312,6 @@
                             </div>
                         </td>
                     </tr>
-                    @endif
                     @endforeach
                 </tbody>
             </table> 
@@ -306,7 +322,7 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <section class="panel">
+        <section class="panel" style="white-space: nowrap;">
             <header class="panel-heading">
                 Batch Job Data
                 <span class="tools pull-right">
@@ -331,32 +347,37 @@
                         </tr>
                     </thead>
                     <tbody id="progress-table-body">
-                        @foreach($table as $key => $row)
-                        @if ($row['type'] == 1)
+                        @foreach($batch_jobs as $key => $row)
                         <tr>
-                            <td><a href="#">{{ $key + 1 }}</a></td>
-                            <td>{{ $row['date'] }}</td>
-                            <td>
-                                <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
+                            <td><a href="./analysis/{{$row['id']}}">{{ $key + 1 }}</a></td>
+                            <td width="180">{{ $row['date'] }}</td>
+                            <td width="250">
+                                
                                 {{ $row['description'] }}
-                                <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
-                                data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}">
-                            </span>
-                        </td>
-                        <td class="text-center">{{ $row['customers'] }}</td>
-                        <td class="text-center">{{ $row['size'] }}</td>
-                        <td>
+                                
+                            
+                            </td>
+                        <td class="text-center" width="100">{{ $row['customers'] }}</td>
+                        <td class="text-center" width="50">{{ $row['size'] }}</td>
+                        <td style="white-space: nowrap;" width="150">
+                            <div class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></div>
+                            <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
+                                data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}" data-calculation="{{$row['mode']}}"></span>
                             @if($row['progress'] < 100)
-                            <span class="label label-default label-mini"><i class="fa fa-eye"></i></span>
-                            <span class="label label-default label-mini"><i class="fa fa-download"></i></span>
+                            <div class="label label-default label-mini" href="./analysis/{{$row['id']}}"><i class="fa fa-eye"></i></div>
+                            <div class="label label-default label-mini"><i class="fa fa-download"></i></div>
                             @else
-                            <span class="label label-primary label-mini"><i class="fa fa-eye"></i></span>
-                            <span class="label label-success label-mini"><i class="fa fa-download"></i></span>
+                            <div class="label label-primary label-mini"><i class="fa fa-eye"></i></div>
+                            <div class="label label-success label-mini"><i class="fa fa-download"></i></div>
                             @endif
-                            <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
+                            <div class="label label-danger label-mini"><i class="fa fa-times"></i></div>
                         </td>
-                        <td><span class="label label-success label-mini">{{ $row['status'] }}</span></td>
-                        <td>
+                        @if($row['progress'] < 100)
+                        <td width="30"><div class="label label-warning label-mini">{{ $row['status'] }}</div></td>
+                        @else
+                        <td width="30"><div class="label label-success label-mini">{{ $row['status'] }}</div></td>
+                        @endif
+                        <td width="70">
                             <div class="progress progress-striped progress-xs">
                                 <div style="width: {{ $row['progress'] }}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
                                     <span class="sr-only">100% Complete (success)</span>
@@ -364,7 +385,6 @@
                             </div>
                         </td>
                     </tr>
-                    @endif
                     @endforeach
                 </tbody>
             </table>
@@ -373,7 +393,7 @@
             </button>
             <div class="col-lg-12" id="batch-form-wrapper">
                 <header class="panel-heading m-bot15">
-                  ADD NEW PRE-PROCESS DATA
+                  ADD NEW BATCH JOB
               </header>   
               <div class="col-md-12">
 
@@ -625,6 +645,12 @@
                         <label class=" col-sm-3 control-label">Carrier</label>
                         <div class="col-lg-6">
                             <p class="form-control-static" id="tf-carrier">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Calculation</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-calculation">-</p>
                         </div>
                     </div>
                 </form> 

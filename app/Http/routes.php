@@ -16,13 +16,15 @@
 // });
 
 Route::get('/','AnalysisController@getIndex');
+Route::get('/analysis/{id}','AnalysisController@main');
 Route::post('processData','AnalysisController@processData');
 Route::get('runMaven','AnalysisController@runMaven');
 Route::get('/aboutus','AboutUsController@getAboutUs');
 Route::post('/getEstimation','AdminController@getEstimation');
 Route::post('/processSetup','AdminController@processSetup');
+Route::post('/startProcess','AdminController@startProcess');
 //Get Data
-Route::get('getCDR','AnalysisController@getCDR');
+Route::get('getCDR/{id}','AnalysisController@getCDR');
 
 Route::get('/admin','AdminController@index');
 

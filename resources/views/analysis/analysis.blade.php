@@ -11,6 +11,7 @@
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}" />
+<meta name="data-id" content="{{ $data_id }}" />
 <!-- Header Start -->
 <div class="row">
     <div class="col-md-12">

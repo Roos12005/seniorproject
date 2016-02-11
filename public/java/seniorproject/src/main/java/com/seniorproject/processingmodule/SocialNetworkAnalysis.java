@@ -90,40 +90,40 @@ public class SocialNetworkAnalysis {
         // ------------------------------------------
         Map<String, List<Double>> comparableFilters = new HashMap<>();
         Map<String, List<String>> stringFilters = new HashMap<>();
-        boolean comOfCom = args[args.length-1].equals("1")?true:false;
+//        boolean comOfCom = args[args.length-1].equals("1")?true:false;
         String tid = args[0];
-        for(int i=1; i<args.length - 4; i++) {
-            String key = args[i++];
-            int is_number = Integer.parseInt(args[i++]);
-            int args_len = Integer.parseInt(args[i++]);
-
-            if(is_number == 1) {
-                List<Double> tmp = new ArrayList<>();
-                for(int j=0; j<args_len; j++, i++) {
-                    tmp.add(Double.parseDouble(args[i]));
-                }
-                comparableFilters.put(key, tmp);
-            } else {
-                List<String> tmp = new ArrayList<>();
-                for(int j=0; j<args_len; j++, i++) {
-                    tmp.add(args[i]);
-                }
-                stringFilters.put(key, tmp);
-            }
-            i--;
-        }
+//        for(int i=1; i<args.length - 4; i++) {
+//            String key = args[i++];
+//            int is_number = Integer.parseInt(args[i++]);
+//            int args_len = Integer.parseInt(args[i++]);
+//
+//            if(is_number == 1) {
+//                List<Double> tmp = new ArrayList<>();
+//                for(int j=0; j<args_len; j++, i++) {
+//                    tmp.add(Double.parseDouble(args[i]));
+//                }
+//                comparableFilters.put(key, tmp);
+//            } else {
+//                List<String> tmp = new ArrayList<>();
+//                for(int j=0; j<args_len; j++, i++) {
+//                    tmp.add(args[i]);
+//                }
+//                stringFilters.put(key, tmp);
+//            }
+//            i--;
+//        }
 
         Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters);
         long readDataTime = System.currentTimeMillis();
         System.out.println("Reading Data ... Done! exec time : " + (readDataTime-startTime) + " ms");
     	
-        for(Node node : hgraph.getNodes()) {
-            System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
-        }
+//        for(Node node : hgraph.getNodes()) {
+//            System.out.println(node.getID() + " -> " + node.getAge() + " -> " + node.getGender() + " -> " + node.getRnCode() + " -> " + node.getPromotion());
+//        }
         long buildGraphTime = System.currentTimeMillis();
     	System.out.println("Building Graph ... Done! exec time : " + (buildGraphTime-startTime) + " ms");
-        GraphDistance dis = new GraphDistance(hgraph);
-        dis.execute(hgraph);
+//        GraphDistance dis = new GraphDistance(hgraph);
+//        dis.execute(hgraph);
         long calTime = System.currentTimeMillis();
         System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime-buildGraphTime) + " ms");
 
@@ -164,38 +164,38 @@ public class SocialNetworkAnalysis {
         //(new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges());
         (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges(), tid);
 
-        if(comOfCom){
-            Set<Node> comNodes = new HashSet<>();
-            List<Edge> comEdges = new ArrayList<>();
-            int[] comMember = new int[tot.size()];
-            String[] comColor = new String[tot.size()];
-
-            for(Node node : hgraph.getNodes()){
-                comMember[node.getCommunityID()]++;
-                comColor[node.getCommunityID()] = node.getColor();
-            }
-
-            for(int id = 0; id < tot.size(); id++){
-                Node node = new Node(id);
-                node.setCommunityID(id);
-                node.setMember(comMember[id]);
-                node.setColor(comColor[id]);
-                comNodes.add(node);
-            }
-
-            for(Edge edge : hgraph.getEdges()){
-                int comSource = hgraph.getNodes().get(edge.getSource()).getCommunityID();
-                int comTarget = hgraph.getNodes().get(edge.getTarget()).getCommunityID();
-                if(comSource != comTarget){
-                    comEdges.add(new Edge(comSource,comTarget,1.0f,edge.getStartDate(),edge.getStartTime(),edge.getCallDay(),edge.getDuration()));  
-                }
-            }
-            
-            Graph comGraph = new Graph(comNodes,comEdges);
-            GraphDistance comDis = new GraphDistance(comGraph); 
-            comDis.execute(comGraph);
-            System.out.println("Calculating Community Graph Distance ... Done!");   
-            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges(), tid);       
-        }
+//        if(comOfCom){
+//            Set<Node> comNodes = new HashSet<>();
+//            List<Edge> comEdges = new ArrayList<>();
+//            int[] comMember = new int[tot.size()];
+//            String[] comColor = new String[tot.size()];
+//
+//            for(Node node : hgraph.getNodes()){
+//                comMember[node.getCommunityID()]++;
+//                comColor[node.getCommunityID()] = node.getColor();
+//            }
+//
+//            for(int id = 0; id < tot.size(); id++){
+//                Node node = new Node(id);
+//                node.setCommunityID(id);
+//                node.setMember(comMember[id]);
+//                node.setColor(comColor[id]);
+//                comNodes.add(node);
+//            }
+//
+//            for(Edge edge : hgraph.getEdges()){
+//                int comSource = hgraph.getNodes().get(edge.getSource()).getCommunityID();
+//                int comTarget = hgraph.getNodes().get(edge.getTarget()).getCommunityID();
+//                if(comSource != comTarget){
+//                    comEdges.add(new Edge(comSource,comTarget,1.0f,edge.getStartDate(),edge.getStartTime(),edge.getCallDay(),edge.getDuration()));  
+//                }
+//            }
+//            
+//            Graph comGraph = new Graph(comNodes,comEdges);
+//            GraphDistance comDis = new GraphDistance(comGraph); 
+//            comDis.execute(comGraph);
+//            System.out.println("Calculating Community Graph Distance ... Done!");   
+//            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges(), tid);       
+//        }
     }
 }

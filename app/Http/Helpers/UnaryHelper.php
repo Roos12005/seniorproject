@@ -93,6 +93,38 @@ class UnaryHelper {
         return substr($result,1);
     }
 
+    public static function arrToReadable($arr) {
+        $result = '';
+        foreach($arr as $key => $c) {
+            $result = $result . ', ' . $c;
+        }   
+        return substr($result,2);
+    }
+
+    public static function arrToUnary($arr) {
+        $result = '';
+        foreach($arr as $key => $c) {
+            $result = $result . $c;
+        }   
+        return $result;
+    }
+
+    public static function rangeToReadable($arr, $t) {
+        if($t == 'time') {
+            if($arr[1] == 2000000000) {
+                return 'After ' . number_format($arr[0], 2, '.', '');
+            } else {
+                return number_format($arr[0], 2, '.', '') . ' - ' . number_format($arr[1], 2, '.', '');
+            }
+        } else {
+            if($arr[1] == 2000000000) {
+                return 'More than ' . $arr[0];
+            } else {
+                return $arr[0] . ' - ' . $arr[1];
+            }
+        }
+    }
+
     
 }
 
