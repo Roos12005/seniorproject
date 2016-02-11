@@ -181,6 +181,8 @@
         var carrier = [0,0,0,0];
         var com_data = new Array();
         var color_data = new Array();
+        var user_array = new Array();
+        var communities = new Array();
         ajaxSetup();
         $.ajax({
             type: "GET",
@@ -190,8 +192,6 @@
                 console.log(e);
                 preparedData = e;
                 setDate();
-                var user_array = new Array();
-                var communities = new Array();
 
                 $.each(e.nodes, function(index, user_info) {
                     if(user_info['attributes']['RnCode'] == "AIS"){
@@ -216,13 +216,8 @@
                     user_array.push(user_info);
                 });
 
-                carrier[0] = (carrier[0]/user_array.length * 100).toFixed(1);
-                carrier[1] = (carrier[1]/user_array.length * 100).toFixed(1);
-                carrier[2] = (carrier[2]/user_array.length * 100).toFixed(1);
-                carrier[3] = (carrier[3]/user_array.length * 100).toFixed(1);
-
                 for (var i in communities) {
-                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' members'});
+                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' users : ' + (communities[i]/user_array.length * 100).toFixed(0) + " %"});
                 }
 
                 document.getElementById('unique_numbers').innerHTML = user_array.length;
@@ -235,7 +230,7 @@
             async: false,
         })
         
-        createPieChart(com_data,color_data,carrier);
+        createPieChart(com_data,color_data,carrier,user_array.length);
 
         return preparedData;
     }
@@ -246,6 +241,8 @@
         var carrier = [0,0,0,0];
         var com_data = new Array();
         var color_data = new Array();
+        var communities = new Array();
+        var node_num = 0;
         ajaxSetup();
         $.ajax({
             type: "GET",
@@ -255,15 +252,15 @@
                 console.log(e);
                 preparedData = e;
                 setDate();
-                var communities = new Array();
 
                 $.each(e.nodes, function(index, community_info) {
                      communities[community_info['attributes']['Modularity Class']] = community_info['attributes']['Member'];
                      color_data[community_info['attributes']['Modularity Class']] = community_info['color'];
+                     node_num += community_info['attributes']['Member'];
                 });
 
                 for (var i in communities) {
-                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' members'});
+                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' users : ' + (communities[i]/node_num * 100).toFixed(0) + " %"});
                 }
 
                 document.getElementById('communities').innerHTML = communities.length;
@@ -283,10 +280,10 @@
                 console.log(e);
                 var user_num = e['all'];
 
-                carrier[0] = (e['ais']/e['all'] * 100).toFixed(1);
-                carrier[1] = (e['true']/e['all'] * 100).toFixed(1);
-                carrier[2] = (e['dtac']/e['all'] * 100).toFixed(1);
-                carrier[3] = ((e['all']-e['ais']-e['true']-e['dtac'])/e['all'] * 100).toFixed(1);
+                carrier[0] = e['ais'];
+                carrier[1] = e['true'];
+                carrier[2] = e['dtac'];
+                carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
 
                 document.getElementById('unique_numbers').innerHTML = e['all'];
             },
@@ -297,12 +294,12 @@
             async: false,
         })
         
-        createPieChart(com_data,color_data,carrier);
+        createPieChart(com_data,color_data,carrier,node_num);
 
         return preparedData;
     }
 
-    function createPieChart(com_data, color_data, carrier){
+    function createPieChart(com_data, color_data, carrier, node_num){
         Morris.Donut({
             element: 'graph-donut',
             data: com_data,
@@ -315,10 +312,10 @@
         Morris.Donut({
             element: 'graph-donut2',
             data: [
-                {value: carrier[0], label: 'AIS', formatted: 'at least ' + carrier[0] + "%" },
-                {value: carrier[1], label: 'DTAC', formatted: 'approx. ' + carrier[1] + "%" },
-                {value: carrier[2], label: 'TRUE', formatted: 'approx. ' + carrier[2] + "%" },
-                {value: carrier[3], label: 'OTHER', formatted: 'at most ' + carrier[3] + "%" }
+                {value: carrier[0], label: 'AIS', formatted: carrier[0] + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[1], label: 'DTAC', formatted: carrier[1] + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[2], label: 'TRUE', formatted: carrier[2] + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[3], label: 'OTHER', formatted: carrier[3] + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" }
             ],
             backgroundColor: '#fff',
             labelColor: '#1fb5ac',
@@ -786,7 +783,7 @@
 
 
      function saveFilter() {
-        resetButton();
+        resetAllButton();
 
         var day = [];
         $.each($('.day-checkbox:checked'), function() {
@@ -833,7 +830,14 @@
         $('#filterModal').modal('hide');  
      }
 
-     function resetButton() {
+     function resetButton(button) {
+        graphStatus[button] = 0;
+
+        $('#' + button).removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
+        $('#' + button +' i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
+     }
+
+     function resetAllButton() {
         graphStatus['full-graph'] = 0;
         graphStatus['community-group'] = 0;
         graphStatus['export-data'] = 0;
@@ -873,6 +877,8 @@
         } else if(graphStatus['full-graph'] == 1) {
             alert('Graph is processing ...'); 
         } else if(graphStatus['full-graph'] == 2) {
+            colorByDefault();
+            resetButton('community-group');
             runGraph();
             graphStatus['full-graph'] = 3;
         } else if(graphStatus['full-graph'] == 3) {
@@ -907,6 +913,8 @@
         } else if(graphStatus['community-group'] == 1) {
             alert('Graph is processing ...'); 
         } else if(graphStatus['community-group'] == 2) {
+            colorByDefault();
+            resetButton('full-graph');
             runGraph();
             graphStatus['community-group'] = 3;
         } else if(graphStatus['community-group'] == 3) {

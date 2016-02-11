@@ -14,6 +14,88 @@
 <!-- Header Start -->
 <div class="row">
     <div class="col-md-12">
+
+        <section class="panel">
+            <header class="panel-heading">
+                Data Description
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                    <a href="javascript:;" class="fa fa-cog"></a>
+                    <a href="javascript:;" class="fa fa-times"></a>
+                 </span>
+            </header>
+            <div class="panel-body">
+
+            </div>
+        </section>
+        <!-- Graph Controller section start -->
+        <section class="panel">
+            <header class="panel-heading"> New Graph Controller
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                    <a href="javascript:;" class="fa fa-cog"></a>
+                    <a href="javascript:;" class="fa fa-times"></a>
+                </span>
+            </header>
+            <div class="panel-body">
+                <div class="col-md-5">
+                    <div class="col-sm-12" style="padding-bottom: 5px;">
+                    <span> Graph Highlight </span>
+                        <div class="clearfix separate-line"></div>
+                    </div>
+                    <div class="col-sm-12">  
+                        <a class="btn btn-default three-col-button hilight h-on" id="h-default">
+                            Default
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-centrality">
+                            Centrality
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-community">
+                            Community
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-carrier">
+                            Carrier
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-daynight">
+                            Day / Night
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-promotion">
+                            Promotion
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-degree">
+                            Degree
+                        </a>
+                        <a class="btn btn-default three-col-button hilight" id="h-ais">
+                            AIS Only
+                        </a>
+                    </div>  
+                </div>
+                <div class="col-md-3">
+                    <div class="col-sm-12" style="padding-bottom: 5px;">
+                    <span> Display Mode </span>
+                        <div class="clearfix separate-line"></div>
+                    </div>
+                    <div class="col-sm-12 display-mode">  
+                        <a class="btn btn-default single-col-button" id="full-graph">
+                            Full Graph
+                            <i class="fa fa-times status"></i>
+                        </a>
+                        
+                        <a class="btn btn-default single-col-button" id="community-group">
+                            Community Group
+                            <i class="fa fa-times status"></i>
+                        </a>
+                        
+                        <a href="#exportCSVModal" data-toggle ="modal" class="btn btn-default single-col-button" id="export-data">
+                            Export Data
+                            <i class="fa fa-times status"></i>
+                        </a>
+                        
+                    </div>  
+                </div>
+            </div>
+        </section>
+        <!-- Graph Controller section end -->
         
         <!-- Graph Filter section start -->
         <section class="panel">
@@ -53,7 +135,7 @@
                 </div>
                 <div class="col-md-5">
                     <div class="col-sm-12" style="padding-bottom: 5px;">
-                    <span> Graph Hilight </span>
+                    <span> Graph Highlight </span>
                         <div class="clearfix separate-line"></div>
                     </div>
                     <div class="col-sm-12">  
