@@ -98,15 +98,15 @@ public class DBAccess {
         // have a look at the DBProperties interface
         // the appropriate database access class will pick the properties it needs
         props.setProperty(DBProperties.SERVER_ROOT_URI, Config.HOST_NAME);
-        props.setProperty(DBProperties.PAGECACHE_MEMORY, "1024M");
-        props.setProperty(DBProperties.STRING_BLOCK_SIZE, "120");
-        props.setProperty(DBProperties.ARRAY_BLOCK_SIZE, "300");
+//        props.setProperty(DBProperties.PAGECACHE_MEMORY, "1024M");
+//        props.setProperty(DBProperties.STRING_BLOCK_SIZE, "120");
+//        props.setProperty(DBProperties.ARRAY_BLOCK_SIZE, "300");
 
         /**
          * connect to remote database via REST (SERVER_ROOT_URI property is
          * needed)
          */
-        dbAccess = DBAccessFactory.createDBAccess(DBType.IN_MEMORY, props, Config.USERNAME, Config.PASSWORD);
+        dbAccess = DBAccessFactory.createDBAccess(DBType.REMOTE, props, Config.USERNAME, Config.PASSWORD);
     }
    
     
@@ -122,61 +122,38 @@ public class DBAccess {
             JcRelation r = new JcRelation("Call");
             
             int j=0;
-//            Concat con = WHERE.valueOf(r.property("duration")).GTE(-1).AND();
-//            for(Entry<String, List<Double>> entry : fFilters.entrySet()) {
-//                String key = entry.getKey();
-//                List<Double> value = entry.getValue();
-//                  con = con.valueOf(r.property(key)).GTE(value.get(0)).AND();
-//                  con = con.valueOf(r.property(key)).LTE(value.get(1)).AND();     
-//                System.out.println(key + " ---- " + value.get(0) + " / " + value.get(1));
-//            }
+            Concat con = WHERE.valueOf(r.property("duration")).GTE(-1).AND();
+            for(Entry<String, List<Double>> entry : fFilters.entrySet()) {
+                String key = entry.getKey();
+                List<Double> value = entry.getValue();
+                  con = con.valueOf(r.property(key)).GTE(value.get(0)).AND();
+                  con = con.valueOf(r.property(key)).LTE(value.get(1)).AND();     
+                System.out.println(key + " ---- " + value.get(0) + " / " + value.get(1));
+            }
 ////            System.out.println("---------- S Filters ----------");
-//            for(Entry<String, List<String>> entry : sFilters.entrySet()) {
-//                String key = entry.getKey();
-//                List<String> value = entry.getValue();
-//                
-//                String tmpRegex = value.get(0);
-//                value.remove(0);
-//                for(String tmp : value) {
-//                    tmpRegex = tmpRegex + "|" + tmp;
-//                }
-//                con = con.BR_OPEN().valueOf(r.property(key)).REGEX(tmpRegex).OR()
-//                        .BR_OPEN().valueOf(a.property(key)).REGEX(tmpRegex).AND()
-//                        .valueOf(b.property(key)).REGEX(tmpRegex).BR_CLOSE().BR_CLOSE().AND();
-//                
-//                System.out.println(key + " ---- " + tmpRegex);
-//            }
+            for(Entry<String, List<String>> entry : sFilters.entrySet()) {
+                String key = entry.getKey();
+                List<String> value = entry.getValue();
+                
+                String tmpRegex = value.get(0);
+                value.remove(0);
+                for(String tmp : value) {
+                    tmpRegex = tmpRegex + "|" + tmp;
+                }
+                con = con.BR_OPEN().valueOf(r.property(key)).REGEX(tmpRegex).OR()
+                        .BR_OPEN().valueOf(a.property(key)).REGEX(tmpRegex).AND()
+                        .valueOf(b.property(key)).REGEX(tmpRegex).BR_CLOSE().BR_CLOSE().AND();
+                
+                System.out.println(key + " ---- " + tmpRegex);
+            }
 //            System.out.println(con.valueOf(r.property("duration")));
             query.setClauses(new IClause[]{
-                MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
-//                con.valueOf(r.property("duration")).GTE(0),
+                MATCH.node(a).label("Raw").relation(r).out().node(b).label("Raw"),
+                con.valueOf(r.property("duration")).GTE(0),
                 RETURN.value(r),
             });
-
-//            icList.add(RETURN.value(r));
-//            IClause[] iclauses = new IClause[icList.size()];
-//            icList.toArray(iclauses);
-//            query.setClauses(iclauses);
-//            Concat ccc = WHERE.valueOf(r.property("startDate")).GTE(ran[4]).AND();
-//            ccc.valueOf(r.property("startDate")).LTE(ran[5]);
-            
-//            System.out.println(ran[0] + " " + ran[1] + " " + ran[4] + " " + ran[5]);
-//            query.setClauses(new IClause[]{
-//                MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
-//                ccc.valueOf(r.property("duration")).GT(0),
-//                WHERE.valueOf(r.property("startDate")).GTE(ran[4]),
-//                    WHERE.valueOf(r.property("startDate")).LTE(ran[5]),
-//                    WHERE.valueOf(r.property("duration")).GTE(ran[0]),
-//                    WHERE.valueOf(r.property("duration")).LTE(ran[1]),
-//                    WHERE.valueOf(r.property("startTime")).GTE(ran[2]),
-//                    WHERE.valueOf(r.property("startTime")).LTE(ran[3]),
-//                    WHERE.valueOf(r.property("callDay")).REGEX(rex[0]),
-//                    WHERE.valueOf(a.property("rnCode")).REGEX(rex[1]),
-//                RETURN.value(r),
-//            });
             
             JcQueryResult result = dbAccess.execute(query);
-            System.out.println(result.resultOf(r).getClass().getName());
             List<GrRelation> relationships = result.resultOf(r);
             for(GrRelation gr : relationships) {
                 GrNode sNode = gr.getStartNode();

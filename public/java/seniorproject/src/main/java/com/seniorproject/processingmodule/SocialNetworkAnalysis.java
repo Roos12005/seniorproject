@@ -92,26 +92,26 @@ public class SocialNetworkAnalysis {
         Map<String, List<String>> stringFilters = new HashMap<>();
 //        boolean comOfCom = args[args.length-1].equals("1")?true:false;
         String tid = args[0];
-//        for(int i=1; i<args.length - 4; i++) {
-//            String key = args[i++];
-//            int is_number = Integer.parseInt(args[i++]);
-//            int args_len = Integer.parseInt(args[i++]);
-//
-//            if(is_number == 1) {
-//                List<Double> tmp = new ArrayList<>();
-//                for(int j=0; j<args_len; j++, i++) {
-//                    tmp.add(Double.parseDouble(args[i]));
-//                }
-//                comparableFilters.put(key, tmp);
-//            } else {
-//                List<String> tmp = new ArrayList<>();
-//                for(int j=0; j<args_len; j++, i++) {
-//                    tmp.add(args[i]);
-//                }
-//                stringFilters.put(key, tmp);
-//            }
-//            i--;
-//        }
+        for(int i=1; i<args.length; i++) {
+            String key = args[i++];
+            int is_number = Integer.parseInt(args[i++]);
+            int args_len = Integer.parseInt(args[i++]);
+
+            if(is_number == 1) {
+                List<Double> tmp = new ArrayList<>();
+                for(int j=0; j<args_len; j++, i++) {
+                    tmp.add(Double.parseDouble(args[i]));
+                }
+                comparableFilters.put(key, tmp);
+            } else {
+                List<String> tmp = new ArrayList<>();
+                for(int j=0; j<args_len; j++, i++) {
+                    tmp.add(args[i]);
+                }
+                stringFilters.put(key, tmp);
+            }
+            i--;
+        }
 
         Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters);
         long readDataTime = System.currentTimeMillis();
@@ -122,8 +122,8 @@ public class SocialNetworkAnalysis {
 //        }
         long buildGraphTime = System.currentTimeMillis();
     	System.out.println("Building Graph ... Done! exec time : " + (buildGraphTime-startTime) + " ms");
-//        GraphDistance dis = new GraphDistance(hgraph);
-//        dis.execute(hgraph);
+        GraphDistance dis = new GraphDistance(hgraph);
+        dis.execute(hgraph);
         long calTime = System.currentTimeMillis();
         System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime-buildGraphTime) + " ms");
 
