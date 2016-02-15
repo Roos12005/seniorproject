@@ -9,7 +9,7 @@ use App\Models\Users;
 use Illuminate\Http\Request;
 use File;
 use Neoxygen\NeoClient\ClientBuilder;
-
+use Carbon;
 class AnalysisController extends Controller{
 
     public function getIndex() {
@@ -62,45 +62,72 @@ class AnalysisController extends Controller{
 
     //Get all CDR
     public function getCDR($id) {
+
+        $start = Carbon\Carbon::now()->timestamp;
         putenv("TMPDIR=/tmp");
+        set_time_limit(0);
         $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
             ->build();
         
 
-        $q = 'MATCH (n:Data) RETURN n, ID(n) as n_id limit 100000';
+        // $q = 'MATCH (n:Data) RETURN n, ID(n) as n_id limit 10000';
+        // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        // $node_list = array();
+        // $node_count = sizeof($results);
+        // $querytime = Carbon\Carbon::now()->timestamp;
+        // foreach($results as $key => $result) {
+        //     $user_stat = [
+        //         'Betweenness Centrality' => $result['n']['Betweenness'],
+        //         'Modularity Class' => $result['n']['CommunityID'],
+        //         'Eccentricity' => $result['n']['Eccentricity'],
+        //         'Closeness Centrality' => $result['n']['Closeness'],
+        //         'Age' => $result['n']['Age'],
+        //         'Gender' => $result['n']['Gender'],
+        //         'RnCode' => $result['n']['RnCode'],
+        //         'Promotion' => $result['n']['Promotion']
+        //     ];
+        //     $user_info = [
+        //       'label' => $result['n']['Number'],
+        //       'x' => 10*cos(2 * $key * M_PI/$node_count),
+        //       'y' => 10*sin(2 * $key * M_PI/$node_count),
+        //       'id' => $result['n_id'],
+        //       'attributes' => $user_stat,
+        //       // 'color' => $result['n']['Color'],
+        //       'size' => 1
+        //     ];
+        //     array_push($node_list, $user_info);
+        // }
+
+        
+        $q = 'MATCH (n:Data)-[r:Call]->(m:Data) RETURN n,ID(n) as n_id, r, ID(r) as r_id, m, ID(m) as m_id limit 10000';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        $querytime = Carbon\Carbon::now()->timestamp;
         $node_list = array();
+        $edge_list = array();
         $node_count = sizeof($results);
-        foreach($results as $key => $result) {
-            $user_stat = [
-                // 'Betweenness Centrality' => $result['n']['Betweenness'],
-                // 'Modularity Class' => $result['n']['CommunityID'],
-                // 'Eccentricity' => $result['n']['Eccentricity'],
-                // 'Closeness Centrality' => $result['n']['Closeness'],
-                // 'Age' => $result['n']['Age'],
-                // 'Gender' => $result['n']['Gender'],
-                // 'RnCode' => $result['n']['RnCode'],
-                // 'Promotion' => $result['n']['Promotion']
-            ];
-            $user_info = [
+        foreach ($results as $key => $result) {
+          $user_info = [
               'label' => $result['n']['Number'],
               'x' => 10*cos(2 * $key * M_PI/$node_count),
               'y' => 10*sin(2 * $key * M_PI/$node_count),
               'id' => $result['n_id'],
-              'attributes' => $user_stat,
+              'attributes' => [],
               // 'color' => $result['n']['Color'],
               'size' => 1
             ];
-            array_push($node_list, $user_info);
-        }
-
-
-        $q = 'MATCH (n:Data)-[r:Call]->(m:Data) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id limit 100000';
-        $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        $edge_list = array();
-        foreach ($results as $result) {
+            $node_list[$result['n_id']] = $user_info;
+            $user_info = [
+              'label' => $result['m']['Number'],
+              'x' => 10*cos(2 * $key * M_PI/$node_count),
+              'y' => 10*sin(2 * $key * M_PI/$node_count),
+              'id' => $result['m_id'],
+              'attributes' => [],
+              // 'color' => $result['n']['Color'],
+              'size' => 1
+            ];
+            $node_list[$result['m_id']] = $user_info;
             $edge_prop = [
                 // 'duration' => $result['r']['Duration'],
                 // 'startDate' => $result['r']['StartDate'],
@@ -118,8 +145,15 @@ class AnalysisController extends Controller{
             ];
             array_push($edge_list, $edge_info);
         }
+        $end = Carbon\Carbon::now()->timestamp;
+        $t1 = $querytime - $start;
+        $t2 = $end - $querytime;
+        $time = [
+          '1' => $t1,
+          '2' => $t2
+        ];
 
-        return  response()->json(['nodes' => $node_list, 'edges' => $edge_list]);
+        return  response()->json(['nodes' => $node_list, 'edges' => $edge_list, 'time' => $time]);
     } 
 
     // TODO : This function will be removed when my experiment is done!

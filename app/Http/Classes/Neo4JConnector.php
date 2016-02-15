@@ -6,6 +6,7 @@ use Neoxygen\NeoClient\ClientBuilder;
 use Carbon;
 use \App\Http\Helpers\DateHelper as DateHelper;
 use \App\Http\Helpers\UnaryHelper as UnaryHelper;
+use Log;
 
 class Neo4JConnector {
 
@@ -218,15 +219,15 @@ class Neo4JConnector {
 
         // Prepare Query Statement
         $q = "CREATE (n:PreprocessSetting {
-                startDate: " . $filters['startDate'] . ",
-                callDay : " . $filters['callDay'] . ",
-                rnCode : " . $filters['rnCode'] . ",
-                startTime : " . $filters['startTime'][0] . ",
-                endTime: " . $filters['startTime'][1] . ",
+                startDate: '" . $filters['startDate'] . "',
+                callDay : '" . $filters['callDay'] . "',
+                rnCode : '" . $filters['rnCode'] . "',
+                startTime : '" . $filters['startTime'][0] . "',
+                endTime: '" . $filters['startTime'][1] . "',
                 durationMin: " . $filters['duration'][0] . ",
                 durationMax: " . $filters['duration'][1] . ",
                 description : '" . $desc . "',
-                mode : " . $mode . ",
+                mode : '" . $mode . "',
                 priority : " . $filters['priority'] . "
             }) RETURN ID(n) as nid";
         
@@ -241,7 +242,7 @@ class Neo4JConnector {
 
     public function startBatchProcess($filters, $nid) {
         $filters = $this->prepareData($filters);
-        $res = $this->beginProcess($filters, $nid);
+        $res = $this->beginProcess($filters, $nid, false);
     }
 
     public function deleteData($type, $nid) {
@@ -250,10 +251,32 @@ class Neo4JConnector {
     }
 
     public function doByScheduling() {
-        $q = "MATCH (n:PreprocessSetting) RETURN ID(n) as nid ORDER BY n.priority DESC";
+        $q = "MATCH (n:PreprocessSetting) RETURN n, ID(n) as nid ORDER BY n.priority DESC";
         $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
 
         // prepare for exec
+
+        foreach($result as $key => $r) {
+
+            $filters = [
+                'startDate' => $r['n']['startDate'],
+                'callDay' => $r['n']['callDay'],
+                'startTime' => [$r['n']['startTime'], $r['n']['endTime']],
+                'duration' => [$r['n']['durationMin'], $r['n']['durationMax']],
+                'callDay' => $r['n']['callDay'],
+                'rnCode' => $r['n']['rnCode']
+            ];
+            // Each Scheduler Setting
+            $filters = $this->prepareData($filters);
+
+            // Date Correction - to Current Year and Month
+            $filters['startDate'] = $this->toCurrentYearMonth($filters['startDate']);
+
+
+
+            // Start Processing
+            $this->beginProcess($filters, $r['nid'], true);
+        }
     }
 
     // ------------------------------------------------------------------------------------------------------------
@@ -313,8 +336,8 @@ class Neo4JConnector {
         return $ret;
     }
 
-    private function beginProcess($filters, $id) {
-        $command = "java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id;
+    private function beginProcess($filters, $id, $isScheduler) {
+        $command = "java -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id;
         foreach ($filters as $key => $value) {
             $len = sizeof($value);
             $command = $command . ' ' . $key . ' ';
@@ -333,7 +356,9 @@ class Neo4JConnector {
             }
             $command = $command . $back_command;
         }
-
+    
+        $command = $command . ' >> javalogs/result' . $id . '.txt';
+        Log::info($command);
         exec($command);
         return ;
     }
@@ -372,6 +397,25 @@ class Neo4JConnector {
         $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
 
         return true;
+    }
+
+    private function toCurrentYearMonth($date) {
+        // Get Current Month and Year
+        $now = Carbon\Carbon::now();
+        // $curr_year = $now->year;
+        // $curr_month = $now->month;
+        $curr_month = 9;
+        $curr_year = 2015;
+        // Replace Year Month of the given
+        $date[0] = $curr_year . $this->setZeroPrefix($curr_month) . substr($date[0], 6);
+        $date[1] = $curr_year . $this->setZeroPrefix($curr_month) . substr($date[1], 6);
+
+        return $date;
+
+    }
+
+    private function setZeroPrefix($n) {
+        return $n < 10 ? '0' . $n : $n;
     }
 
     private function checkConnection() {

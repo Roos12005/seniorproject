@@ -45,6 +45,7 @@
         s = new sigma({
             renderers: [{
                 container: document.getElementById('container'),
+                type: 'canvas'
             }]
 
             /* 
