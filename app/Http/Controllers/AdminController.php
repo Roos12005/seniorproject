@@ -57,12 +57,13 @@ class AdminController extends Controller{
         $type = $rec['type'];
         $mode = $rec['mode'];
         $desc = $rec['description'];
-        $others = $rec['others'];
+
 
         // Instantiate Neo4JConnector
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
 
         if($type == 'batch') {
+            $others = $rec['others'];
             // Setup Batch Process, Save Batch Process Information to Neo4j and Formatting data for Displaying
             return $neo->setUpBatchProcess($filters, $mode, $desc, $others);
         } elseif ($type == 'preprocess') {
@@ -90,6 +91,24 @@ class AdminController extends Controller{
         $neo->startBatchProcess($filters, $nid);
 
         return "Success";
+   }
+
+   public function deleteData() {
+        // Get all Input send via AJAX to $rec
+        $rec = Request::all();
+
+        // Inputs  - Filters
+        $type = $rec['type'];
+        $nid = $rec['nid'];
+
+        // Instantiate Neo4JConnector 
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+
+        // Start Batch Processing
+        $neo->deleteData($type, $nid);
+
+        return "Success";
+
    }
 }
 

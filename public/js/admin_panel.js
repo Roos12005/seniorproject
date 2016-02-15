@@ -78,56 +78,66 @@
 
     function rebindTFilterListener() {
         $(".table-filter").unbind();
-        $(".table-filter").on('click', function() {
-            var tid = $(this).attr('data-tid');
-            var tag = $('#tf-' + tid);
-            var props = {
-                'date' : tag.attr('data-date'),
-                'carrier' : tag.attr('data-carrier'),
-                'period' : tag.attr('data-period'),
-                'noOfCall' : tag.attr('data-noOfCall'),
-                'duration' : tag.attr('data-duration'),
-                'days' : tag.attr('data-days'),
-                'mode' : tag.attr('data-calculation')
-            };
-            
-            $('#tf-date').html(props.date);
-            $('#tf-carrier').html(props.carrier);
-            $('#tf-period').html(props.period);
-            $('#tf-noOfCall').html(props.noOfCall);
-            $('#tf-duration').html(props.duration);
-            $('#tf-days').html(props.days);
-            $('#tf-calculation').html(unaryModetoReadable(props.mode));
+        addTFilterListener();
 
-            console.log(props);
-            $('#tableModal').modal('show');
-        });
+        // $(".table-filter").on('click', function() {
+        //     var tid = $(this).attr('data-tid');
+        //     var tag = $('#tf-' + tid);
+        //     var props = {
+        //         'date' : tag.attr('data-date'),
+        //         'carrier' : tag.attr('data-carrier'),
+        //         'period' : tag.attr('data-period'),
+        //         'noOfCall' : tag.attr('data-noOfCall'),
+        //         'duration' : tag.attr('data-duration'),
+        //         'days' : tag.attr('data-days'),
+        //         'mode' : tag.attr('data-calculation')
+        //     };
+            
+        //     $('#tf-date').html(props.date);
+        //     $('#tf-carrier').html(props.carrier);
+        //     $('#tf-period').html(props.period);
+        //     $('#tf-noOfCall').html(props.noOfCall);
+        //     $('#tf-duration').html(props.duration);
+        //     $('#tf-days').html(props.days);
+        //     $('#tf-calculation').html(unaryModetoReadable(props.mode));
+
+        //     console.log(props);
+        //     $('#tableModal').modal('show');
+        // });
+
+
+        $('.delete-button').unbind();
+        addDeleteButtonListener();
     }
 
     function rebindPFilterListener() {
         $(".preprocess-filter").unbind();
-        $(".preprocess-filter").on('click', function() {
-            var pid = $(this).attr('data-pid');
-            var tag = $('#pf-' + pid);
-            var props = {
-                'date' : tag.attr('data-date'),
-                'carrier' : tag.attr('data-carrier'),
-                'period' : tag.attr('data-period'),
-                'noOfCall' : tag.attr('data-noOfCall'),
-                'duration' : tag.attr('data-duration'),
-                'days' : tag.attr('data-days'),
+        addPFilterListener();
+        // $(".preprocess-filter").on('click', function() {
+        //     var pid = $(this).attr('data-pid');
+        //     var tag = $('#pf-' + pid);
+        //     var props = {
+        //         'date' : tag.attr('data-date'),
+        //         'carrier' : tag.attr('data-carrier'),
+        //         'period' : tag.attr('data-period'),
+        //         'noOfCall' : tag.attr('data-noOfCall'),
+        //         'duration' : tag.attr('data-duration'),
+        //         'days' : tag.attr('data-days'),
 
-            };
+        //     };
             
-            $('#pf-date').html(props.date);
-            $('#pf-carrier').html(props.carrier);
-            $('#pf-period').html(props.period);
-            $('#pf-noOfCall').html(props.noOfCall);
-            $('#pf-duration').html(props.duration);
-            $('#pf-days').html(props.days);
+        //     $('#pf-date').html(props.date);
+        //     $('#pf-carrier').html(props.carrier);
+        //     $('#pf-period').html(props.period);
+        //     $('#pf-noOfCall').html(props.noOfCall);
+        //     $('#pf-duration').html(props.duration);
+        //     $('#pf-days').html(props.days);
 
-            $('#preprocessModal').modal('show');
-        });
+        //     $('#preprocessModal').modal('show');
+        // });
+
+        $('.delete-button').unbind();
+        addDeleteButtonListener();
     }
 
     function initPagination() {
@@ -448,7 +458,7 @@
 
     function addInputFormMasking() {
         var notOverTwentyFour = function(val) {
-            return parseFloat(val) > 24.00 ? '24.\0\0' : '00.00';
+            return parseFloat(val) > 23.59 ? '23.5\9' : '00.00';
         }
         $('.time-mask').mask('00.00',  {
             onKeyPress: function(val, e, field, options) {
@@ -527,10 +537,10 @@
                     var descCol = '<td>'+d['description']+'</td>';
                     var customerCol = '<td class="text-center">'+others['customers']+'</td>';
                     var sizeCol = '<td class="text-center">-</td>';
-                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '" data-calculation="'+ e['mode'] +'"></span><div class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></div><div class="label label-danger label-mini"><i class="fa fa-times"></i></div></td>';
+                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '" data-calculation="'+ e['mode'] +'"></span><div class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
                     var statusCol = '<td><span class="label label-warning label-mini">Processing</span></td>';
                     var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success"></div></div></td>';
-                    $('#progress-table-body').append('<tr>' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
+                    $('#progress-table-body').append('<tr id="row-b-'+e.nid+'">' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
 
                     // hide batch form and show add button
                     $('#new-batch').show(300);
@@ -556,11 +566,48 @@
                     var comProModeCol = '<td>' + (d['mode'].substr(3,1) == 1? 'Yes' : 'No') + '</td>';
                     var filtersCol = '<td><a href="#" data-toggle="modal" class="preprocess-filter" data-pid="' + e.nid + '"> Click to see filters </a><span id="pf-' + e.nid + '" data-date="" data-noOfCall="" data-days="" data-duration="" data-period="" data-carrier=""></span></td>';
                     var priorityCol = '<td>' + (d['filters']['priority'] == 3? 'High' : d['filters']['priority'] == 2? 'Medium' : 'Low') + '</td>';
-                    var actionCol = '<td><span class="label label-default label-mini margin-right-4"><i class="fa fa-cog"></i></span><span class="label label-danger label-mini margin-right-4"><i class="fa fa-times"></i></span></td>';
-                    $('#preprocess-table-body').append('<tr>' + idCol + descCol + cenModeCol + comModeCol + custProModeCol + comProModeCol + filtersCol + priorityCol + actionCol + '</tr>');
+                    var actionCol = '<td><span class="label label-danger label-mini margin-right-4"><i class="fa fa-times"></i></span></td>';
+                    $('#preprocess-table-body').append('<tr id="row-p-'+e.nid+'">' + idCol + descCol + cenModeCol + comModeCol + custProModeCol + comProModeCol + filtersCol + priorityCol + actionCol + '</tr>');
                     $('#new-preprocess').show(300);
                     $('#preprocess-form-wrapper').hide();
                     rebindPFilterListener();
+                }
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+            }
+        });
+    }
+
+    function addDeleteButtonListener() {
+        $(".delete-button").on('click', function() {
+            var type = $(this).attr('data-type');
+            if(type == 'preprocess') {
+                var pid = $(this).attr('data-pid');
+                deleteData(pid, type);
+            } else if(type == 'preprocess-result') {
+                var pid = $(this).attr('data-pid');
+                deleteData(pid, type);
+            } else if(type == 'batch') {
+                var tid = $(this).attr('data-tid');
+                deleteData(tid, type);
+            }
+        });
+    }
+
+    function deleteData(id, type) {
+        ajaxSetup();
+        $.ajax({
+            type: "POST",
+            url: "http://localhost/seniorproject/public/deleteData",
+            data : { 'nid' : id, 'type' : type },
+            success: function(e){
+                if(type == 'batch') {
+                    $('#row-b-' + id).remove();
+                } else if(type == 'preprocess') {
+                    $('#row-p-' + id).remove();
+                } else if(type == 'preprocess-result') {
+                    $('#row-pr-' + id).remove();
                 }
             },
             error: function(rs, e){
@@ -582,6 +629,7 @@
         initPreprocessForm();
         initBatchForm();
         addInputFormMasking();
+        addDeleteButtonListener();
     }();
 
 }();

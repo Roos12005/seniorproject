@@ -17,7 +17,7 @@
     <div class="col-sm-12">
         <section class="panel">
             <header class="panel-heading">
-                Pre-processing Data Setting
+                Scheduler Setting
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-up"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -32,7 +32,7 @@
 
             </br>
             <i>
-                Data specified in this section will be automatically starting processed at midnight. More data specified will take longer time to process.
+                Data specified in this section will be automatically starting processed at specified time. More data specified will take longer time to process.
             </i>
             <table class="table  table-hover general-table" id="preprocess-table">
                 <thead>
@@ -55,8 +55,8 @@
 
 
                     @foreach($preprocess_settings as $key => $p)
-                    <tr>
-                        <td><a href="#">{{$key + 1}}</a></td>
+                    <tr id="row-p-{{$p['id']}}">
+                        <td>{{$key + 1}}</td>
                         <td>
                             {{ $p['description'] }}
                         </td>
@@ -77,8 +77,8 @@
 
                     <td>{{ $p['priority'] }}</td>
                     <td>
-                        <span class="label label-default label-mini"><i class="fa fa-cog"></i></span>
-                        <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
+                        <!-- <span class="label label-default label-mini"><i class="fa fa-cog"></i></span> -->
+                        <a href="#" class="label label-danger label-mini delete-button" data-pid="{{$p['id']}}" data-type="preprocess"><i class="fa fa-times"></i></a>
                     </td>
                 </tr>
                 @endforeach
@@ -89,11 +89,24 @@
         </button>
         <div class="col-lg-12" id="preprocess-form-wrapper">
             <header class="panel-heading m-bot15">
-              ADD NEW PRE-PROCESS DATA
+              ADD NEW SCHEDULER SETTING
           </header>   
           <div class="col-md-12">
 
             <form action="#" class="form-horizontal bucket-form" id="preprocess-form" onsubmit="return false;">
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Database</label>
+                    <div class="col-sm-6">
+                        <select class="form-control" id="preprocess-database">
+                            <optgroup label="Database Name">
+                                <option value="001">CU Location</option>
+                                <option value="002">Airport</option>
+                                <option value="003">QSCC</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Description</label>
@@ -106,21 +119,15 @@
                     <label class="col-sm-3 control-label">Date</label>
                     <div class="col-sm-6">
                         <select class="form-control" id="preprocess-date">
-                            <optgroup label="Month 1">
-                                <option value="0000010">Month 1</option>
+                            <optgroup label="Monthly">
+                                <option value="0000010">Whole Month</option>
+                            </optgroup>
+                            <optgroup label="Weekly">
                                 <option value="0000011">Week 1</option>
                                 <option value="0000012">Week 2</option>
                                 <option value="0000013">Week 3</option>
                                 <option value="0000014">Week 4</option>
                                 <option value="0000015">Week 5</option>
-                            </optgroup>
-                            <optgroup label="Month 2">
-                                <option value="0000020">Month 2</option>
-                                <option value="0000021">Week 1</option>
-                                <option value="0000022">Week 2</option>
-                                <option value="0000023">Week 3</option>
-                                <option value="0000024">Week 4</option>
-                                <option value="0000025">Week 5</option>
                             </optgroup>
                         </select>
                     </div>
@@ -130,37 +137,38 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Days</label>
                     <div class="col-lg-6">
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-days" value="0"> Sun
+                            <input type="checkbox" class="preprocess-days" value="0" checked> Sun
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-days" value="1"> Mon
+                            <input type="checkbox" class="preprocess-days" value="1" checked> Mon
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-days" value="2"> Tue
+                            <input type="checkbox" class="preprocess-days" value="2" checked> Tue
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-days" value="3"> Wed
+                            <input type="checkbox" class="preprocess-days" value="3" checked> Wed
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-days" value="4"> Thu
+                            <input type="checkbox" class="preprocess-days" value="4" checked> Thu
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-days" value="5"> Fri
+                            <input type="checkbox" class="preprocess-days" value="5" checked> Fri
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-days" value="6"> Sat
+                            <input type="checkbox" class="preprocess-days" value="6" checked> Sat
                         </label>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Period</label>
+                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Calling Time</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="00:00" data-time-format="hh:mm">
                             <input type="text" class="form-control time-filter time-mask" id="preprocess-periodFrom" name="from">
                             <span class="input-group-addon">To</span>
                             <input type="text" class="form-control time-filter time-mask" id="preprocess-periodTo" name="to">
                         </div>
+                        <p class="help-block">Example: 12.00 To 23.59 <i> &nbsp;*Leave blank for not specify</i></p>
                     </div>
                 </div>
 
@@ -172,17 +180,31 @@
                             <span class="input-group-addon">To</span>
                             <input type="text" class="form-control integer-mask" id="preprocess-durationTo" name="to">
                         </div>
+                        <p class="help-block">Example: 0 To 100 <i> &nbsp;*Leave blank for not specify</i></p>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Calls</label>
+                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Incoming Calls</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control integer-mask" id="preprocess-callsFrom" name="from" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-incallsFrom" name="from" disabled>
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control integer-mask" id="preprocess-callsTo" name="to" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-incallsTo" name="to" disabled>
                         </div>
+                        <p class="help-block">Example: 0 To 10 <i> &nbsp;*Leave blank for not specify</i></p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Outgoing Calls</label>
+                    <div class="col-lg-6">
+                        <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
+                            <input type="text" class="form-control integer-mask" id="preprocess-outcallsFrom" name="from" disabled>
+                            <span class="input-group-addon">To</span>
+                            <input type="text" class="form-control integer-mask" id="preprocess-outcallsTo" name="to" disabled>
+                        </div>
+                        <p class="help-block">Example: 0 To 10 <i> &nbsp;*Leave blank for not specify</i></p>
                     </div>
                 </div>
 
@@ -193,34 +215,31 @@
                             <input type="checkbox" class="preprocess-carriers" value="0" checked> AIS
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-carriers" value="1"> TRUE
+                            <input type="checkbox" class="preprocess-carriers" value="1" checked> TRUE
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-carriers" value="2"> DTAC
+                            <input type="checkbox" class="preprocess-carriers" value="2" checked> DTAC
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-carriers" value="3"> JAS
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-carriers" value="4"> Others
+                            <input type="checkbox" class="preprocess-carriers" value="4" checked> Others
                         </label>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">What do you want?</label>
+                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Social Network Statistics</label>
                     <div class="col-lg-9">
                         <label class="checkbox-inline">
                             <input type="checkbox" class="preprocess-mode" value="0"> Centrality
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" id="preprocess-community-mode" class="preprocess-mode" value="1"> Community
+                            <input type="checkbox" class="preprocess-mode" value="2" checked> Customer Profiling
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-mode" value="2"> Customer Profiling
+                            <input type="checkbox" id="preprocess-community-mode" class="preprocess-mode" value="1" checked> Community
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" id="preprocess-community-profiling-mode" class="preprocess-mode" value="3"> Community Profiling
+                            <input type="checkbox" id="preprocess-community-profiling-mode" class="preprocess-mode" value="3" checked> Community Profiling
                         </label>
                     </div>
                 </div>
@@ -257,7 +276,7 @@
     <div class="col-sm-12">
         <section class="panel">
             <header class="panel-heading">
-                Pre-processing Data
+                SCHEDULER JOBS
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -281,7 +300,7 @@
                     </thead>
                     <tbody>
                         @foreach($preprocess_jobs as $key => $row)
-                        <tr>
+                        <tr id="row-pr-{{$p['id']}}">
                             <td><a href="./analysis/{{$row['id']}}">{{ $key + 1 }}</a></td>
                             <td>{{ $row['date'] }}</td>
                             <td>
@@ -301,7 +320,7 @@
                             <span class="label label-primary label-mini"><i class="fa fa-eye"></i></span>
                             <span class="label label-success label-mini"><i class="fa fa-download"></i></span>
                             @endif
-                            <span class="label label-danger label-mini"><i class="fa fa-times"></i></span>
+                            <a href="#" class="label label-danger label-mini delete-button" data-pid="{{$row['id']}}" data-type="preprocess-result"><i class="fa fa-times"></i></a>
                         </td>
                         <td><span class="label label-success label-mini">{{ $row['status'] }}</span></td>
                         <td>
@@ -324,7 +343,7 @@
     <div class="col-sm-12">
         <section class="panel" style="white-space: nowrap;">
             <header class="panel-heading">
-                Batch Job Data
+                BATCH JOBS
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -348,7 +367,7 @@
                     </thead>
                     <tbody id="progress-table-body">
                         @foreach($batch_jobs as $key => $row)
-                        <tr>
+                        <tr id="row-b-{{$row['id']}}">
                             <td><a href="./analysis/{{$row['id']}}">{{ $key + 1 }}</a></td>
                             <td width="180">{{ $row['date'] }}</td>
                             <td width="250">
@@ -370,7 +389,7 @@
                             <div class="label label-primary label-mini"><i class="fa fa-eye"></i></div>
                             <div class="label label-success label-mini"><i class="fa fa-download"></i></div>
                             @endif
-                            <div class="label label-danger label-mini"><i class="fa fa-times"></i></div>
+                            <div class="label label-danger label-mini delete-button" data-tid="{{$row['id']}}" data-type="batch"><i class="fa fa-times"></i></div>
                         </td>
                         @if($row['progress'] < 100)
                         <td width="30"><div class="label label-warning label-mini">{{ $row['status'] }}</div></td>
@@ -398,6 +417,19 @@
               <div class="col-md-12">
 
                 <form action="#" class="form-horizontal bucket-form" id="batch-form" onsubmit="return false;">
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Database</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" id="batch-database">
+                                <optgroup label="Database Name">
+                                    <option value="001">CU Location</option>
+                                    <option value="002">Airport</option>
+                                    <option value="003">QSCC</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Description</label>
@@ -439,37 +471,38 @@
                         <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Days</label>
                         <div class="col-lg-6">
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-days" value="0"> Sun
+                                <input type="checkbox" class="batch-days" value="0" checked> Sun
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-days" value="1"> Mon
+                                <input type="checkbox" class="batch-days" value="1" checked> Mon
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-days" value="2"> Tue
+                                <input type="checkbox" class="batch-days" value="2" checked> Tue
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-days" value="3"> Wed
+                                <input type="checkbox" class="batch-days" value="3" checked> Wed
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-days" value="4"> Thu
+                                <input type="checkbox" class="batch-days" value="4" checked> Thu
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-days" value="5"> Fri
+                                <input type="checkbox" class="batch-days" value="5" checked> Fri
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-days" value="6"> Sat
+                                <input type="checkbox" class="batch-days" value="6" checked> Sat
                             </label>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Call Period</label>
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Calling Time</label>
                         <div class="col-lg-6">
                             <div class="input-group input-medium" data-time="00:00" data-time-format="hh:mm">
                                 <input type="text" class="form-control time-filter time-mask" id="batch-periodFrom" name="from">
                                 <span class="input-group-addon">To</span>
                                 <input type="text" class="form-control time-filter time-mask" id="batch-periodTo" name="to">
                             </div>
+                            <p class="help-block">Example: 12.00 To 23.59 <i> &nbsp;*Leave blank for not specify</i></p>
                         </div>
                     </div>
 
@@ -481,17 +514,31 @@
                                 <span class="input-group-addon">To</span>
                                 <input type="text" class="form-control integer-mask" id="batch-durationTo" name="to">
                             </div>
+                            <p class="help-block">Example: 0 To 100 <i> &nbsp;*Leave blank for not specify</i></p>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Calls</label>
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Incoming Calls</label>
                         <div class="col-lg-6">
                             <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                                <input type="text" class="form-control" id="batch-callsFrom" name="from" disabled>
+                                <input type="text" class="form-control" id="batch-incallsFrom" name="from" disabled>
                                 <span class="input-group-addon">To</span>
-                                <input type="text" class="form-control" id="batch-callsTo" name="to" disabled>
+                                <input type="text" class="form-control" id="batch-incallsTo" name="to" disabled>
                             </div>
+                            <p class="help-block">Example: 0 To 100 <i> &nbsp;*Leave blank for not specify</i></p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Outgoing Calls</label>
+                        <div class="col-lg-6">
+                            <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
+                                <input type="text" class="form-control" id="batch-outcallsFrom" name="from" disabled>
+                                <span class="input-group-addon">To</span>
+                                <input type="text" class="form-control" id="batch-outcallsTo" name="to" disabled>
+                            </div>
+                            <p class="help-block">Example: 0 To 100 <i> &nbsp;*Leave blank for not specify</i></p>
                         </div>
                     </div>
 
@@ -502,16 +549,13 @@
                                 <input type="checkbox" class="batch-carriers" value="0" checked> AIS
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-carriers" value="1"> TRUE
+                                <input type="checkbox" class="batch-carriers" value="1" checked> TRUE
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-carriers" value="2"> DTAC
+                                <input type="checkbox" class="batch-carriers" value="2" checked> DTAC
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-carriers" value="3"> JAS
-                            </label>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-carriers" value="4"> Others
+                                <input type="checkbox" class="batch-carriers" value="4" checked> Others
                             </label>
                         </div>
                     </div>
@@ -523,13 +567,13 @@
                                 <input type="checkbox" class="batch-mode" value="0"> Centrality
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="batch-community-mode" class="batch-mode" value="1"> Community
+                                <input type="checkbox" class="batch-mode" value="2" checked> Customer Profiling
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-mode" value="2"> Customer Profiling
+                                <input type="checkbox" id="batch-community-mode" class="batch-mode" value="1" checked> Community
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="batch-community-profiling-mode" class="batch-mode" value="3"> Community Profiling
+                                <input type="checkbox" id="batch-community-profiling-mode" class="batch-mode" value="3" checked> Community Profiling
                             </label>
                         </div>
                     </div>
@@ -559,6 +603,12 @@
             </div>
             <div class="modal-body">
                 <form action="#" class="form-horizontal ">
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Database </label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-database">-</p>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">Date </label>
                         <div class="col-lg-6">
@@ -611,6 +661,12 @@
             </div>
             <div class="modal-body">
                 <form action="#" class="form-horizontal ">
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">Database </label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-database">-</p>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">Date </label>
                         <div class="col-lg-6">

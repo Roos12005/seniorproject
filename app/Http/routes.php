@@ -27,6 +27,9 @@ Route::post('/startProcess','AdminController@startProcess');
 Route::get('getCDR/{id}','AnalysisController@getCDR');
 
 Route::get('/admin','AdminController@index');
+Route::get('/database','DatabaseController@index');
+
+Route::post('/deleteData', 'AdminController@deleteData');
 
 
 Route::get('/test','AnalysisController@test');

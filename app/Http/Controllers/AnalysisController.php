@@ -13,6 +13,10 @@ use Neoxygen\NeoClient\ClientBuilder;
 class AnalysisController extends Controller{
 
     public function getIndex() {
+      putenv("TMPDIR=/tmp");
+      $tmp = sys_get_temp_dir();
+      echo $tmp;
+      exit();
         exec("java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0 1000 0.00 23.59", $output);
        return view('analysis.analysis');
    }
@@ -29,7 +33,7 @@ class AnalysisController extends Controller{
 
     public function processData(Request $request) {
         $recieve = $request->all();
-        
+        putenv("TMPDIR=/tmp");
         $command = "java -jar java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar 0";
         foreach ($recieve as $key => $value) {
             $len = sizeof($value);
@@ -58,26 +62,27 @@ class AnalysisController extends Controller{
 
     //Get all CDR
     public function getCDR($id) {
+        putenv("TMPDIR=/tmp");
         $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
             ->build();
         
 
-        $q = 'MATCH (n:Processed' . $id . ') RETURN n, ID(n) as n_id';
+        $q = 'MATCH (n:Data) RETURN n, ID(n) as n_id limit 100000';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $node_list = array();
         $node_count = sizeof($results);
         foreach($results as $key => $result) {
             $user_stat = [
-                'Betweenness Centrality' => $result['n']['Betweenness'],
-                'Modularity Class' => $result['n']['CommunityID'],
-                'Eccentricity' => $result['n']['Eccentricity'],
-                'Closeness Centrality' => $result['n']['Closeness'],
-                'Age' => $result['n']['Age'],
-                'Gender' => $result['n']['Gender'],
-                'RnCode' => $result['n']['RnCode'],
-                'Promotion' => $result['n']['Promotion']
+                // 'Betweenness Centrality' => $result['n']['Betweenness'],
+                // 'Modularity Class' => $result['n']['CommunityID'],
+                // 'Eccentricity' => $result['n']['Eccentricity'],
+                // 'Closeness Centrality' => $result['n']['Closeness'],
+                // 'Age' => $result['n']['Age'],
+                // 'Gender' => $result['n']['Gender'],
+                // 'RnCode' => $result['n']['RnCode'],
+                // 'Promotion' => $result['n']['Promotion']
             ];
             $user_info = [
               'label' => $result['n']['Number'],
@@ -85,22 +90,22 @@ class AnalysisController extends Controller{
               'y' => 10*sin(2 * $key * M_PI/$node_count),
               'id' => $result['n_id'],
               'attributes' => $user_stat,
-              'color' => $result['n']['Color'],
+              // 'color' => $result['n']['Color'],
               'size' => 1
             ];
             array_push($node_list, $user_info);
         }
 
 
-        $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        $q = 'MATCH (n:Data)-[r:Call]->(m:Data) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id limit 100000';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $edge_list = array();
         foreach ($results as $result) {
             $edge_prop = [
-                'duration' => $result['r']['Duration'],
-                'startDate' => $result['r']['StartDate'],
-                'startTime' => $result['r']['StartTime'],
-                'callDay' => $result['r']['CallDay']
+                // 'duration' => $result['r']['Duration'],
+                // 'startDate' => $result['r']['StartDate'],
+                // 'startTime' => $result['r']['StartTime'],
+                // 'callDay' => $result['r']['CallDay']
             ];
             $edge_info = [
               'target' => $result['m_id'],

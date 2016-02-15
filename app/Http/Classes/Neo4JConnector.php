@@ -147,7 +147,7 @@ class Neo4JConnector {
                 'carrier' => UnaryHelper::unaryToCarrierReadable($r['n']['rnCode']),
                 'days' => UnaryHelper::unaryToDaysReadable($r['n']['callDay']),
                 'period' => $r['n']['endTime'] == -1? 
-                                'More than ' . $r['n']['startTime'] : $r['n']['startTime'] . ' - ' . $r['n']['endTime'],
+                                'After ' . number_format($r['n']['startTime'], 2, '.', '') : number_format($r['n']['startTime'], 2, '.', '') . ' - ' . number_format($r['n']['endTime'], 2, '.', ''),
                 'noOfCall' => /*$r['n']['noOfCallMax'] == -1? 
                                 '> ' . $r['n']['noOfcallMin'] : $r['n']['noOfcallMin'] . ' - ' . $r['n']['noOfCallMax']*/ 1,
                 'duration' => $r['n']['durationMax'] == -1? 
@@ -244,6 +244,18 @@ class Neo4JConnector {
         $res = $this->beginProcess($filters, $nid);
     }
 
+    public function deleteData($type, $nid) {
+
+        return $this->deleteSource($type, $nid) | $this->deleteLabel($type, $nid);
+    }
+
+    public function doByScheduling() {
+        $q = "MATCH (n:PreprocessSetting) RETURN ID(n) as nid ORDER BY n.priority DESC";
+        $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
+
+        // prepare for exec
+    }
+
     // ------------------------------------------------------------------------------------------------------------
 
     // --------------------------------------------- Private Functions --------------------------------------------
@@ -324,6 +336,42 @@ class Neo4JConnector {
 
         exec($command);
         return ;
+    }
+
+    
+
+    private function deleteSource($type, $nid) {
+        // Reject query whenever $this->connector has not been initialized
+        $this->checkConnection();
+
+        // Prepare Query Statement
+        $q = "";
+
+        if($type == 'preprocess') {
+            $q = "MATCH (n:PreprocessSetting) WHERE ID(n) = " . $nid . " DELETE n";
+        } elseif ($type == 'batch') {
+            $q = "MATCH (n:BatchJob) WHERE ID(n) = " . $nid . " DELETE n";
+        } else {
+            return false;
+        }
+        
+        // Delete Existing Source based on ID given
+        $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
+
+        return true;
+    }
+
+    private function deleteLabel($type, $nid) {
+        // Reject query whenever $this->connector has not been initialized
+        $this->checkConnection();
+
+        // Prepare Query Statement
+        $q = "MATCH (n:Processed" . $nid . ")-[r:Call]->(m:Processed" . $nid . ") DELETE n,m,r";
+        
+        // Delete Existing Processed Data based on ID given
+        $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
+
+        return true;
     }
 
     private function checkConnection() {
