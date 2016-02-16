@@ -11,6 +11,7 @@
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}" />
+<meta name="data-id" content="{{ $data_id }}" />
 <!-- Header Start -->
 <div class="row">
     <div class="col-md-12">
@@ -526,7 +527,6 @@
                 <h4 class="modal-title">Graph Filters</h4>
             </div>
             <div class="modal-body">
-            <ul>
                 <form action="#" class="form-horizontal ">
                     <div class="form-group">
                         <div class="col-md-6">

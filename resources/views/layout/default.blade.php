@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
     <head>
     	<meta charset="UTF-8">
@@ -43,8 +44,8 @@
 				<!--logo end-->		
 				<div class="top-nav clearfix">				    
 				    <ul class="nav pull-right top-menu">
-				    	<img src="images/ais.jpg" id="ais-logo">  
-				    	<img src="images/ChulaEngineering.png" id="chula-logo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				    	<img src="/seniorproject/public/images/ais.jpg" id="ais-logo">  
+				    	<img src="/seniorproject/public/images/ChulaEngineering.png" id="chula-logo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				    	
 				    </ul>
 				</div>	

@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Inspiring;
+use \App\Http\Classes\Neo4JConnector as Neo4JConnector;
+use Carbon;
 
 class Inspire extends Command
 {
@@ -28,6 +30,8 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $this->comment(PHP_EOL.Inspiring::quote().PHP_EOL);
+        // $this->comment(PHP_EOL.Inspiring::quote().PHP_EOL);
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+        $neo->doByScheduling();
     }
 }

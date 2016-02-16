@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.seniorproject.graphmodule;
 
 import java.util.ArrayList;
@@ -10,10 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author pperfectionist
- */
 public class Node {
     private int ID;
     private String label;
@@ -48,70 +39,6 @@ public class Node {
         this.noOfReceive = 0;
     }
 
-    public int getID() {
-        return ID;
-    }
-
-    public void setID(int id) {
-        this.ID = id;
-    }
-
-    public double getEccentricity() {
-        return this.eccentricity;
-    }
-
-    public void setEccentricity(double eccentricity) {
-        this.eccentricity = eccentricity;
-    }
-
-    public double getCloseness() {
-        return this.closeness;
-    }
-
-    public void setCloseness(double closeness) {
-        this.closeness = closeness;
-    }
-
-    public double getBetweenness() {
-        return this.betweenness;
-    }
-
-    public void setBetweenness(double betweenness) {
-        this.betweenness = betweenness;
-    }
-
-    public String getAge() {
-        return this.age;
-    }
-
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    public String getGender() {
-        return this.gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getRnCode() {
-        return this.rnCode;
-    }
-
-    public void setRnCode(String rnCode) {
-        this.rnCode = rnCode;
-    }
-
-    public String getPromotion() {
-        return this.promotion;
-    }
-
-    public void setPromotion(String promotion) {
-        this.promotion = promotion;
-    }
-    
     public void setAttribute(String type, double value) {
         switch (type) {
             case "eccentricity":
@@ -138,61 +65,127 @@ public class Node {
         return (getID() + "").hashCode();
     }
 
-    /**
-     * @return the label
-     */
+    //getter & setter ID
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int id) {
+        this.ID = id;
+    }
+
+    //getter & setter Eccentricity
+
+    public double getEccentricity() {
+        return this.eccentricity;
+    }
+
+    public void setEccentricity(double eccentricity) {
+        this.eccentricity = eccentricity;
+    }
+
+    //getter & setter Closeness Centrality
+
+    public double getCloseness() {
+        return this.closeness;
+    }
+
+    public void setCloseness(double closeness) {
+        this.closeness = closeness;
+    }
+
+    //getter & setter Betweenness Centrality
+
+    public double getBetweenness() {
+        return this.betweenness;
+    }
+
+    public void setBetweenness(double betweenness) {
+        this.betweenness = betweenness;
+    }
+
+    //getter & setter Age
+
+    public String getAge() {
+        return this.age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    //getter & setter Gender
+
+    public String getGender() {
+        return this.gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    //getter & setter RnCode
+
+    public String getRnCode() {
+        return this.rnCode;
+    }
+
+    public void setRnCode(String rnCode) {
+        this.rnCode = rnCode;
+    }
+
+    //getter & setter Promotion
+
+    public String getPromotion() {
+        return this.promotion;
+    }
+
+    public void setPromotion(String promotion) {
+        this.promotion = promotion;
+    }
+
+    //getter & setter Label
+
     public String getLabel() {
         return label;
     }
 
-    /**
-     * @param label the label to set
-     */
     public void setLabel(String label) {
         this.label = label;
     }
 
-    /**
-     * @return the communityID
-     */
+    //getter & setter CommunityID
+
     public int getCommunityID() {
         return communityID;
     }
 
-    /**
-     * @param communityID the communityID to set
-     */
     public void setCommunityID(int communityID) {
         this.communityID = communityID;
     }
 
-    /**
-     * @return the color
-     */
+    //getter & setter Color
+
     public String getColor() {
         return color;
     }
 
-    /**
-     * @param color the color to set
-     */
     public void setColor(String color) {
         this.color = color;
     }
 
-    /**
-     * @return the color
-     */
+    //getter & setter Member
+
     public int getMember() {
         return member;
     }
 
-    /**
-     * @param color the color to set
-     */
     public void setMember(int member) {
         this.member = member;
     }
+
+    //getter & setter No Of. Call
 
     public int getNoOfCall() {
         return this.noOfCall;
@@ -201,6 +194,8 @@ public class Node {
     public void setNoOfCall(int noOfCall) {
         this.noOfCall = noOfCall;
     }
+
+    //getter & setter No. of Receive
 
     public int getNoOfReceive() {
         return this.noOfReceive;

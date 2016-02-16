@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.seniorproject.graphmodule;
 
-/**
- *
- * @author pperfectionist
- */
 public class Edge {
     int source;
     int target;
@@ -35,6 +26,12 @@ public class Edge {
         weight = w;
     }
 
+    public void increaseWeight(double f) {
+        this.weight += f;
+    }
+
+    //getter & setter Source
+
     public int getSource() {
         return source;
     }
@@ -42,6 +39,8 @@ public class Edge {
     public void setSource(int source) {
         this.source = source;
     }
+
+    //getter & setter Target
 
     public int getTarget() {
         return target;
@@ -51,6 +50,8 @@ public class Edge {
         this.target = target;
     }
 
+    //getter & setter Weight
+
     public double getWeight() {
         return weight;
     }
@@ -58,6 +59,8 @@ public class Edge {
     public void setWeight(double weight) {
         this.weight = weight;
     }
+
+    //getter & setter Duration
 
     public int getDuration() {
         return duration;
@@ -67,6 +70,8 @@ public class Edge {
         this.duration = duration;
     }
 
+    //getter & setter StartDate
+
     public String getStartDate() {
         return startDate;
     }
@@ -75,6 +80,8 @@ public class Edge {
         this.startDate = startDate;
     }
 
+    //getter & setter StartTime
+
     public String getStartTime() {
         return startTime;
     }
@@ -82,6 +89,8 @@ public class Edge {
     public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
+
+    //getter & setter CallDay
     
     public String getCallDay() {
         return callDay;
@@ -89,9 +98,5 @@ public class Edge {
 
     public void setCallDay(String callDay) {
         this.callDay = callDay;
-    }
-    
-    public void increaseWeight(double f) {
-        this.weight += f;
     }
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.seniorproject.graphmodule;
 
 import java.util.Collection;
@@ -12,10 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- *
- * @author pperfectionist
- */
+
 public class Graph {
     private EdgeIterable edges;
     private NodeIterable nodes;
@@ -38,7 +30,6 @@ public class Graph {
             outEdges.put(n.getID(), new EdgeIterable());
             allEdges.put(n.getID(), new EdgeIterable());
         }
-//        System.out.println("Adding nodes ... done !");
         for(Edge e : edges) {
             
             this.edges.add(e);
@@ -53,25 +44,25 @@ public class Graph {
             }
         }
         System.out.println("Nodes : " + this.nodes.count() + "\nEdges : " + this.edges.count());
-//        neighbors = new HashMap<>();
-//        
-//        // neighbors
-//        for(Node node : this.nodes) {
-//            NodeIterable res = new NodeIterable();
-//            Set<Node> tmp = new HashSet<>();
-//            
-//            for (Edge e : edges) {
-//                if(e.getSource() == node.getID()) {
-//                    tmp.add(this.nodes.get(e.getTarget()));
-//                } else if(e.getTarget() == node.getID()) {
-//                    tmp.add(this.nodes.get(e.getSource()));
-//                }
-//            }
-//            for(Node m : tmp) {
-//                res.add(m);
-//            }
-//            neighbors.put(node, res);
-//        }
+        neighbors = new HashMap<>();
+       
+        // neighbors
+        for(Node node : this.nodes) {
+            NodeIterable res = new NodeIterable();
+            Set<Node> tmp = new HashSet<>();
+           
+            for (Edge e : edges) {
+               if(e.getSource() == node.getID()) {
+                   tmp.add(this.nodes.get(e.getTarget()));
+               } else if(e.getTarget() == node.getID()) {
+                   tmp.add(this.nodes.get(e.getSource()));
+               }
+            }
+            for(Node m : tmp) {
+               res.add(m);
+            }
+            neighbors.put(node.getID(), res);
+        }
         
     }
 
@@ -140,33 +131,10 @@ public class Graph {
     }
 
     public EdgeIterable getEdges(Node node){
-//        EdgeIterable res = new EdgeIterable();
-//        Set<Edge> tmp = new HashSet<>();
-//        for(Edge e : edges) {
-//            if(e.getSource() == node.getID() || e.getTarget() == node.getID()) {
-//                tmp.add(e);
-//            }
-//        }
-//        
-//        for(Edge e : tmp) {
-//            res.add(e);
-//        }
-//        return res;
         return this.allEdges.get(node.getID());
     } 
 
     public EdgeIterable getOutEdges(Node node){
-//        EdgeIterable res = new EdgeIterable();
-//        Set<Edge> tmp = new HashSet<>();
-//        for(Edge e : edges) {
-//            if(e.getSource() == node.getID()) {
-//                tmp.add(e);
-//            }
-//        }
-//        for(Edge e : tmp) {
-//            res.add(e);
-//        }
-//        return res;
         return this.outEdges.get(node.getID());
     }
 
@@ -176,11 +144,6 @@ public class Graph {
         } else {
             return nodes.get(edge.getSource());
         }
-    }
-
-    public Edge getEdge(Node n, Node nei) {
-        // TODO : Fill this function
-        return null;
     }
 
     public int getNodeCount(){

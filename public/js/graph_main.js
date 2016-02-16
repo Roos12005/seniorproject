@@ -14,7 +14,7 @@
 
 !function(){
     'use strict';
-
+    var did = $('meta[name="data-id"]').attr('content');
     var graphData = [];
     var communityData = [];
     var colors = [];
@@ -77,7 +77,6 @@
             // autoResize: false
             // zoomingRatio : 1
         });
-
 
     }
 
@@ -188,7 +187,7 @@
         ajaxSetup();
         $.ajax({
             type: "GET",
-            url: "http://localhost/seniorproject/public/getCDR",
+            url: "http://localhost/seniorproject/public/getCDR/" + did,
             data : {},
             success: function(e){
                 console.log(e);

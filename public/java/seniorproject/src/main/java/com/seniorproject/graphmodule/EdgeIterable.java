@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.seniorproject.graphmodule;
 
 import java.util.ArrayList;
@@ -11,10 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author pperfectionist
- */
 public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
     private Map<String, Edge> edges;
     private int count = -1;
@@ -33,7 +24,6 @@ public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
             ids.add(toID(e));
         }
         return true;
-//        return edges.add(e);
     }
 
     @Override
@@ -56,12 +46,6 @@ public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
     public boolean removeEdge(Edge edge) {
         this.edges.remove(toID(edge));
         return true;
-//        int idx = edges.indexOf(edge);
-//        if(idx > -1) {
-//                edges.remove(idx);
-//                return true;
-//        }
-//        return false;
     }
 
     public Edge get(int source) {

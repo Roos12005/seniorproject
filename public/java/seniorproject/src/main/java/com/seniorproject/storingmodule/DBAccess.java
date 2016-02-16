@@ -45,10 +45,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-/**
- *
- * @author pperfectionist
- */
 public class DBAccess {
 
     private static IDBAccess dbAccess;
@@ -98,6 +94,9 @@ public class DBAccess {
         // have a look at the DBProperties interface
         // the appropriate database access class will pick the properties it needs
         props.setProperty(DBProperties.SERVER_ROOT_URI, Config.HOST_NAME);
+//        props.setProperty(DBProperties.PAGECACHE_MEMORY, "1024M");
+//        props.setProperty(DBProperties.STRING_BLOCK_SIZE, "120");
+//        props.setProperty(DBProperties.ARRAY_BLOCK_SIZE, "300");
 
         /**
          * connect to remote database via REST (SERVER_ROOT_URI property is
@@ -149,37 +148,16 @@ public class DBAccess {
                 
                 System.out.println(key + " ---- " + tmpRegex);
             }
-            System.out.println(con.valueOf(r.property("duration")));
+
+//            System.out.println(con.valueOf(r.property("duration")));
+
             query.setClauses(new IClause[]{
                 MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
                 con.valueOf(r.property("duration")).GTE(0),
                 RETURN.value(r),
             });
-
-//            icList.add(RETURN.value(r));
-//            IClause[] iclauses = new IClause[icList.size()];
-//            icList.toArray(iclauses);
-//            query.setClauses(iclauses);
-//            Concat ccc = WHERE.valueOf(r.property("startDate")).GTE(ran[4]).AND();
-//            ccc.valueOf(r.property("startDate")).LTE(ran[5]);
-            
-//            System.out.println(ran[0] + " " + ran[1] + " " + ran[4] + " " + ran[5]);
-//            query.setClauses(new IClause[]{
-//                MATCH.node(a).label("Node").relation(r).out().node(b).label("Node"),
-//                ccc.valueOf(r.property("duration")).GT(0),
-//                WHERE.valueOf(r.property("startDate")).GTE(ran[4]),
-//                    WHERE.valueOf(r.property("startDate")).LTE(ran[5]),
-//                    WHERE.valueOf(r.property("duration")).GTE(ran[0]),
-//                    WHERE.valueOf(r.property("duration")).LTE(ran[1]),
-//                    WHERE.valueOf(r.property("startTime")).GTE(ran[2]),
-//                    WHERE.valueOf(r.property("startTime")).LTE(ran[3]),
-//                    WHERE.valueOf(r.property("callDay")).REGEX(rex[0]),
-//                    WHERE.valueOf(a.property("rnCode")).REGEX(rex[1]),
-//                RETURN.value(r),
-//            });
             
             JcQueryResult result = dbAccess.execute(query);
-            System.out.println(result.resultOf(r).getClass().getName());
             List<GrRelation> relationships = result.resultOf(r);
             for(GrRelation gr : relationships) {
                 GrNode sNode = gr.getStartNode();
@@ -263,7 +241,6 @@ public class DBAccess {
                     if(gp.getName().equals("callDay")) {
                         callDay = gp.getValue().toString();
                     }
-
                 }
                 
                 nodes.add(aNode);
@@ -282,6 +259,8 @@ public class DBAccess {
     }
     
     public void store(NodeIterable nodes, List<Edge> edges) {
+
+    //public void store(NodeIterable nodes, List<Edge> edges, String tid) {
         initDBConnection();
         try {
             Graph graph = Graph.create(dbAccess);
@@ -291,7 +270,7 @@ public class DBAccess {
             Map<Integer, GrNode> grnodes = new HashMap<>();
             for(Node n : nodes) {
                 GrNode tmp = graph.createNode();
-                tmp.addLabel("User");
+                //tmp.addLabel("Processed" + tid);
                 tmp.addProperty("Number", n.getLabel());
                 tmp.addProperty("Eccentricity", n.getEccentricity());
                 tmp.addProperty("Betweenness", n.getBetweenness());
@@ -335,6 +314,15 @@ public class DBAccess {
             for(Node n : nodes) {
                 GrNode tmp = graph.createNode();
                 tmp.addLabel("User_Com");
+    // public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) {
+    //     initDBConnection();
+    //     try {
+    //         Graph graph = Graph.create(dbAccess);
+    //         clearGraph("Processed_Com", "Processed_Com", "Call");
+    //         Map<Integer, GrNode> grnodes = new HashMap<>();
+    //         for(Node n : nodes) {
+    //             GrNode tmp = graph.createNode();
+    //             tmp.addLabel("Processed_Com"+tid);
                 tmp.addProperty("Member", n.getMember());
                 tmp.addProperty("Eccentricity", n.getEccentricity());
                 tmp.addProperty("Betweenness", n.getBetweenness());

@@ -1,18 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.seniorproject.processingmodule;
 import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.EdgeIterable;
 import com.seniorproject.graphmodule.Graph;
 import com.seniorproject.graphmodule.Node;
 import java.util.*;
-/**
- *
- * @author pperfectionist
- */
+
 public class GraphDistance {
     public static final String BETWEENNESS = "betweennesscentrality";
     public static final String CLOSENESS = "closenesscentrality";
