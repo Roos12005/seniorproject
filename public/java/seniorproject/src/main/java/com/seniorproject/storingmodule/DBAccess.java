@@ -218,6 +218,12 @@ public class DBAccess {
                     if(gp.getName().equals("promotion")) {
                         aNode.setPromotion(gp.getValue().toString());
                     }
+                    if(gp.getName().equals("noOfCall")) {
+                        aNode.setNoOfCall(Integer.parseInt(gp.getValue().toString()));
+                    }
+                    if(gp.getName().equals("noOfReceive")) {
+                        aNode.setNoOfReceive(Integer.parseInt(gp.getValue().toString()));
+                    }
                 }
                 
                 for(GrProperty gp : eProps) {
@@ -235,6 +241,12 @@ public class DBAccess {
                     }
                     if(gp.getName().equals("promotion")) {
                         bNode.setPromotion(gp.getValue().toString());
+                    }
+                    if(gp.getName().equals("noOfCall")) {
+                        bNode.setNoOfCall(Integer.parseInt(gp.getValue().toString()));
+                    }
+                    if(gp.getName().equals("noOfReceive")) {
+                        bNode.setNoOfReceive(Integer.parseInt(gp.getValue().toString()));
                     }
                 }
                 
@@ -289,6 +301,8 @@ public class DBAccess {
                 tmp.addProperty("Gender", n.getGender());
                 tmp.addProperty("RnCode", n.getRnCode());
                 tmp.addProperty("Promotion", n.getPromotion());
+                tmp.addProperty("NoOfCall", n.getNoOfCall());
+                tmp.addProperty("NoOfReceive", n.getNoOfReceive());
 
                 tmp.addProperty("Color", n.getColor());
                 grnodes.put(n.getID(), tmp);

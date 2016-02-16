@@ -15,6 +15,7 @@
 <div class="row">
     <div class="col-md-12">
 
+        <!-- Data Description section start -->
         <section class="panel">
             <header class="panel-heading">
                 Data Description
@@ -28,9 +29,11 @@
 
             </div>
         </section>
+        <!-- Data Description section end -->
+
         <!-- Graph Controller section start -->
         <section class="panel">
-            <header class="panel-heading"> New Graph Controller
+            <header class="panel-heading"> Graph Controller
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -40,36 +43,70 @@
             <div class="panel-body">
                 <div class="col-md-5">
                     <div class="col-sm-12" style="padding-bottom: 5px;">
-                    <span> Graph Highlight </span>
+                    <span> Node Highlight </span>
                         <div class="clearfix separate-line"></div>
                     </div>
                     <div class="col-sm-12">  
-                        <a class="btn btn-default three-col-button hilight h-on" id="h-default">
+                        <a class="btn btn-default three-col-button hilightNode h-on" id="h-defaultNode">
                             Default
                         </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-centrality">
+                        <a class="btn btn-default three-col-button hilightNode" id="h-centrality">
                             Centrality
                         </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-community">
+                        <a class="btn btn-default three-col-button hilightNode" id="h-community">
                             Community
                         </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-carrier">
+                        <a class="btn btn-default three-col-button hilightNode" id="h-carrier">
                             Carrier
                         </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-daynight">
-                            Day / Night
+                        <a class="btn btn-default three-col-button hilightNode" id="h-ais">
+                            AIS Only
                         </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-promotion">
+                        <a class="btn btn-default three-col-button hilightNode" id="h-promotion">
                             Promotion
                         </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-degree">
-                            Degree
+                        <a class="btn btn-default three-col-button hilightNode" id="h-degree">
+                            Degree 
                         </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-ais">
-                            AIS Only
+                        <a class="btn btn-default three-col-button hilightNode" id="h-degreeIn">
+                            Degree In
+                        </a>
+                        <a class="btn btn-default three-col-button hilightNode" id="h-degreeOut">
+                            Degree Out
+                        </a>
+                    </div>  
+                    <div class="col-sm-12" style="padding-bottom: 5px;">
+                    <span> Edge Highlight </span>
+                        <div class="clearfix separate-line"></div>
+                    </div>
+                    <div class="col-sm-12">  
+                        <a class="btn btn-default three-col-button hilightEdge h-on" id="h-defaultEdge">
+                            Default
+                        </a>
+                        <a class="btn btn-default three-col-button hilightEdge" id="h-daynight">
+                            Day / Night
+                        </a>
+                        <a class="btn btn-default three-col-button hilightEdge" id="h-duration">
+                            Duration
                         </a>
                     </div>  
                 </div>
+
+                <div class="col-md-4">
+                    <div class="col-sm-12" style="padding-bottom: 5px;">
+                    <span> Highlight Description </span>
+                        <div class="clearfix separate-line"></div>
+                    </div>
+                    <div class="col-sm-12">  
+                        <h5>Node Highlight : <span id="highlightNode">Default</span></h5>
+                        <li>Node size : <span id="highlightNodeSize"></span></li>
+                        <li>Node color : <span id="highlightNodeColor"></span></li>
+                        <br>
+                        <h5>Edge Highlight : <span id="highlightEdge">Default</span></h5>
+                        <li>Edge color : <span id="highlightEdgeColor"></span></li>
+                    </div>  
+                </div>
+
                 <div class="col-md-3">
                     <div class="col-sm-12" style="padding-bottom: 5px;">
                     <span> Display Mode </span>
@@ -98,8 +135,8 @@
         <!-- Graph Controller section end -->
         
         <!-- Graph Filter section start -->
-        <section class="panel">
-            <header class="panel-heading"> Graph Controller
+        <!-- <section class="panel">
+            <header class="panel-heading"> Old Graph Controller
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -133,63 +170,8 @@
                         </a>
                     </div>  
                 </div>
-                <div class="col-md-5">
-                    <div class="col-sm-12" style="padding-bottom: 5px;">
-                    <span> Graph Highlight </span>
-                        <div class="clearfix separate-line"></div>
-                    </div>
-                    <div class="col-sm-12">  
-                        <a class="btn btn-default three-col-button hilight h-on" id="h-default">
-                            Default
-                        </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-centrality">
-                            Centrality
-                        </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-community">
-                            Community
-                        </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-carrier">
-                            Carrier
-                        </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-daynight">
-                            Day / Night
-                        </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-promotion">
-                            Promotion
-                        </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-degree">
-                            Degree
-                        </a>
-                        <a class="btn btn-default three-col-button hilight" id="h-ais">
-                            AIS Only
-                        </a>
-                    </div>  
-                </div>
-                <div class="col-md-3">
-                    <div class="col-sm-12" style="padding-bottom: 5px;">
-                    <span> Display Mode </span>
-                        <div class="clearfix separate-line"></div>
-                    </div>
-                    <div class="col-sm-12 display-mode">  
-                        <a class="btn btn-default single-col-button" id="full-graph">
-                            Full Graph
-                            <i class="fa fa-times status"></i>
-                        </a>
-                        
-                        <a class="btn btn-default single-col-button" id="community-group">
-                            Community Group
-                            <i class="fa fa-times status"></i>
-                        </a>
-                        
-                        <a href="#exportCSVModal" data-toggle ="modal" class="btn btn-default single-col-button" id="export-data">
-                            Export Data
-                            <i class="fa fa-times status"></i>
-                        </a>
-                        
-                    </div>  
-                </div>
             </div>
-        </section>
+        </section> -->
         <!-- Graph Filter section end -->
 
         <!-- Three Header Statistic Widget start -->
@@ -220,10 +202,10 @@
             <!-- Third widget -->
             <div class="col-md-4">
                 <div class="mini-stat clearfix">
-                    <span class="mini-stat-icon pink"><i class="fa fa-calendar"></i></span>
+                    <span class="mini-stat-icon pink"><i class="fa fa-mail-forward"></i></span>
                     <div class="mini-stat-info">
-                        <span id="date"> - </span>
-                        <div id="filter">Date</div>
+                        <span id="transactions">0</span>
+                        Transactions
                     </div>
                 </div>
             </div>
@@ -359,6 +341,22 @@
                             </div>
                             <div class="clearfix separate-line"></div>
 
+                            <div class="col-sm-12">
+                                <label class=" col-sm-5 control-label">Call</label>
+                                <div class=" col-sm-7">
+                                    <p class="form-control-static" id="cnoOfCall">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+
+                            <div class="col-sm-12">
+                                <label class=" col-sm-5 control-label">Receive</label>
+                                <div class=" col-sm-7">
+                                    <p class="form-control-static" id="cnoOfReceive">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+
                             <div class="col-sm-12" style="margin-top:10px;">
                                 <!-- <a href="#" class="btn btn-default more-button">
                                     View full profile
@@ -448,7 +446,11 @@
                             </div>
                             <div class="clearfix separate-line"></div>
                             <div class="col-sm-12">
-                                <label class=" col-sm-5 control-label">Top 5 Numbers</label>
+                                <label class=" col-sm-8 control-label">Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="profile">-</p>
+                                </div>
+                                <!-- <label class=" col-sm-5 control-label">Top 5 Numbers</label>
                                 <div class=" col-sm-7">
                                     <div class="btn-group">
                                         <button data-toggle="dropdown" class="btn btn-default dropdown-toggle btn-xs number-dropdown" type="button">Sort by Degree <span class="caret"></span></button>
@@ -457,16 +459,7 @@
                                             <li><a href="#">Sort by XYZ</a></li>
                                         </ul>
                                     </div>
-                                </div>
-                                <div class=" col-sm-12">
-                                    <ul>
-                                        <li>081-xxxxxxx</li>
-                                        <li>081-xxxxxxx</li>
-                                        <li>081-xxxxxxx</li>
-                                        <li>081-xxxxxxx</li>
-                                        <li>081-xxxxxxx</li>
-                                    </ul>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="clearfix separate-line"></div>
                             <!-- <div class="col-sm-12">

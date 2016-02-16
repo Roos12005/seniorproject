@@ -62,7 +62,9 @@ class AnalysisController extends Controller{
                 'Age' => $result['n']['Age'],
                 'Gender' => $result['n']['Gender'],
                 'RnCode' => $result['n']['RnCode'],
-                'Promotion' => $result['n']['Promotion']
+                'Promotion' => $result['n']['Promotion'],
+                'NoOfCall' => $result['n']['NoOfCall'],
+                'NoOfReceive' => $result['n']['NoOfReceive']
             ];
             $user_info = [
               'label' => $result['n']['Number'],
@@ -76,29 +78,124 @@ class AnalysisController extends Controller{
             array_push($node_list, $user_info);
         }
 
-
-        $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        $call_list = array();
+        $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN distinct n.Number as n_num, m.Number as m_num';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        $edge_list = array();
-        foreach ($results as $result) {
-            $edge_prop = [
-                'duration' => $result['r']['Duration'],
-                'startDate' => $result['r']['StartDate'],
-                'startTime' => $result['r']['StartTime'],
-                'callDay' => $result['r']['CallDay']
-            ];
-            $edge_info = [
-              'target' => $result['m_id'],
-              'color' => '',
-              'label' => '',
-              'source' => $result['n_id'],
-              'attributes' => $edge_prop,
-              'id' => $result['r_id'],
-              'size' => 1
-            ];
-            array_push($edge_list, $edge_info);
+        foreach($results as $result){
+          $call_info = [
+            'source' => $result['n_num'],
+            'target' => $result['m_num']
+          ];
+          array_push($call_list, $call_info);
         }
 
+        $edge_id = 9945;
+        $edge_list = array();
+        foreach($call_list as $call){
+          $q = "MATCH (n:User)-[r:Call]->(m:User) WHERE n.Number = '".$call['source']."' AND m.Number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+          $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+          $duration = 0;
+          $weight = 0;
+          $noDayTime = 0;
+          $noNightTime = 0;
+          foreach ($results[0]['collect_r'] as $value) {
+            $duration += $value['Duration'];
+            $weight += 1;
+            if($value['StartTime'] >= 5 && $value['StartTime'] <= 17){
+              $noDayTime += 1;
+            } else {
+              $noNightTime += 1;
+            }
+          }
+          $edge_prop = [
+            'duration' => $duration,
+            'weight' => $weight,
+            'noDayTime' => $noDayTime,
+            'noNightTime' => $noNightTime
+          ];
+          $edge_info = [
+            'target' => $results[0]['m_id'],
+            'color' => '',
+            'label' => '',
+            'source' => $results[0]['n_id'],
+            'attributes' => $edge_prop,
+            'id' => $edge_id,
+            'size' => 1
+          ];
+          $edge_id += 1;
+          array_push($edge_list, $edge_info);
+         }
+
+        //  $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        //  $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        // $edge_list = array();
+        // $call_list = array();
+        // $edge_id = 9945;
+        // foreach ($results as $result) {
+        //   $call = ['source' => $result['n_id'],'target' => $result['m_id']];
+        //   $noDayTime = 0;
+        //   $noNightTime = 0;
+        //   if($result['r']['StartTime'] >= 5 && $result['r']['StartTime'] <= 17){
+        //     $noDayTime += 1;
+        //   } else {
+        //     $noNightTime += 1;
+        //   }
+        //   if(!in_array($call, $call_list)){
+        //     array_push($call_list, $call);
+        //     $edge_prop = [
+        //         'duration' => $result['r']['Duration'],
+        //         'noDayTime' => $noDayTime,
+        //         'noNightTime' => $noNightTime,
+        //         'weight' => 1
+        //     ];
+        //     $edge_info = [
+        //       'target' => $result['m_id'],
+        //       'color' => '',
+        //       'label' => '',
+        //       'source' => $result['n_id'],
+        //       'attributes' => $edge_prop,
+        //       'id' => $edge_id,
+        //       'size' => 1
+        //     ];
+        //     array_push($edge_list,$edge_info);
+        //     $edge_id++;
+        //   } else {
+        //     foreach($edge_list as $edge){ 
+        //       if($edge['source'] == $result['n_id'] && $edge['target'] == $result['m_id']){
+        //         $edge['attributes']['weight'] = $edge['attributes']['weight'] + 1;
+        //         $edge['attributes']['duration'] += $result['r']['Duration'];
+        //         $edge['attributes']['noDayTime'] += $noDayTime;
+        //         $edge['attributes']['noNightTime'] += $noNightTime;
+        //       }
+        //     }
+        //     if (($key = array_search($result['n_id'], $edge_list)) !== false) {
+        //       unset($edge_list[$key]);
+        //     }
+              
+        //   }
+        // }
+
+        // $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        // $edge_list = array();
+        // foreach ($results as $result) {
+        //     $edge_prop = [
+        //         'duration' => $result['r']['Duration'],
+        //         'startDate' => $result['r']['StartDate'],
+        //         'startTime' => $result['r']['StartTime'],
+        //         'callDay' => $result['r']['CallDay']
+        //     ];
+        //     $edge_info = [
+        //       'target' => $result['m_id'],
+        //       'color' => '',
+        //       'label' => '',
+        //       'source' => $result['n_id'],
+        //       'attributes' => $edge_prop,
+        //       'id' => $result['r_id'],
+        //       'size' => 1
+        //     ];
+        //     array_push($edge_list, $edge_info);
+        // }
         return  response()->json(['nodes' => $node_list, 'edges' => $edge_list]);
     } 
 
@@ -160,7 +257,9 @@ class AnalysisController extends Controller{
               'Age' => $result['n']['Age'],
               'Gender' => $result['n']['Gender'],
               'RnCode' => $result['n']['RnCode'],
-              'Promotion' => $result['n']['Promotion']
+              'Promotion' => $result['n']['Promotion'],
+              'NoOfCall' => $result['n']['NoOfCall'],
+              'NoOfReceive' => $result['n']['NoOfReceive']
             ];
 
           array_push($communities_list[$result['n']['CommunityID']], $user_info);
@@ -211,28 +310,76 @@ class AnalysisController extends Controller{
             array_push($community_list, $community_info);
         }
 
-    $edge_list = array();
-    $q = 'MATCH (n:User_Com)-[r:Call]->(m:User_Com) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        $call_list = array();
+        $q = 'MATCH (n:User_Com)-[r:Call]->(m:User_Com) RETURN distinct n.CommunityID as n_num, m.CommunityID as m_num';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        $edge_list = array();
-        foreach ($results as $result) {
-            $edge_prop = [
-                'duration' => $result['r']['Duration'],
-                'startDate' => $result['r']['StartDate'],
-                'startTime' => $result['r']['StartTime'],
-                'callDay' => $result['r']['CallDay']
-            ];
-            $edge_info = [
-              'target' => $result['m_id'],
-              'color' => '',
-              'label' => '',
-              'source' => $result['n_id'],
-              'attributes' => $edge_prop,
-              'id' => $result['r_id'],
-              'size' => 1
-            ];
-            array_push($edge_list, $edge_info);
+        foreach($results as $result){
+          $call_info = [
+            'source' => $result['n_num'],
+            'target' => $result['m_num']
+          ];
+          array_push($call_list, $call_info);
         }
+
+        $edge_id = 9945;
+        $edge_list = array();
+        foreach($call_list as $call){
+          $q = "MATCH (n:User_Com)-[r:Call]->(m:User_Com) WHERE n.CommunityID = ".$call['source']." AND m.CommunityID = ".$call['target']." RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+          $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+          $duration = 0;
+          $weight = 0;
+          $noDayTime = 0;
+          $noNightTime = 0;
+          foreach ($results[0]['collect_r'] as $value) {
+            $duration += $value['Duration'];
+            $weight += 1;
+            if($value['StartTime'] >= 5 && $value['StartTime'] <= 17){
+              $noDayTime += 1;
+            } else {
+              $noNightTime += 1;
+            }
+          }
+          $edge_prop = [
+            'duration' => $duration,
+            'weight' => $weight,
+            'noDayTime' => $noDayTime,
+            'noNightTime' => $noNightTime
+          ];
+          $edge_info = [
+            'target' => $results[0]['m_id'],
+            'color' => '',
+            'label' => '',
+            'source' => $results[0]['n_id'],
+            'attributes' => $edge_prop,
+            'id' => $edge_id,
+            'size' => 1
+          ];
+          $edge_id += 1;
+          array_push($edge_list, $edge_info);
+         }
+
+    // $edge_list = array();
+    // $q = 'MATCH (n:User_Com)-[r:Call]->(m:User_Com) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+    //     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+    //     $edge_list = array();
+    //     foreach ($results as $result) {
+    //         $edge_prop = [
+    //             'duration' => $result['r']['Duration'],
+    //             'startDate' => $result['r']['StartDate'],
+    //             'startTime' => $result['r']['StartTime'],
+    //             'callDay' => $result['r']['CallDay']
+    //         ];
+    //         $edge_info = [
+    //           'target' => $result['m_id'],
+    //           'color' => '',
+    //           'label' => '',
+    //           'source' => $result['n_id'],
+    //           'attributes' => $edge_prop,
+    //           'id' => $result['r_id'],
+    //           'size' => 1
+    //         ];
+    //         array_push($edge_list, $edge_info);
+    //     }
     return response()->json(['nodes' => $community_list, 'edges' => $edge_list]); 
   }
 
@@ -244,6 +391,9 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:User) RETURN count(n)';
     $all_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
+    $q = 'MATCH (n:User) -[r:Call]-> (m:User) RETURN count(r)';
+    $all_call = $client->sendCypherQuery($q)->getResult()->get('count(r)');
+
     $q = 'MATCH (n:User{RnCode:"AIS"}) RETURN count(n)';
     $ais_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
@@ -253,7 +403,7 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:User{RnCode:"DTAC"}) RETURN count(n)';
     $dtac_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num]);
+    return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'calls' => $all_call]);
   }
 
   public function getNodeInSelectedCommunity(){
@@ -280,7 +430,9 @@ class AnalysisController extends Controller{
                 'Age' => $result['n']['Age'],
                 'Gender' => $result['n']['Gender'],
                 'RnCode' => $result['n']['RnCode'],
-                'Promotion' => $result['n']['Promotion']
+                'Promotion' => $result['n']['Promotion'],
+                'NoOfCall' => $result['n']['NoOfCall'],
+                'NoOfReceive' => $result['n']['NoOfReceive']
             ];
             $user_info = [
               'label' => $result['n']['Number'],
@@ -294,27 +446,75 @@ class AnalysisController extends Controller{
           array_push($communities_list, $user_info);
         }
 
-        $q = 'MATCH (n:User)-[r:Call]->(m:User) WHERE n.CommunityID = '.$selectedCommunity.' AND m.CommunityID = '.$selectedCommunity.' RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        $call_list = array();
+        $q = 'MATCH (n:User)-[r:Call]->(m:User) WHERE n.CommunityID = '.$selectedCommunity.' AND m.CommunityID = '.$selectedCommunity.' RETURN distinct n.Number as n_num, m.Number as m_num';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        foreach($results as $result){
+          $call_info = [
+            'source' => $result['n_num'],
+            'target' => $result['m_num']
+          ];
+          array_push($call_list, $call_info);
+        }
+
+        $edge_id = 9945;
         $edge_list = array();
-        foreach ($results as $result) {
-            $edge_prop = [
-                'duration' => $result['r']['Duration'],
-                'startDate' => $result['r']['StartDate'],
-                'startTime' => $result['r']['StartTime'],
-                'callDay' => $result['r']['CallDay']
-            ];
-            $edge_info = [
-              'target' => $result['m_id'],
-              'color' => '',
-              'label' => '',
-              'source' => $result['n_id'],
-              'attributes' => $edge_prop,
-              'id' => $result['r_id'],
-              'size' => 1
-            ];
-            array_push($edge_list, $edge_info);
-        }        
+        foreach($call_list as $call){
+          $q = "MATCH (n:User)-[r:Call]->(m:User) WHERE n.CommunityID = ".$selectedCommunity." AND m.CommunityID = ".$selectedCommunity." AND n.Number = '".$call['source']."' AND m.Number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+          $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+          $duration = 0;
+          $weight = 0;
+          $noDayTime = 0;
+          $noNightTime = 0;
+          foreach ($results[0]['collect_r'] as $value) {
+            $duration += $value['Duration'];
+            $weight += 1;
+            if($value['StartTime'] >= 5 && $value['StartTime'] <= 17){
+              $noDayTime += 1;
+            } else {
+              $noNightTime += 1;
+            }
+          }
+          $edge_prop = [
+            'duration' => $duration,
+            'weight' => $weight,
+            'noDayTime' => $noDayTime,
+            'noNightTime' => $noNightTime
+          ];
+          $edge_info = [
+            'target' => $results[0]['m_id'],
+            'color' => '',
+            'label' => '',
+            'source' => $results[0]['n_id'],
+            'attributes' => $edge_prop,
+            'id' => $edge_id,
+            'size' => 1
+          ];
+          $edge_id += 1;
+          array_push($edge_list, $edge_info);
+         }
+
+        // $q = 'MATCH (n:User)-[r:Call]->(m:User) WHERE n.CommunityID = '.$selectedCommunity.' AND m.CommunityID = '.$selectedCommunity.' RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+        // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+        // $edge_list = array();
+        // foreach ($results as $result) {
+        //     $edge_prop = [
+        //         'duration' => $result['r']['Duration'],
+        //         'startDate' => $result['r']['StartDate'],
+        //         'startTime' => $result['r']['StartTime'],
+        //         'callDay' => $result['r']['CallDay']
+        //     ];
+        //     $edge_info = [
+        //       'target' => $result['m_id'],
+        //       'color' => '',
+        //       'label' => '',
+        //       'source' => $result['n_id'],
+        //       'attributes' => $edge_prop,
+        //       'id' => $result['r_id'],
+        //       'size' => 1
+        //     ];
+        //     array_push($edge_list, $edge_info);
+        // }        
 
         return response()->json(["nodes" => $communities_list,"edges" => $edge_list]);
     } 

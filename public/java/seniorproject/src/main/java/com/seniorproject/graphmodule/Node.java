@@ -28,6 +28,8 @@ public class Node {
     private String rnCode;
     private String promotion;
     private int member;
+    private int noOfCall;
+    private int noOfReceive;
 
     private String color;
 
@@ -42,6 +44,8 @@ public class Node {
         this.gender = "null";
         this.promotion = "null";
         this.member = 0;
+        this.noOfCall = 0;
+        this.noOfReceive = 0;
     }
 
     public int getID() {
@@ -188,5 +192,21 @@ public class Node {
      */
     public void setMember(int member) {
         this.member = member;
+    }
+
+    public int getNoOfCall() {
+        return this.noOfCall;
+    }
+
+    public void setNoOfCall(int noOfCall) {
+        this.noOfCall = noOfCall;
+    }
+
+    public int getNoOfReceive() {
+        return this.noOfReceive;
+    }
+
+    public void setNoOfReceive(int noOfReceive) {
+        this.noOfReceive = noOfReceive;
     }
 }
