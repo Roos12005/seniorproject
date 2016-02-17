@@ -27,11 +27,11 @@ class AnalysisController extends Controller{
        
    // }
 
-   // public function main($id) {
-   //    return view('analysis.analysis', [
-   //                  'data_id' => $id
-   //                  ]);
-   // }
+   public function main($id) {
+      return view('analysis.analysis', [
+                    'data_id' => $id
+                    ]);
+   }
 
     public function processData(Request $request) {
         $recieve = $request->all();
@@ -61,7 +61,7 @@ class AnalysisController extends Controller{
     }
 
     //Get all CDR
-    public function getCDR() {
+    public function getCDR($id) {
     //public function getCDR($id) {
 
         $start = Carbon\Carbon::now()->timestamp;
@@ -73,36 +73,8 @@ class AnalysisController extends Controller{
             ->build();
         
 
-        // $q = 'MATCH (n:Data) RETURN n, ID(n) as n_id limit 10000';
-        // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        // $node_list = array();
-        // $node_count = sizeof($results);
-        // $querytime = Carbon\Carbon::now()->timestamp;
-        // foreach($results as $key => $result) {
-        //     $user_stat = [
-        //         'Betweenness Centrality' => $result['n']['Betweenness'],
-        //         'Modularity Class' => $result['n']['CommunityID'],
-        //         'Eccentricity' => $result['n']['Eccentricity'],
-        //         'Closeness Centrality' => $result['n']['Closeness'],
-        //         'Age' => $result['n']['Age'],
-        //         'Gender' => $result['n']['Gender'],
-        //         'RnCode' => $result['n']['RnCode'],
-        //         'Promotion' => $result['n']['Promotion']
-        //     ];
-        //     $user_info = [
-        //       'label' => $result['n']['Number'],
-        //       'x' => 10*cos(2 * $key * M_PI/$node_count),
-        //       'y' => 10*sin(2 * $key * M_PI/$node_count),
-        //       'id' => $result['n_id'],
-        //       'attributes' => $user_stat,
-        //       // 'color' => $result['n']['Color'],
-        //       'size' => 1
-        //     ];
-        //     array_push($node_list, $user_info);
-        // }
-
         
-        $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN n,ID(n) as n_id, r, ID(r) as r_id, m, ID(m) as m_id limit 10000';
+        $q = 'MATCH (n:Processed' . $id . ') RETURN n,ID(n) as n_id';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $querytime = Carbon\Carbon::now()->timestamp;
         $node_list = array();
@@ -117,9 +89,9 @@ class AnalysisController extends Controller{
                 'Age' => $result['n']['Age'],
                 'Gender' => $result['n']['Gender'],
                 'RnCode' => $result['n']['RnCode'],
-                'Promotion' => $result['n']['Promotion'],
-                'NoOfCall' => $result['n']['NoOfCall'],
-                'NoOfReceive' => $result['n']['NoOfReceive']
+                'Promotion' => $result['n']['Promotion']
+                // 'NoOfCall' => $result['n']['NoOfCall'],
+                // 'NoOfReceive' => $result['n']['NoOfReceive']
             ];
             $user_info = [
               'label' => $result['n']['Number'],
@@ -134,7 +106,7 @@ class AnalysisController extends Controller{
         }
 
         $call_list = array();
-        $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN distinct n.Number as n_num, m.Number as m_num';
+        $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') RETURN distinct n.Number as n_num, m.Number as m_num';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         foreach($results as $result){
           $call_info = [
@@ -147,7 +119,7 @@ class AnalysisController extends Controller{
         $edge_id = 9945;
         $edge_list = array();
         foreach($call_list as $call){
-          $q = "MATCH (n:User)-[r:Call]->(m:User) WHERE n.Number = '".$call['source']."' AND m.Number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+          $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.Number = '".$call['source']."' AND m.Number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
           $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
           $duration = 0;
           $weight = 0;
@@ -180,77 +152,6 @@ class AnalysisController extends Controller{
           $edge_id += 1;
           array_push($edge_list, $edge_info);
          }
-
-        //  $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
-        //  $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        // $edge_list = array();
-        // $call_list = array();
-        // $edge_id = 9945;
-        // foreach ($results as $result) {
-        //   $call = ['source' => $result['n_id'],'target' => $result['m_id']];
-        //   $noDayTime = 0;
-        //   $noNightTime = 0;
-        //   if($result['r']['StartTime'] >= 5 && $result['r']['StartTime'] <= 17){
-        //     $noDayTime += 1;
-        //   } else {
-        //     $noNightTime += 1;
-        //   }
-        //   if(!in_array($call, $call_list)){
-        //     array_push($call_list, $call);
-        //     $edge_prop = [
-        //         'duration' => $result['r']['Duration'],
-        //         'noDayTime' => $noDayTime,
-        //         'noNightTime' => $noNightTime,
-        //         'weight' => 1
-        //     ];
-        //     $edge_info = [
-        //       'target' => $result['m_id'],
-        //       'color' => '',
-        //       'label' => '',
-        //       'source' => $result['n_id'],
-        //       'attributes' => $edge_prop,
-        //       'id' => $edge_id,
-        //       'size' => 1
-        //     ];
-        //     array_push($edge_list,$edge_info);
-        //     $edge_id++;
-        //   } else {
-        //     foreach($edge_list as $edge){ 
-        //       if($edge['source'] == $result['n_id'] && $edge['target'] == $result['m_id']){
-        //         $edge['attributes']['weight'] = $edge['attributes']['weight'] + 1;
-        //         $edge['attributes']['duration'] += $result['r']['Duration'];
-        //         $edge['attributes']['noDayTime'] += $noDayTime;
-        //         $edge['attributes']['noNightTime'] += $noNightTime;
-        //       }
-        //     }
-        //     if (($key = array_search($result['n_id'], $edge_list)) !== false) {
-        //       unset($edge_list[$key]);
-        //     }
-              
-        //   }
-        // }
-
-        // $q = 'MATCH (n:User)-[r:Call]->(m:User) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
-        // $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-        // $edge_list = array();
-        // foreach ($results as $result) {
-        //     $edge_prop = [
-        //         'duration' => $result['r']['Duration'],
-        //         'startDate' => $result['r']['StartDate'],
-        //         'startTime' => $result['r']['StartTime'],
-        //         'callDay' => $result['r']['CallDay']
-        //     ];
-        //     $edge_info = [
-        //       'target' => $result['m_id'],
-        //       'color' => '',
-        //       'label' => '',
-        //       'source' => $result['n_id'],
-        //       'attributes' => $edge_prop,
-        //       'id' => $result['r_id'],
-        //       'size' => 1
-        //     ];
-        //     array_push($edge_list, $edge_info);
-        // }
         return  response()->json(['nodes' => $node_list, 'edges' => $edge_list]);
     } 
 

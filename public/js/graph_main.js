@@ -39,7 +39,7 @@
     };
 
     var graphStatus = {
-        'full-graph' : 0,
+        'full-graph' : 2,
         'community-group' : 0,
         'export-data' : 0,
     }
@@ -366,7 +366,7 @@
         s.startForceAtlas2({});
         setTimeout(function () {
             s.killForceAtlas2();
-        }, 500);
+        }, 3000);
     }
 
     /**  
@@ -967,7 +967,7 @@
      }
 
      function resetAllButton() {
-        graphStatus['full-graph'] = 0;
+        graphStatus['full-graph'] = 2;
         graphStatus['community-group'] = 0;
         graphStatus['export-data'] = 0;
 
@@ -983,29 +983,7 @@
      }
 
      function processData() {
-        if(graphStatus['full-graph'] == 0 && graphStatus['community-group'] !== (1 && 2)) {
-            graphStatus['full-graph'] = 1;
-            $('#full-graph').removeClass('btn-default').addClass('btn-warning');
-            $('#full-graph i').removeClass('fa-times').addClass('fa-refresh');
-            ajaxSetup();
-            $.ajax({
-                type: "POST",
-                url: "http://localhost/seniorproject/public/processData",
-                data : filter,
-                success: function(e){
-                    console.log(e);
-                    $('#full-graph').removeClass('btn-warning').addClass('btn-success');
-                    $('#full-graph i').removeClass('fa-refresh').addClass('fa-check');
-                    // TODO : trigger button
-                    graphStatus['full-graph'] = 2;
-                },
-                error: function(rs, e){
-                    console.log(rs.responseText);
-                }
-            });
-        } else if(graphStatus['full-graph'] == 1) {
-            alert('Graph is processing ...'); 
-        } else if(graphStatus['full-graph'] == 2) {
+        if(graphStatus['full-graph'] == 2) {
             colorByDefaultNode();
             resetButton('community-group');
             runGraph();

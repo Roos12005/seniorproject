@@ -561,7 +561,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">What do you want?</label>
+                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Social Network Statistics</label>
                         <div class="col-lg-9">
                             <label class="checkbox-inline">
                                 <input type="checkbox" class="batch-mode" value="0"> Centrality
