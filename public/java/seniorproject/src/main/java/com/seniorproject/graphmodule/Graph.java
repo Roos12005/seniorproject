@@ -2,7 +2,6 @@ package com.seniorproject.graphmodule;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,25 +43,8 @@ public class Graph {
             }
         }
         System.out.println("Nodes : " + this.nodes.count() + "\nEdges : " + this.edges.count());
-        neighbors = new HashMap<>();
        
-        // neighbors
-        for(Node node : this.nodes) {
-            NodeIterable res = new NodeIterable();
-            Set<Node> tmp = new HashSet<>();
-           
-            for (Edge e : edges) {
-               if(e.getSource() == node.getID()) {
-                   tmp.add(this.nodes.get(e.getTarget()));
-               } else if(e.getTarget() == node.getID()) {
-                   tmp.add(this.nodes.get(e.getSource()));
-               }
-            }
-            for(Node m : tmp) {
-               res.add(m);
-            }
-            neighbors.put(node.getID(), res);
-        }
+        
         
     }
 

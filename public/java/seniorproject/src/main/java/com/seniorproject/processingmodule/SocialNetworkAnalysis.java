@@ -1,22 +1,16 @@
 package com.seniorproject.processingmodule;
 
-import au.com.bytecode.opencsv.CSVReader;
+
 import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.Graph;
 import com.seniorproject.graphmodule.Node;
-import com.seniorproject.graphmodule.NodeIterable;
-import com.seniorproject.graphmodule.EdgeIterable;
 import com.seniorproject.storingmodule.DBAccess;
-import java.awt.Color;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Set;
 
 public class SocialNetworkAnalysis {
@@ -132,15 +126,23 @@ public class SocialNetworkAnalysis {
     	Set<Integer> tot = new HashSet<>();
 
         int idx = 0;
+        int[] noincom = new int[250];
+        for(int kkk=0;kkk<250;kkk++)
+               noincom[kkk] = 0;
         for(Node node : hgraph.getNodes()) {
 //            System.out.println(node.getID() + " : " + com[idx]);
             node.setCommunityID(com[idx]);
             tot.add(com[idx]);
+            noincom[com[idx]]++;
             idx++;
         }
     	System.out.println("-------------------------------------------");
     	System.out.println("Total of Communities : " + tot.size());
     	System.out.println("-------------------------------------------");
+        
+//        for(int kkk=0;kkk<250;kkk++) {
+//            System.out.println("Community #" + kkk + " has " + noincom[kkk] + " members!");
+//        }
 //    	for(Integer co : tot) {
 //    		System.out.println(co);
 //    	}
@@ -153,7 +155,7 @@ public class SocialNetworkAnalysis {
         
         markColor(hgraph, tot.size());
         
-        (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges());
+        (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges(),tid);
 
         if(comOfCom){
             Set<Node> comNodes = new HashSet<>();
@@ -186,7 +188,7 @@ public class SocialNetworkAnalysis {
             GraphDistance comDis = new GraphDistance(comGraph); 
             comDis.execute(comGraph);
             System.out.println("Calculating Community Graph Distance ... Done!");   
-            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges());       
+//            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges());       
         }
 
         // (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges(), tid);
