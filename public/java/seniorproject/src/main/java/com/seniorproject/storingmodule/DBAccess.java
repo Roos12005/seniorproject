@@ -64,7 +64,8 @@ public class DBAccess {
         Set<Node> nodes = new HashSet<>();
         List<Edge> edges = new ArrayList<>();
 
-        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/store.graphdb");
+//        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/store.graphdb");
+GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/htdocs/seniorproject/database/Neo4j/store.graphdb");
 //GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("C:/Users/thanp548/Documents/Neo4j/default.graphdb");
         Label label = DynamicLabel.label("Raw");
         try (Transaction tx = graphDb.beginTx();
