@@ -338,7 +338,7 @@ class Neo4JConnector {
 
     private function beginProcess($filters, $id, $isScheduler) {
         putenv('/seniortmp');
-        $command = "java -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id;
+        $command = "java -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id . ' 1';
         foreach ($filters as $key => $value) {
             $len = sizeof($value);
             $command = $command . ' ' . $key . ' ';

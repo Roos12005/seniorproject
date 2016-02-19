@@ -142,8 +142,6 @@ GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/
             Map<Integer, GrNode> grnodes = new HashMap<>();
             ITransaction tx = dbAccess.beginTX();
             int i=0;
-            List<JcError> errors = new ArrayList<>();
-            
             for (Node n : nodes) {
                 GrNode tmp = graph.createNode();
                 tmp.addLabel("Processed" + tid);
@@ -170,7 +168,7 @@ GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/
                 rel.addProperty("StartTime", e.getStartTime());
                 rel.addProperty("CallDay", e.getCallDay());
             }
-            errors = graph.store();
+            List<JcError> errors = graph.store();
             tx.close();
             if (!errors.isEmpty()) {
                 printErrors(errors);
@@ -182,51 +180,45 @@ GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/
         }
     }
 
-//    public void storeCommunity(NodeIterable nodes, List<Edge> edges) {
-//        initDBConnection();
-//        try {
-//            Graph graph = Graph.create(dbAccess);
-//            clearGraph("User_Com", "User_Com", "Call");
-//            Map<Integer, GrNode> grnodes = new HashMap<>();
-//            for (Node n : nodes) {
-//                GrNode tmp = graph.createNode();
-//                tmp.addLabel("User_Com");
-//                // public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) {
-//                //     initDBConnection();
-//                //     try {
-//                //         Graph graph = Graph.create(dbAccess);
-//                //         clearGraph("Processed_Com", "Processed_Com", "Call");
-//                //         Map<Integer, GrNode> grnodes = new HashMap<>();
-//                //         for(Node n : nodes) {
-//                //             GrNode tmp = graph.createNode();
-//                //             tmp.addLabel("Processed_Com"+tid);
-//                tmp.addProperty("Member", n.getMember());
-//                tmp.addProperty("Eccentricity", n.getEccentricity());
-//                tmp.addProperty("Betweenness", n.getBetweenness());
-//                tmp.addProperty("Closeness", n.getCloseness());
-//                tmp.addProperty("CommunityID", n.getCommunityID());
-//                tmp.addProperty("Color", n.getColor());
-//                grnodes.put(n.getID(), tmp);
-//            }
-//
-////            for (Edge e : edges) {
-////                GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
-////                rel.addProperty("Duration", e.getDuration());
-////                rel.addProperty("StartDate", e.getStartDate());
-////                rel.addProperty("StartTime", e.getStartTime());
-////                rel.addProperty("CallDay", e.getCallDay());
-////            }
-//            List<JcError> errors = graph.store();
-//            if (!errors.isEmpty()) {
-//                printErrors(errors);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            closeDBConnection();
-//        }
-//    }
-//
+    public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) {
+        initDBConnection();
+        try {
+            Graph graph = Graph.create(dbAccess);
+            Map<Integer, GrNode> grnodes = new HashMap<>();
+            ITransaction tx = dbAccess.beginTX();
+            int i=0;
+            
+            for (Node n : nodes) {
+                GrNode tmp = graph.createNode();
+                tmp.addLabel("ProcessedCom" + tid);
+                tmp.addProperty("Member", n.getMember());
+                tmp.addProperty("Eccentricity", n.getEccentricity());
+                tmp.addProperty("Betweenness", n.getBetweenness());
+                tmp.addProperty("Closeness", n.getCloseness());
+                tmp.addProperty("CommunityID", n.getCommunityID());
+                tmp.addProperty("Color", n.getColor());
+                grnodes.put(n.getID(), tmp);
+            }
+                
+            for (Edge e : edges) {
+                GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
+                rel.addProperty("Duration", e.getDuration());
+                rel.addProperty("StartDate", e.getStartDate());
+                rel.addProperty("StartTime", e.getStartTime());
+                rel.addProperty("CallDay", e.getCallDay());
+            }
+            List<JcError> errors = graph.store();
+            tx.close();
+            if (!errors.isEmpty()) {
+                printErrors(errors);
+            }
+        } catch (Exception e) {
+
+        } finally {
+            closeDBConnection();
+        }
+    }
+
     private void closeDBConnection() {
         if (dbAccess != null) {
             dbAccess.close();
