@@ -2,3 +2,7 @@ table {
     font-size: 13px;
     font-weight: normal;
 }
+
+.table-filter, .tf-view, .tf-download, .delete-button {
+    cursor: pointer;
+}

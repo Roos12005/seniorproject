@@ -113,6 +113,7 @@ class Neo4JConnector {
                                 'After ' . number_format($r['n']['startTime'], 2, '.', '') : number_format($r['n']['startTime'], 2, '.', '') . ' - ' . number_format($r['n']['endTime'], 2, '.', ''),
                 'mode' => $r['n']['mode'],
                 'progress' => $progress['progress'],
+                'speed' => $progress['speed'],
                 'status' => $progress['status'],
                 'type' => $r['n']['type']
             ];
@@ -165,7 +166,8 @@ class Neo4JConnector {
             $info = $this->getEstimation($filters);
             $ret = [
                 'customers' => $info['customers']['nodes'],
-                'execTime' => $info['execTime']
+                'execTime' => $info['execTime'],
+                'speed' => $info['speed']
             ];
             return $ret;
         } else {
@@ -209,7 +211,8 @@ class Neo4JConnector {
         return [
             'filters' => $filters,
             'nid' => $result[0]['nid'],
-            'mode' => $mode
+            'mode' => $mode,
+            'speed' => $others['speed']
         ];
     }
 
@@ -279,6 +282,47 @@ class Neo4JConnector {
         }
     }
 
+    public function queryNodesForCSV($id) {
+
+        $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.CommunityID';
+        $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
+        $communities_num = count($results);
+
+        $communities_list = array();
+        for ($x = 0; $x < $communities_num; $x++) {
+          $communities_list[$x] = array();
+        }
+
+        $r = 'MATCH (n:Processed' . $id . ') RETURN n, n.CommunityID';
+        $results = $this->connector->sendCypherQuery($r)->getResult()->getTableFormat();
+        foreach($results as $key => $result) {
+            $user_info = [
+              'label' => $result['n']['Number'],
+              'Betweenness Centrality' => $result['n']['Betweenness'],
+              'Modularity Class' => $result['n']['CommunityID'],
+              'Eccentricity' => $result['n']['Eccentricity'],
+              'Closeness Centrality' => $result['n']['Closeness'],
+              'Age' => $result['n']['Age'],
+              'Gender' => $result['n']['Gender'],
+              'RnCode' => $result['n']['RnCode'],
+              'Promotion' => $result['n']['Promotion'],
+              'NoOfCall' => $result['n']['NoOfCall'],
+              'NoOfReceive' => $result['n']['NoOfReceive']
+            ];
+
+          array_push($communities_list[$result['n']['CommunityID']], $user_info);
+        }
+
+        for ($x = 0; $x < count($communities_list); $x++) {
+          usort($communities_list[$x], function($a,$b){
+            if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
+            return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
+          });
+        }
+
+        return $communities_list;
+    }
+
     // ------------------------------------------------------------------------------------------------------------
 
     // --------------------------------------------- Private Functions --------------------------------------------
@@ -311,7 +355,8 @@ class Neo4JConnector {
         $tmp_prog = 1000*($now - $start)/$estimated;
         $progress = $tmp_prog > 1? '100' : $tmp_prog*100;
         $status = $tmp_prog >= 1? 'Ready' : 'Processing'; 
-        return ['progress' => $progress, 'status' => $status];
+        $speed = 100000/$estimated;
+        return ['progress' => $progress, 'status' => $status, 'speed' => $speed];
     }
 
     private function getEstimation($filters) {
@@ -331,7 +376,8 @@ class Neo4JConnector {
         $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
         $ret = [
             "customers" => $results[0],
-            "execTime" => 10000
+            "execTime" => 5000,
+            "speed" => 100000/5000
         ];
         return $ret;
     }
@@ -358,6 +404,11 @@ class Neo4JConnector {
             $command = $command . $back_command;
         }
     
+<<<<<<< HEAD
+=======
+        // $command = $command . ' >> javalogs/result' . $id . '.txt';
+        $command = $command;
+>>>>>>> a068fede3a7d794965b89b28c8d9c5b22d5f3071
         exec($command, $output);
         Log::info($command);
         Log::info($output);
