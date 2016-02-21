@@ -12,6 +12,7 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 <meta name="data-id" content="{{ $data_id }}" />
+
 <!-- Header Start -->
 <div class="row">
     <div class="col-md-12">
@@ -27,7 +28,56 @@
                  </span>
             </header>
             <div class="panel-body">
-
+                <div class="modal-body">
+                <form action="#" class="form-horizontal ">
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">Database </label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$database}}</p>
+                        </div>
+                        <label class=" col-sm-2 control-label">Date </label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$startDate}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">Duration</label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$duration}}</p>
+                        </div>
+                        <label class=" col-sm-2 control-label">Period</label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$period}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">Day</label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$callDay}}</p>
+                        </div>
+                        <label class=" col-sm-2 control-label">Carrier</label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$carrier}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">No. of Outgoing Calls</label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$noOfOutgoing}}</p>
+                        </div>
+                        <label class=" col-sm-2 control-label">No. of Incoming Calls</label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$noOfIncoming}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-2 control-label">Calculation</label>
+                        <div class="col-lg-3">
+                            <p class="form-control-static">{{$calculation}}</p>
+                        </div>
+                    </div>
+                </form> 
+            </div>
             </div>
         </section>
         <!-- Data Description section end -->
@@ -134,46 +184,6 @@
             </div>
         </section>
         <!-- Graph Controller section end -->
-        
-        <!-- Graph Filter section start -->
-        <!-- <section class="panel">
-            <header class="panel-heading"> Old Graph Controller
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                    <a href="javascript:;" class="fa fa-cog"></a>
-                    <a href="javascript:;" class="fa fa-times"></a>
-                </span>
-            </header>
-            <div class="panel-body">
-                <div class="col-md-4">
-                    <div class="col-sm-12" style="padding-bottom: 5px;">
-                        <span> Graph Filters </span>
-                        <div class="clearfix separate-line"></div>
-                    </div>
-                    <div class="col-sm-12">  
-                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="startDate-button">
-                            Date
-                        </a>
-                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="callDay-button">
-                            Day
-                        </a>
-                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="startTime-button">
-                            Call Period
-                        </a>
-                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="duration-button">
-                            Call Duration
-                        </a>
-                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="noOfCall-button">
-                            No. of Call
-                        </a>
-                        <a href="#filterModal" data-toggle="modal" class="btn btn-default two-col-button" id="rnCode-button">
-                            Carrier
-                        </a>
-                    </div>  
-                </div>
-            </div>
-        </section> -->
-        <!-- Graph Filter section end -->
 
         <!-- Three Header Statistic Widget start -->
         <div class="col-md-12">
@@ -294,14 +304,6 @@
 
                         <!-- Customer Information Body Start -->
                         <div class=" col-sm-12 no-padding tiny-stat-wrapper">
-<!--                             <div class="col-sm-12">
-                                <label class=" col-sm-5 control-label">Name</label>
-                                <div class=" col-sm-7">
-                                    <p class="form-control-static" id="cname">-</p>
-                                </div>
-                            </div>
-                            <div class="clearfix"></div> -->
-
                             <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Number</label>
                                 <div class=" col-sm-7">
@@ -451,16 +453,6 @@
                                 <div class=" col-sm-3">
                                     <p class="form-control-static" id="profile">-</p>
                                 </div>
-                                <!-- <label class=" col-sm-5 control-label">Top 5 Numbers</label>
-                                <div class=" col-sm-7">
-                                    <div class="btn-group">
-                                        <button data-toggle="dropdown" class="btn btn-default dropdown-toggle btn-xs number-dropdown" type="button">Sort by Degree <span class="caret"></span></button>
-                                        <ul role="menu" class="dropdown-menu" style="font-size: 12px; width:100px !important;">
-                                            <li><a href="#">Sort by ABC</a></li>
-                                            <li><a href="#">Sort by XYZ</a></li>
-                                        </ul>
-                                    </div>
-                                </div> -->
                             </div>
                             <div class="clearfix separate-line"></div>
                             <!-- <div class="col-sm-12">
@@ -515,190 +507,6 @@
         </section>
     </div>
     <!-- Second Widget End -->
-</div>
-
-
-
-<div aria-hidden="true" aria-labelledby="filterModalLabel" role="dialog" tabindex="-1" id="filterModal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-                <h4 class="modal-title">Graph Filters</h4>
-            </div>
-            <div class="modal-body">
-                <form action="#" class="form-horizontal ">
-                    <div class="form-group">
-                        <div class="col-md-6">
-                            <label class="control-label col-md-6" >Date Picker</label>
-                            <div class="form-group">
-                                <div class="col-md-6">
-                                    <select id="e1" class="populate " style="width: 250px">
-                                            <option value="19700101">All Data</option>
-                                        <optgroup label="September 2015">
-                                            <option value="201509">Sep - Month</option>
-                                            <option value="20150901">Sep - Week 1</option>
-                                            <option value="20150908">Sep - Week 2</option>
-                                        </optgroup>
-                                        <optgroup label="October 2015">
-                                            <option value="201510">Oct - Month</option>
-                                            <option value="20151001">Oct - Week 1</option>
-                                            <option value="20151008">Oct - Week 2</option>
-                                            <option value="20151015">Oct - Week 3</option>
-                                            <option value="20151022">Oct - Week 4</option>
-                                        </optgroup>
-                                        <optgroup label="November 2015">
-                                            <option value="201511">Nov - Month</option>
-                                            <option value="20151101">Nov - Week 1</option>
-                                            <option value="20151108">Nov - Week 2</option>
-                                            <option value="20151115">Nov - Week 3</option>
-                                            <option value="20151122">Nov - Week 4</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-md-12">
-                            <label class="col-md-4 control-label" >Day Selector</label>
-                            
-                            <div class="col-lg-12 icheck">
-                                <div class="flat-red col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox" class="day-checkbox" value="Sunday">
-                                        <label>Sunday </label>
-                                    </div>
-                                </div>
-                                <div class="flat-orange col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox" class="day-checkbox"  value="Thursday">
-                                        <label>Thursday </label>
-                                    </div>
-                                </div>
-                                <div class="flat-yellow col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox"  class="day-checkbox"  value="Monday">
-                                        <label>Monday </label>
-                                    </div>
-                                </div>
-                                <div class="flat-blue col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox"  class="day-checkbox"  value="Friday">
-                                        <label>Friday </label>
-                                    </div>
-                                </div>
-                                <div class="flat-pink col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox"  class="day-checkbox"  value="Tuesday">
-                                        <label>Tuesday </label>
-                                    </div>
-                                </div>
-                                <div class="flat-purple col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox"  class="day-checkbox"  value="Saturday">
-                                        <label>Saturday </label>
-                                    </div>
-                                </div>
-                                <div class="flat-green col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox"  class="day-checkbox"  value="Wednesday">
-                                        <label>Wednesday </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-
-                        <div class="clearfix"></div>
-                        <div class="col-md-12">
-                            <label class="control-label col-md-3" >Call Period</label>
-                            <div class="col-md-6">
-                                <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
-                                    <input type="text" class="form-control time-filter" id="callPeriodFrom" name="from" value="00.00">
-                                    <span class="input-group-addon">To</span>
-                                    <input type="text" class="form-control time-filter" id="callPeriodTo" name="to" value="24.00">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="clearfix"></div>
-                        <div class="col-md-12">
-                            <label class="control-label col-md-3" >Call Duration</label>
-                            <div class="col-md-6">
-                                <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
-                                    <input type="text" class="form-control" id="callDurationFrom" name="from" value="0">
-                                    <span class="input-group-addon">To</span>
-                                    <input type="text" class="form-control" id="callDurationTo" name="to" value="99999">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="clearfix"></div>
-                        <div class="col-md-12">
-                            <label class="control-label col-md-3" >Number of Call</label>
-                            <div class="col-md-6">
-                                <div class="input-group input-large" data-time="05:00" data-time-format="hh:mm">
-                                    <input type="text" class="form-control" id="noOfCallFrom" name="from" value="0">
-                                    <span class="input-group-addon">To</span>
-                                    <input type="text" class="form-control" id="noOfCallTo" name="to" value="999">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="clearfix"></div>
-                        <div class="col-md-12">
-                            <label class="col-md-4 control-label" >Day Selector</label>
-                            
-                            <div class="col-lg-12 icheck">
-                                <div class="flat-green col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox" class="carrier-checkbox" value="AIS">
-                                        <label>AIS </label>
-                                    </div>
-                                </div>
-                                <div class="flat-purple col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox" class="carrier-checkbox" value="JAS">
-                                        <label>JAS </label>
-                                    </div>
-                                </div>
-                                <div class="flat-blue col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox" class="carrier-checkbox" value="DTAC">
-                                        <label>DTAC </label>
-                                    </div>
-                                </div>
-                                <div class="flat-grey col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox" class="carrier-checkbox" value="OTHERS">
-                                        <label>Other </label>
-                                    </div>
-                                </div>
-                                <div class="flat-red col-sm-4">
-                                    <div class="checkbox ">
-                                        <input type="checkbox" class="carrier-checkbox" value="TRUE">
-                                        <label>TRUE </label>
-                                    </div>
-                                </div>
-                                
-                                
-                            </div>
-                        </div> 
-                    </div>
-                    <div style="float: right;">
-                        <button class="btn btn-success" id="filter-save" onclick="return false;">Comfirm</button>
-                        <button class="btn btn-danger" id="filter-cancel">Cancel</button>
-                    </div>
-                    <div class="clearfix"></div>
-
-                </form> 
-                <!-- <li> Which day should we display for you ? </li>
-                <li> Please specify Calling Period you would like to explore </li>
-                <li> How long does customer talking duration you would like to explore ? </li>
-                <li> Number of Calls </li>
-                <li> Carrier Picker </li> -->
-            </div>
-        </div>
-    </div>
 </div>
 
 <div aria-hidden="true" aria-labelledby="exportCSVModalLabel" role="dialog" tabindex="-1" id="exportCSVModal" class="modal fade">

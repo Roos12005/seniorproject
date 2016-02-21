@@ -358,8 +358,6 @@ class Neo4JConnector {
             $command = $command . $back_command;
         }
     
-        // $command = $command . ' >> javalogs/result' . $id . '.txt';
-        $command = $command . ' 2>&1';
         exec($command, $output);
         Log::info($command);
         Log::info($output);

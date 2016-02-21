@@ -692,9 +692,15 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class=" col-sm-3 control-label">No. of Calls</label>
+                        <label class=" col-sm-3 control-label">No. of Outgoing Calls</label>
                         <div class="col-lg-6">
                             <p class="form-control-static" id="tf-noOfCall">-</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">No. of Incoming Calls</label>
+                        <div class="col-lg-6">
+                            <p class="form-control-static" id="tf-noOfReceive">-</p>
                         </div>
                     </div>
                     <div class="form-group">

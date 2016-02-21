@@ -458,7 +458,7 @@
 
     function addInputFormMasking() {
         var notOverTwentyFour = function(val) {
-            return parseFloat(val) > 23.59 ? '23.5\9' : '00.00';
+            return parseFloat(val) > 23.59 ? '23.59' : '00.00';
         }
         $('.time-mask').mask('00.00',  {
             onKeyPress: function(val, e, field, options) {

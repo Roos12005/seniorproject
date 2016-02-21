@@ -1,5 +1,6 @@
 !function(){
 
+    var did = $('meta[name="data-id"]').attr('content');
     var graphStatus = {
         'export-data' : 0,
     }
@@ -7,7 +8,7 @@
     function addCommunity(){
         $.ajax(
         {
-            url: 'http://localhost/seniorproject/public/getCommunities',
+            url: 'http://localhost/seniorproject/public/getCommunities/' + did,
             type: 'GET',
             data: {},
             dataType: 'json',
@@ -45,7 +46,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getNodeCommunity",
+                url: "http://localhost/seniorproject/public/getNodeCommunity/" + did,
                 data : {"senddata":selectedCommunities},
                 success: function(e){
                     console.log(e);

@@ -64,9 +64,18 @@ public class DBAccess {
         Set<Node> nodes = new HashSet<>();
         List<Edge> edges = new ArrayList<>();
 
-//        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/store.graphdb");
-GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/htdocs/seniorproject/database/Neo4j/store.graphdb");
-//GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("C:/Users/thanp548/Documents/Neo4j/default.graphdb");
+        String rnCode_Regex = "";
+        String callDay_Regex = "";
+
+        for(String rnCode : sFilters.get("rnCode")) {
+            rnCode_Regex = rnCode_Regex + rnCode + "|";
+        }
+        for(String callDay : sFilters.get("callDay")) {
+            callDay_Regex = callDay_Regex + callDay + "|";
+        }
+
+        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
+        //GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("C:/Users/thanp548/Documents/Neo4j/default.graphdb");
         Label label = DynamicLabel.label("Raw");
         try (Transaction tx = graphDb.beginTx();
                 ResourceIterator<org.neo4j.graphdb.Node> customers = graphDb.findNodes(label)) {
@@ -77,53 +86,55 @@ GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/
 
                 for (Relationship rel : caller.getRelationships(Direction.OUTGOING)) {
                     org.neo4j.graphdb.Node callee = rel.getOtherNode(caller);
-                    // Filter here
 
+                    // Filter here
                     Map<String, Object> callerProps = caller.getAllProperties();
                     Map<String, Object> calleeProps = callee.getAllProperties();
                     Map<String, Object> relProps = rel.getAllProperties();
-//                           if(callerProps.get("rnCode").toString().matches(toRegex(sFilters.get("rnCode"))) &&
-//                                   Integer.parseInt(relProps.get("duration").toString()) < fFilters.get("duration").get(0) &&
-//                                   Integer.parseInt(relProps.get("duration").toString()) > fFilters.get("duration").get(1) &&
-//                                   Integer.parseInt(relProps.get("startDate").toString()) < fFilters.get("startDate").get(0) &&
-//                                   Integer.parseInt(relProps.get("startDate").toString()) > fFilters.get("startDate").get(1) &&
-//                                   Double.parseDouble(relProps.get("startTime").toString()) < fFilters.get("startTime").get(0) &&
-//                                   Double.parseDouble(relProps.get("startTime").toString()) > fFilters.get("startTime").get(1) &&
-//                                   relProps.get("startTime").toString().matches(toRegex(sFilters.get("callDay"))) &&
-//                                   calleeProps.get("rnCode").toString().matches(toRegex(sFilters.get("rnCode"))) ) {
-                    Node a = new Node((int) caller.getId());
-                    a.setAge("15");
-                    a.setGender("Male");
-                    a.setLabel(callerProps.get("number").toString());
-//                               a.setNoOfCall(Integer.parseInt(callerProps.get("outgoing").toString()));
-//                               a.setNoOfReceive(Integer.parseInt(callerProps.get("incoming").toString()));
-                    a.setRnCode("AIS");
-                    a.setPromotion("");
-                    Node b = new Node((int) callee.getId());
-                    b.setAge("15");
-                    b.setGender("Male");
-                    b.setLabel(calleeProps.get("number").toString());
-//                               b.setNoOfCall(Integer.parseInt(calleeProps.get("outgoing").toString()));
-//                               b.setNoOfReceive(Integer.parseInt(calleeProps.get("incoming").toString()));
-                    b.setRnCode("AIS");
-                    b.setPromotion("");
 
-                    Edge r = new Edge(
-                            a.getID(),
-                            b.getID(),
-                            1,
-                            //                                       Integer.parseInt(relProps.get("duration").toString()), // weight
-                            relProps.get("startDate").toString(),
-                            relProps.get("startTime").toString(),
-                            relProps.get("callDay").toString(),
-                            1
-                    //                                       Integer.parseInt(relProps.get("duration").toString())
-                    );
+                    if(Integer.parseInt(relProps.get("duration").toString()) > fFilters.get("duration").get(0) &&
+                        Integer.parseInt(relProps.get("duration").toString()) < fFilters.get("duration").get(1) &&
+                        Double.parseDouble(relProps.get("startTime").toString()) > fFilters.get("startTime").get(0) &&
+                        Double.parseDouble(relProps.get("startTime").toString()) < fFilters.get("startTime").get(1) &&
+                        callerProps.get("rnCode").toString().matches(rnCode_Regex) &&
+                        calleeProps.get("rnCode").toString().matches(rnCode_Regex) &&
+                        relProps.get("callDay").toString().matches(callDay_Regex) &&
+                        Double.parseDouble(relProps.get("startDate").toString()) > fFilters.get("startDate").get(0) &&
+                        Double.parseDouble(relProps.get("startDate").toString()) < fFilters.get("startDate").get(1) ) {
 
-                    nodes.add(a);
-                    nodes.add(b);
-                    edges.add(r);
-//                     }
+                        Node a = new Node((int) caller.getId());
+                        a.setAge(callerProps.get("age").toString());
+                        a.setGender(callerProps.get("gender").toString());
+                        a.setLabel(callerProps.get("number").toString());
+                        a.setNoOfOutgoing(Integer.parseInt(callerProps.get("outgoing").toString()));
+                        a.setNoOfIncoming(Integer.parseInt(callerProps.get("incoming").toString()));
+                        a.setRnCode(callerProps.get("rnCode").toString());
+                        a.setPromotion(callerProps.get("promotion").toString());
+
+                        Node b = new Node((int) callee.getId());
+                        b.setAge(calleeProps.get("age").toString());
+                        b.setGender(calleeProps.get("gender").toString());
+                        b.setLabel(calleeProps.get("number").toString());
+                        b.setNoOfOutgoing(Integer.parseInt(calleeProps.get("outgoing").toString()));
+                        b.setNoOfIncoming(Integer.parseInt(calleeProps.get("incoming").toString()));
+                        b.setRnCode(calleeProps.get("rnCode").toString());
+                        b.setPromotion(calleeProps.get("promotion").toString());
+
+                        Edge r = new Edge(
+                                a.getID(),
+                                b.getID(),
+                                1,
+                                //Integer.parseInt(relProps.get("duration").toString()), // weight
+                                Long.toString(Double.valueOf(relProps.get("startDate").toString()).longValue()),
+                                relProps.get("startTime").toString(),
+                                relProps.get("callDay").toString(),
+                                Integer.parseInt(relProps.get("duration").toString())
+                        );
+
+                        nodes.add(a);
+                        nodes.add(b);
+                        edges.add(r);
+                    }
 
                 }
             }
@@ -154,8 +165,8 @@ GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/
                 tmp.addProperty("Gender", n.getGender());
                 tmp.addProperty("RnCode", n.getRnCode());
                 tmp.addProperty("Promotion", n.getPromotion());
-                tmp.addProperty("NoOfCall", n.getNoOfCall());
-                tmp.addProperty("NoOfReceive", n.getNoOfReceive());
+                tmp.addProperty("NoOfOutgoing", n.getNoOfOutgoing());
+                tmp.addProperty("NoOfIncoming", n.getNoOfIncoming());
 
                 tmp.addProperty("Color", n.getColor());
                 grnodes.put(n.getID(), tmp);

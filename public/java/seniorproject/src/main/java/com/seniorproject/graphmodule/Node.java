@@ -19,8 +19,8 @@ public class Node {
     private String rnCode;
     private String promotion;
     private int member;
-    private int noOfCall;
-    private int noOfReceive;
+    private int noOfOutgoing;
+    private int noOfIncoming;
 
     private String color;
 
@@ -35,8 +35,8 @@ public class Node {
         this.gender = "null";
         this.promotion = "null";
         this.member = 0;
-        this.noOfCall = 0;
-        this.noOfReceive = 0;
+        this.noOfOutgoing = 0;
+        this.noOfIncoming = 0;
     }
 
     public void setAttribute(String type, double value) {
@@ -187,21 +187,21 @@ public class Node {
 
     //getter & setter No Of. Call
 
-    public int getNoOfCall() {
-        return this.noOfCall;
+    public int getNoOfOutgoing() {
+        return this.noOfOutgoing;
     }
 
-    public void setNoOfCall(int noOfCall) {
-        this.noOfCall = noOfCall;
+    public void setNoOfOutgoing(int noOfOutgoing) {
+        this.noOfOutgoing = noOfOutgoing;
     }
 
     //getter & setter No. of Receive
 
-    public int getNoOfReceive() {
-        return this.noOfReceive;
+    public int getNoOfIncoming() {
+        return this.noOfIncoming;
     }
 
-    public void setNoOfReceive(int noOfReceive) {
-        this.noOfReceive = noOfReceive;
+    public void setNoOfIncoming(int noOfIncoming) {
+        this.noOfIncoming = noOfIncoming;
     }
 }
