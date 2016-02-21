@@ -110,6 +110,20 @@ class AdminController extends Controller{
         return "Success";
 
    }
+
+   public function exportCSV() {
+        // Get all Input send via AJAX to $rec
+        $rec = Request::all();
+        $pid = $rec['pid'];
+
+        // Instantiate Neo4JConnector 
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+
+        // Prepare data to export
+        $results = $neo->queryNodesForCSV($pid);
+
+        return response()->json($results);
+   }
 }
 
 

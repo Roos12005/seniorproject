@@ -24,7 +24,7 @@ Route::post('/processSetup','AdminController@processSetup');
 Route::post('/startProcess','AdminController@startProcess');
 //Get Data
 
-// Route::get('getCDR','AnalysisController@getCDR');
+Route::get('/exportCSV','AdminController@exportCSV');
 Route::get('getCDR/{id}','AnalysisController@getCDR');
 Route::get('getCommunities','AnalysisController@getCommunities');
 Route::get('getNodeCommunity','AnalysisController@getNodeCommunity');

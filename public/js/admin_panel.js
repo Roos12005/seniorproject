@@ -663,6 +663,27 @@
 
     function addDownloadButtonListener() {
         $(".tf-download").unbind();
+        $(".tf-download").on('click', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                type: "GET",
+                url: "http://localhost/seniorproject/public/exportCSV",
+                data : { "pid" : id },
+                success: function(e){
+                    console.log(e);
+                    var export_communities = new Array();
+                    for(var i=0; i<e.length; i+= 1){
+                        export_communities = export_communities.concat(e[i]);
+                    }
+                    var converter = new Converter();
+                    converter.JSONToCSVConvertor(export_communities, "Call Detail Records", true);
+                },
+                error: function(rs, e){
+                    console.log(rs.responseText);
+                    alert('Problem occurs during fetch data.');
+                },
+            });
+        });
     }
 
     /**

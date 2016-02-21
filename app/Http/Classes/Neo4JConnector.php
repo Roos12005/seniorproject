@@ -282,6 +282,47 @@ class Neo4JConnector {
         }
     }
 
+    public function queryNodesForCSV($id) {
+
+        $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.CommunityID';
+        $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
+        $communities_num = count($results);
+
+        $communities_list = array();
+        for ($x = 0; $x < $communities_num; $x++) {
+          $communities_list[$x] = array();
+        }
+
+        $r = 'MATCH (n:Processed' . $id . ') RETURN n, n.CommunityID';
+        $results = $this->connector->sendCypherQuery($r)->getResult()->getTableFormat();
+        foreach($results as $key => $result) {
+            $user_info = [
+              'label' => $result['n']['Number'],
+              'Betweenness Centrality' => $result['n']['Betweenness'],
+              'Modularity Class' => $result['n']['CommunityID'],
+              'Eccentricity' => $result['n']['Eccentricity'],
+              'Closeness Centrality' => $result['n']['Closeness'],
+              'Age' => $result['n']['Age'],
+              'Gender' => $result['n']['Gender'],
+              'RnCode' => $result['n']['RnCode'],
+              'Promotion' => $result['n']['Promotion'],
+              'NoOfCall' => $result['n']['NoOfCall'],
+              'NoOfReceive' => $result['n']['NoOfReceive']
+            ];
+
+          array_push($communities_list[$result['n']['CommunityID']], $user_info);
+        }
+
+        for ($x = 0; $x < count($communities_list); $x++) {
+          usort($communities_list[$x], function($a,$b){
+            if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
+            return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
+          });
+        }
+
+        return $communities_list;
+    }
+
     // ------------------------------------------------------------------------------------------------------------
 
     // --------------------------------------------- Private Functions --------------------------------------------

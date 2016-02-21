@@ -746,6 +746,7 @@
 {!! Html::script('js/data-tables/DT_bootstrap.js'); !!}
 {!! Html::script('js/validator.js'); !!}
 {!! Html::script('js/date_helpers.js'); !!}
+{!! Html::script('js/converter.js'); !!}
 {!! Html::script('js/admin_panel.js'); !!}
 
 
