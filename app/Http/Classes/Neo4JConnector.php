@@ -113,6 +113,7 @@ class Neo4JConnector {
                                 'After ' . number_format($r['n']['startTime'], 2, '.', '') : number_format($r['n']['startTime'], 2, '.', '') . ' - ' . number_format($r['n']['endTime'], 2, '.', ''),
                 'mode' => $r['n']['mode'],
                 'progress' => $progress['progress'],
+                'speed' => $progress['speed'],
                 'status' => $progress['status'],
                 'type' => $r['n']['type']
             ];
@@ -165,7 +166,8 @@ class Neo4JConnector {
             $info = $this->getEstimation($filters);
             $ret = [
                 'customers' => $info['customers']['nodes'],
-                'execTime' => $info['execTime']
+                'execTime' => $info['execTime'],
+                'speed' => $info['speed']
             ];
             return $ret;
         } else {
@@ -209,7 +211,8 @@ class Neo4JConnector {
         return [
             'filters' => $filters,
             'nid' => $result[0]['nid'],
-            'mode' => $mode
+            'mode' => $mode,
+            'speed' => $others['speed']
         ];
     }
 
@@ -311,7 +314,8 @@ class Neo4JConnector {
         $tmp_prog = 1000*($now - $start)/$estimated;
         $progress = $tmp_prog > 1? '100' : $tmp_prog*100;
         $status = $tmp_prog >= 1? 'Ready' : 'Processing'; 
-        return ['progress' => $progress, 'status' => $status];
+        $speed = 100000/$estimated;
+        return ['progress' => $progress, 'status' => $status, 'speed' => $speed];
     }
 
     private function getEstimation($filters) {
@@ -331,7 +335,8 @@ class Neo4JConnector {
         $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
         $ret = [
             "customers" => $results[0],
-            "execTime" => 10000
+            "execTime" => 5000,
+            "speed" => 100000/5000
         ];
         return $ret;
     }
@@ -359,7 +364,7 @@ class Neo4JConnector {
         }
     
         // $command = $command . ' >> javalogs/result' . $id . '.txt';
-        $command = $command . ' 2>&1';
+        $command = $command;
         exec($command, $output);
         Log::info($command);
         Log::info($output);

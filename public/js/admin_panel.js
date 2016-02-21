@@ -506,7 +506,8 @@
                     "d" : d,
                     "type" : type,
                     "execTime" : e.execTime,
-                    "customers" : e.customers
+                    "customers" : e.customers,
+                    "speed" : e.speed
                 };
             },
             error: function(rs, e){
@@ -521,6 +522,7 @@
         var others = {
             'customers' : tmpStorage['customers'],
             'estimatedExecTime' : tmpStorage['execTime'],
+            'speed' : tmpStorage['speed']
         };
         ajaxSetup();
         $.ajax({
@@ -537,9 +539,9 @@
                     var descCol = '<td>'+d['description']+'</td>';
                     var customerCol = '<td class="text-center">'+others['customers']+'</td>';
                     var sizeCol = '<td class="text-center">-</td>';
-                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '" data-calculation="'+ e['mode'] +'"></span><div class="label label-primary label-mini margin-right-4"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
-                    var statusCol = '<td><span class="label label-warning label-mini">Processing</span></td>';
-                    var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success"></div></div></td>';
+                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '" data-calculation="'+ e['mode'] +'"></span><div class="label label-primary label-mini margin-right-4" id="tf-view-'+e.nid+'"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4" id="tf-download-'+e.nid+'"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
+                    var statusCol = '<td><span class="label label-warning label-mini" id="tf-status-'+e.nid+'">Processing</span></td>';
+                    var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success" aria-speed="'+e.speed+'" aria-current="0" data-id="'+e.nid+'"></div></div></td>';
                     $('#progress-table-body').append('<tr id="row-b-'+e.nid+'">' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
 
                     // hide batch form and show add button
@@ -616,6 +618,53 @@
         });
     }
 
+    function updateProgressBar() {
+        var len = $('.progress-bar').length;
+        for(var idx = 0; idx < len ; idx += 1) {
+            var previous = $('.progress-bar')[idx].getAttribute('aria-current');
+            if(previous >= 100) continue;
+
+            var speed = $('.progress-bar')[idx].getAttribute('aria-speed');
+            var current = parseInt(previous) + parseInt(speed);
+            current = current > 100 ? 100 : current;
+            $('.progress-bar')[idx].setAttribute('aria-current', current);
+            $('.progress-bar')[idx].style.width = current + '%';
+
+            if(current >= 100) {
+                var sid = $('.progress-bar')[idx].getAttribute('data-id');
+                $('#tf-status-' + sid).removeClass('label-warning');
+                $('#tf-status-' + sid).addClass('label-success');
+                $('#tf-status-' + sid).text('Ready');
+
+                $('#tf-view-' + sid).removeClass('label-default');
+                $('#tf-download-' + sid).removeClass('label-default');
+
+                $('#tf-view-' + sid).addClass('label-primary');
+                $('#tf-view-' + sid).addClass('tf-view');
+                $('#tf-view-' + sid).attr('data-id', sid);
+                addViewButtonListener();
+
+                $('#tf-download-' + sid).addClass('label-success');
+                $('#tf-download-' + sid).addClass('tf-download');
+                $('#tf-download-' + sid).attr('data-id', sid);
+                addDownloadButtonListener();
+            }
+        }
+    }
+
+    function addViewButtonListener() {
+        $(".tf-view").unbind();
+        $(".tf-view").on('click', function() {
+            var id = $(this).attr('data-id');
+            if(id == undefined) return;
+            window.location = "analysis/" + id;
+        });
+    }
+
+    function addDownloadButtonListener() {
+        $(".tf-download").unbind();
+    }
+
     /**
      *  @brief Main function of this file
      *
@@ -630,6 +679,10 @@
         initBatchForm();
         addInputFormMasking();
         addDeleteButtonListener();
+        addViewButtonListener();
+        addDownloadButtonListener();
+
+        setInterval(updateProgressBar, 1000);
     }();
 
 }();

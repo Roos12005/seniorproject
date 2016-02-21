@@ -355,6 +355,7 @@
                 <table class="table  table-hover general-table" id="progress-table">
                     <thead>
                         <tr>
+                            <th hidden></th>
                             <th> #</th>
                             <th>Date</th>
                             <th>Description</th>
@@ -368,7 +369,8 @@
                     <tbody id="progress-table-body">
                         @foreach($batch_jobs as $key => $row)
                         <tr id="row-b-{{$row['id']}}">
-                            <td><a href="./analysis/{{$row['id']}}">{{ $key + 1 }}</a></td>
+                            <td hidden><i>{{ 1 }}</i></td>
+                            <td><i>{{ $key + 1 }}</i></td>
                             <td width="180">{{ $row['date'] }}</td>
                             <td width="250">
                                 
@@ -379,26 +381,28 @@
                         <td class="text-center" width="100">{{ $row['customers'] }}</td>
                         <td class="text-center" width="50">{{ $row['size'] }}</td>
                         <td style="white-space: nowrap;" width="150">
-                            <div class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></div>
+                            <div class="label label-default label-mini table-filter" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></div>
                             <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
                                 data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}" data-calculation="{{$row['mode']}}"></span>
                             @if($row['progress'] < 100)
-                            <div class="label label-default label-mini" href="./analysis/{{$row['id']}}"><i class="fa fa-eye"></i></div>
-                            <div class="label label-default label-mini"><i class="fa fa-download"></i></div>
+                            <div class="label label-default label-mini" id="tf-view-{{ $row['id'] }}"><i class="fa fa-eye"></i></div>
+                            <div class="label label-default label-mini" id="tf-download-{{ $row['id'] }}"><i class="fa fa-download"></i></div>
                             @else
-                            <div class="label label-primary label-mini"><i class="fa fa-eye"></i></div>
-                            <div class="label label-success label-mini"><i class="fa fa-download"></i></div>
+                            <div class="label label-primary label-mini"><i class="fa fa-eye tf-view" data-id="{{$row['id']}}"></i></div>
+                            <div class="label label-success label-mini"><i class="fa fa-download tf-download" data-id="{{$row['id']}}"></i></div>
                             @endif
                             <div class="label label-danger label-mini delete-button" data-tid="{{$row['id']}}" data-type="batch"><i class="fa fa-times"></i></div>
                         </td>
                         @if($row['progress'] < 100)
-                        <td width="30"><div class="label label-warning label-mini">{{ $row['status'] }}</div></td>
+                        <td width="30"><div class="label label-warning label-mini" id="tf-status-{{ $row['id'] }}">
+                            {{ $row['status'] }}</div></td>
                         @else
-                        <td width="30"><div class="label label-success label-mini">{{ $row['status'] }}</div></td>
+                        <td width="30"><div class="label label-success label-mini" id="tf-status-{{ $row['id'] }}">
+                            {{ $row['status'] }}</div></td>
                         @endif
                         <td width="70">
                             <div class="progress progress-striped progress-xs">
-                                <div style="width: {{ $row['progress'] }}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
+                                <div style="width: {{ $row['progress'] }}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success" aria-speed="{{ $row['speed'] }}" aria-current="{{ $row['progress'] }}" data-id="{{ $row['id'] }}">
                                     <span class="sr-only">100% Complete (success)</span>
                                 </div>
                             </div>
