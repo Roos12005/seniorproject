@@ -306,8 +306,8 @@ class Neo4JConnector {
               'Gender' => $result['n']['Gender'],
               'RnCode' => $result['n']['RnCode'],
               'Promotion' => $result['n']['Promotion'],
-              'NoOfCall' => $result['n']['NoOfCall'],
-              'NoOfReceive' => $result['n']['NoOfReceive']
+              'NoOfCall' => $result['n']['NoOfIncoming'],
+              'NoOfReceive' => $result['n']['NoOfOutgoing']
             ];
 
           array_push($communities_list[$result['n']['CommunityID']], $user_info);
@@ -403,12 +403,7 @@ class Neo4JConnector {
             }
             $command = $command . $back_command;
         }
-    
-<<<<<<< HEAD
-=======
-        // $command = $command . ' >> javalogs/result' . $id . '.txt';
-        $command = $command;
->>>>>>> a068fede3a7d794965b89b28c8d9c5b22d5f3071
+
         exec($command, $output);
         Log::info($command);
         Log::info($output);

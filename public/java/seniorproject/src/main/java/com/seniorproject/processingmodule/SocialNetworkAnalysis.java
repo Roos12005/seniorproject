@@ -75,8 +75,8 @@ public class SocialNetworkAnalysis {
         System.out.println("Building Graph ... Done! exec time : " + (buildGraphTime - startTime) + " ms");
         GraphDistance dis = new GraphDistance(hgraph);
         dis.execute(hgraph);
-        long calTime = System.currentTimeMillis();
-        System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime - buildGraphTime) + " ms");
+        long calTime = System.currentTimeMillis(); 
+       System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime - buildGraphTime) + " ms");
 
         Modularity mod = new Modularity(hgraph);
         int[] com = mod.buildCommunities(hgraph);
