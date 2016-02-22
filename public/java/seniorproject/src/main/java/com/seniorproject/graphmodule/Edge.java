@@ -4,20 +4,20 @@ public class Edge {
     int source;
     int target;
     double weight;
-    int duration;
     String startDate;
     String startTime;
     String callDay;
+    int duration;
 
 
     public Edge(int s, int t, double w, String sd, String st, String cd, int d) {
         source = s;
         target = t;
-        duration = d;
+        weight = w;
         startDate = sd;
         startTime = st;
         callDay = cd;
-        weight = w;
+        duration = d;
     }
 
     public Edge(int s, int t, double w) {

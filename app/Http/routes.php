@@ -11,33 +11,23 @@
 |
 */
 
-// Route::get('/', function () {
-//     return view('analysis.analysis');
-// });
-
-// Route::get('/','AnalysisController@getIndex');
 Route::get('/analysis/{id}','AnalysisController@main');
-Route::post('processData','AnalysisController@processData');
 Route::get('/aboutus','AboutUsController@getAboutUs');
 Route::post('/getEstimation','AdminController@getEstimation');
 Route::post('/processSetup','AdminController@processSetup');
 Route::post('/startProcess','AdminController@startProcess');
-//Get Data
 
+
+//Get Data
 Route::get('/exportCSV','AdminController@exportCSV');
 Route::get('getCDR/{id}','AnalysisController@getCDR');
-Route::get('getCommunities','AnalysisController@getCommunities');
-Route::get('getNodeCommunity','AnalysisController@getNodeCommunity');
-Route::get('getCommunityOfCommunity','AnalysisController@getCommunityOfCommunity');
-Route::get('getCarrier','AnalysisController@getCarrier');
-Route::get('getNodeInSelectedCommunity','AnalysisController@getNodeInSelectedCommunity');
+Route::get('getCommunities/{id}','AnalysisController@getCommunities');
+Route::get('getNodeCommunity/{id}','AnalysisController@getNodeCommunity');
+Route::get('getCommunityOfCommunity/{id}','AnalysisController@getCommunityOfCommunity');
+Route::get('getCarrier/{id}','AnalysisController@getCarrier');
+Route::get('getNodeInSelectedCommunity/{id}','AnalysisController@getNodeInSelectedCommunity');
 
+//Admin 
 Route::get('/','AdminController@index');
 Route::get('/database','DatabaseController@index');
-
 Route::post('/deleteData', 'AdminController@deleteData');
-
-Route::get('/test','AnalysisController@test');
-
-Route::get('/testsigma','AnalysisController@testgraph');
-
