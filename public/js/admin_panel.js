@@ -653,8 +653,8 @@
     }
 
     function addViewButtonListener() {
-        $(".tf-view").unbind();
-        $(".tf-view").on('click', function() {
+        $(".tf-view, .pf-view").unbind();
+        $(".tf-view, .pf-view").on('click', function() {
             var id = $(this).attr('data-id');
             if(id == undefined) return;
             window.location = "analysis/" + id;
@@ -662,8 +662,8 @@
     }
 
     function addDownloadButtonListener() {
-        $(".tf-download").unbind();
-        $(".tf-download").on('click', function() {
+        $(".tf-download, .pf-download").unbind();
+        $(".tf-download, .pf-download").on('click', function() {
             var id = $(this).attr('data-id');
             $.ajax({
                 type: "GET",
