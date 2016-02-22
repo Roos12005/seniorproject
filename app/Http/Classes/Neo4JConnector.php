@@ -250,7 +250,7 @@ class Neo4JConnector {
 
     public function deleteData($type, $nid) {
 
-        return $this->deleteSource($type, $nid) | $this->deleteLabel($type, $nid);
+        return $this->deleteSource($type, $nid) | $this->deleteLabel($type, $nid) | $this->deleteCommunities($type, $nid);
     }
 
     public function doByScheduling() {
@@ -441,6 +441,19 @@ class Neo4JConnector {
 
         // Prepare Query Statement
         $q = "MATCH (n:Processed" . $nid . ")-[r:Call]->(m:Processed" . $nid . ") DELETE n,m,r";
+        
+        // Delete Existing Processed Data based on ID given
+        $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
+
+        return true;
+    }
+
+    private function deleteCommunities($type, $nid) {
+        // Reject query whenever $this->connector has not been initialized
+        $this->checkConnection();
+
+        // Prepare Query Statement
+        $q = "MATCH (n:ProcessedCom" . $nid . ")-[r:Call]->(m:ProcessedCom" . $nid . ") DELETE n,m,r";
         
         // Delete Existing Processed Data based on ID given
         $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
