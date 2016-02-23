@@ -308,7 +308,7 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:Processed' . $id . ') RETURN count(n)';
     $all_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . ') -[r:Call]-> (m:User) RETURN count(r)';
+    $q = 'MATCH (n:Processed' . $id . ') -[r:Call]-> (m:Processed' . $id . ') RETURN count(r)';
     $all_call = $client->sendCypherQuery($q)->getResult()->get('count(r)');
 
     $q = 'MATCH (n:Processed' . $id . '{RnCode:"AIS"}) RETURN count(n)';
