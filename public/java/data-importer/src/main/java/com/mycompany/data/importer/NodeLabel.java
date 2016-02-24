@@ -10,5 +10,5 @@ import org.neo4j.graphdb.Label;
  * @author pperfectionist
  */
 public enum NodeLabel implements Label {
-    Data,Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, Data13;
+    Raw, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, Data13;
 }

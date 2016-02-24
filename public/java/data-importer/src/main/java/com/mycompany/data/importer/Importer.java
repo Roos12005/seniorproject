@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -31,14 +32,17 @@ public class Importer {
         return datetime.substring(0, 4) + datetime.substring(5, 7) + datetime.substring(8, 10);
     }
 
-    public static String toTome(String datetime) {
+    public static String toTime(String datetime) {
         return datetime.substring(11, 13) + datetime.substring(14, 16) + datetime.substring(17, 19);
     }
 
     public static void main(String args[]) throws IOException {
         Map<String, Integer> incoming = new HashMap<>();
         Map<String, Integer> outgoing = new HashMap<>();
-        try (CSVReader reader = new CSVReader(new FileReader("large_sample.csv"), ',')) {
+        Map<String, String> age = new HashMap<>();
+        Map<String, String> gender = new HashMap<>();
+        Map<String, String> promotion = new HashMap<>();
+        try (CSVReader reader = new CSVReader(new FileReader("/Users/KIM/Desktop/sample_cdr.csv"), ',')) {
             String[] nextLine;
             
             while ((nextLine = reader.readNext()) != null) {
@@ -54,24 +58,45 @@ public class Importer {
                     outgoing.put(nextLine[0], 1);
                 }
             }
-            
+            reader.close();
+        } 
+
+        try (CSVReader reader = new CSVReader(new FileReader("/Users/KIM/Desktop/sample_number.csv"), ',')) {
+            String[] nextLine;
+            while ((nextLine = reader.readNext()) != null) {
+                age.put(nextLine[0],nextLine[1]);
+                gender.put(nextLine[0],nextLine[2]);
+                promotion.put(nextLine[0],nextLine[3]);
+            }
             reader.close();
         } 
         
-        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/test.graphdb");
+        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
 
         NodeLabel[] nl = NodeLabel.values();
         int i;
         long time;
         Transaction tx;
-        try (CSVReader reader = new CSVReader(new FileReader("large_sample.csv"), ',')) {
+        try (CSVReader reader = new CSVReader(new FileReader("/Users/KIM/Desktop/sample_cdr.csv"), ',')) {
+        //try (CSVReader reader = new CSVReader(new FileReader("/Users/KIM/Desktop/real_number.csv"), ',')) {
             String[] nextLine;
             i = 0;
             time = System.currentTimeMillis();
             tx = gdb.beginTx();
             Map<String, Node> nodes = new HashMap<>();
             reader.readNext();
-            while ((nextLine = reader.readNext()) != null) {
+
+            //for number profile
+            //gdb.execute( "MATCH (n:Raw) SET n.age = 0, n.gender = 'undefined', n.promotion = '-' RETURN n");
+
+             while ((nextLine = reader.readNext()) != null) {
+
+                //cypher add number profile (slow)
+                //gdb.execute( "MATCH (n:Raw{ number: '"+nextLine[0]+"'}) SET n.age = toInt("+nextLine[1]+"), n.gender = '"+nextLine[2]+"', n.promotion = '"+nextLine[3]+"' RETURN n");
+                
+                //cypher add cdr (slow)
+                //gdb.execute("MERGE (p:Raw { number: '"+nextLine[0]+"'}) MERGE (q:Raw { number: '"+nextLine[1]+"'}) CREATE (p)-[r:Call {startDate: toFloat('"+nextLine[2]+"'), startTime: toFloat('"+nextLine[3]+"'), callDay: '"+nextLine[4]+"', duration: toInt('"+nextLine[5]+"')}]->(q) SET q.rnCode = '"+nextLine[6]+"'");
+                
                 Node a, b;
                 if (nodes.containsKey(nextLine[0])) {
                     a = nodes.get(nextLine[0]);
@@ -80,6 +105,10 @@ public class Importer {
                     a.setProperty("number", nextLine[0]);
                     a.setProperty("incoming", incoming.get(nextLine[0]) == null? 0 : incoming.get(nextLine[0]));
                     a.setProperty("outgoing", outgoing.get(nextLine[0]) == null? 0 : outgoing.get(nextLine[0]));
+                    a.setProperty("rnCode","AIS");
+                    a.setProperty("age", age.get(nextLine[0]) == null? "unknown" : age.get(nextLine[0]));
+                    a.setProperty("gender", gender.get(nextLine[0]) == null? "unknown" : gender.get(nextLine[0]));
+                    a.setProperty("promotion", promotion.get(nextLine[0]) == null? "unknown" : promotion.get(nextLine[0]));
                     nodes.put(nextLine[0], a);
                 }
 
@@ -90,18 +119,18 @@ public class Importer {
                     b.setProperty("number", nextLine[1]);
                     b.setProperty("incoming", incoming.get(nextLine[1]) == null? 0 : incoming.get(nextLine[1]));
                     b.setProperty("outgoing", outgoing.get(nextLine[1]) == null? 0 : outgoing.get(nextLine[1]));
+                    b.setProperty("rnCode",nextLine[6]);
+                    b.setProperty("age", age.get(nextLine[1]) == null? "unknown" : age.get(nextLine[0]));
+                    b.setProperty("gender", gender.get(nextLine[1]) == null? "unknown" : gender.get(nextLine[0]));
+                    b.setProperty("promotion", promotion.get(nextLine[1]) == null? "unknown" : promotion.get(nextLine[0]));
                     nodes.put(nextLine[1], b);
                 }
 
                 Relationship r = a.createRelationshipTo(b, LINK);
-//                r.setProperty("startTime", nextLine[1]);
-//                r.setProperty("startDate", nextLine[1]);
-//                r.setProperty("duration", nextLine[5]);
-//                r.setProperty("callDay", "");
-                r.setProperty("startTime", "");
-                r.setProperty("startDate", "");
-                r.setProperty("duration", "");
-                r.setProperty("callDay", "");
+                r.setProperty("startDate", nextLine[2]);
+                r.setProperty("startTime", nextLine[3]);
+                r.setProperty("callDay", nextLine[4]);
+                r.setProperty("duration", nextLine[5]);
                 if (i % 50000 == 0) {
                     tx.success();
                     tx.finish();

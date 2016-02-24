@@ -17,7 +17,6 @@ Route::post('/getEstimation','AdminController@getEstimation');
 Route::post('/processSetup','AdminController@processSetup');
 Route::post('/startProcess','AdminController@startProcess');
 
-
 //Get Data
 Route::get('/exportCSV','AdminController@exportCSV');
 Route::get('getCDR/{id}','AnalysisController@getCDR');
