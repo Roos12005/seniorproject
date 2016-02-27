@@ -344,11 +344,7 @@
         // Add Click Listener to all Nodes
         if(!flag['activateClick']){
             s.bind('clickNode', clickNodeListener);
-            if(flag['compute_com']){
-                s.bind('doubleClickNode', doubleClickCommunityListener);
-            } else {
-                s.bind('doubleClickNode', doubleClickNodeListener);
-            }
+            s.bind('doubleClickNode', doubleClickNodeListener);
             flag['activateClick'] = true;
         }
 
@@ -456,53 +452,51 @@
         var nodeData = updateInformation(node);
         // Show back button on the top right of the div
         document.getElementsByClassName('back-section')[0].style.display = 'block';
-        var filteredNodes = [];
-        graphData.nodes.forEach(function(n) {
-            if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
-                filteredNodes.push(n);
-            }
-        });
+        if(flag['compute_com']){
+            var selectedCommunity = nodeData['attributes']['Modularity Class'];
+            clearGraph();
+            console.log("Community");
 
-        plotPartialGraph(filteredNodes);
-     }
+            ajaxSetup();
+            $.ajax({
+                type: "GET",
+                url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
+                data : {"senddata":selectedCommunity},
+                success: function(e){
+                     console.log(e);
+                     communityData = e;
 
-     function doubleClickCommunityListener(node) {
-        // TODO : Display only selected community
-        var nodeData = updateInformation(node);
-        // Show back button on the top right of the div
-        document.getElementsByClassName('back-section')[0].style.display = 'block';
-        var selectedCommunity = nodeData['attributes']['Modularity Class'];
-        clearGraph();
+                     numIDMapper = {};
+                    // Add all returned nodes to sigma object
+                     communityData.nodes.forEach(function(n) {
+                        addNode(n);
+                        numIDMapper[n.label] = n.id;
+                     });
+                    // Add all return edges to sigma object
+                    communityData.edges.forEach(function(edge) {
+                        addEdge(edge);
+                    });
 
-        ajaxSetup();
-        $.ajax({
-            type: "GET",
-            url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
-            data : {"senddata":selectedCommunity},
-            success: function(e){
-                 console.log(e);
-                 communityData = e;
+                    s.startForceAtlas2({});
+                    setTimeout(function () {
+                        s.killForceAtlas2();
+                    }, 500);
 
-                 numIDMapper = {};
-                // Add all returned nodes to sigma object
-                 communityData.nodes.forEach(function(n) {
-                    addNode(n);
-                    numIDMapper[n.label] = n.id;
-                 });
-                // Add all return edges to sigma object
-                communityData.edges.forEach(function(edge) {
-                    addEdge(edge);
-                });
+                    s.refresh();
+                    flag['clickListenerComOfCom'] = true;
+                }
+            });        
+        } else { 
+            var filteredNodes = [];
+            console.log("Node");
+            graphData.nodes.forEach(function(n) {
+                if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
+                    filteredNodes.push(n);
+                }
+            });
 
-                s.startForceAtlas2({});
-                setTimeout(function () {
-                    s.killForceAtlas2();
-                }, 500);
-
-                s.refresh();
-                flag['clickListenerComOfCom'] = true;
-            }
-        });        
+            plotPartialGraph(filteredNodes);
+        }
      }
 
      /**  
