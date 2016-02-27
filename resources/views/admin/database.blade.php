@@ -17,7 +17,7 @@
     <div class="col-sm-12">
         <section class="panel">
             <header class="panel-heading">
-            Database
+            Import new Database
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-up"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -26,9 +26,12 @@
             </header>
             <div class="panel-body">
                 <p>
-                    Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat
+                    In case of you need to add new database for analysis, you may add your preferred database in this section. 
+                    Anyways, uploading a huge database (~ 5 GB) may take very long uploading time.
                 </p>
-
+                <em>
+                    Note that closing or leaving this page while uploading is in progress will cause failure on uploading process.
+                </em>
                 
             
             </div>

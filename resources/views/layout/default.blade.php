@@ -64,6 +64,12 @@
 			                    </a>
 			                </li>
 			                <li>
+			                    <a class="active" href="/seniorproject/public/database">
+			                        <i class="fa fa-user"></i>
+			                        <span>Database Manager</span>
+			                    </a>
+			                </li>
+			                <li>
 			                    <a class="active" href="/seniorproject/public/aboutus">
 			                        <i class="fa fa-user"></i>
 			                        <span>About Us</span>
