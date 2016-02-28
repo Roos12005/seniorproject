@@ -7,6 +7,7 @@ use Carbon;
 use \App\Http\Helpers\DateHelper as DateHelper;
 use \App\Http\Helpers\UnaryHelper as UnaryHelper;
 use Log;
+use \App\Http\Classes\Neo4JValidator as Neo4JValidator;
 
 class Neo4JConnector {
 
@@ -28,6 +29,10 @@ class Neo4JConnector {
     // ------------------------------------------------------------------------------------------------------------
 
     // ------------------------------------------------ Public Functions ------------------------------------------
+
+    public function getConnector() {
+        return $this->connector;
+    }
 
     public function queryAllBatchJob() {
         // Reject query whenever $this->connector has not been initialized
@@ -323,6 +328,14 @@ class Neo4JConnector {
         return $communities_list;
     }
 
+    public function grantLock() {
+        return $this->lockWrite();
+    }
+
+    public function releaseLock() {
+        return $this->unlockWrite();
+    }
+
     // ------------------------------------------------------------------------------------------------------------
 
     // --------------------------------------------- Private Functions --------------------------------------------
@@ -482,6 +495,16 @@ class Neo4JConnector {
         if(is_null($this->connector)) {
             throw new Exception("You have not connect to Database yet.");
         }
+    }
+
+    public function lockWrite() {
+        $q = 'MATCH (n:UploadLocker {status: 0}) SET n.status = 1 RETURN n';
+        return sizeof($this->connector->sendCypherQuery($q)->getResult()->getTableFormat()) == 1;
+    }
+
+    public function unlockWrite() {
+        $q = 'MATCH (n:UploadLocker {status: 1}) SET n.status = 0 RETURN n';
+        return sizeof($this->connector->sendCypherQuery($q)->getResult()->getTableFormat()) == 1;   
     }
 
     // ------------------------------------------------------------------------------------------------------------

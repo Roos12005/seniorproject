@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "394cd58c05c92a36eba20e8a6f486e87",
-    "content-hash": "87841a8f6fb0b70c16531937438fc4f1",
+    "hash": "09e06bf32f9f14366a75222d11c58c07",
+    "content-hash": "aa60e786b2f4ef162fee4a9ebd9ffdbe",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -619,6 +619,52 @@
                 "tokenizer"
             ],
             "time": "2015-12-05 17:17:57"
+        },
+        {
+            "name": "jildertmiedema/laravel-plupload",
+            "version": "v0.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jildertmiedema/laravel-plupload.git",
+                "reference": "efc0748526692e843de65b056669f50be6bebdce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jildertmiedema/laravel-plupload/zipball/efc0748526692e843de65b056669f50be6bebdce",
+                "reference": "efc0748526692e843de65b056669f50be6bebdce",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^5.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9.4",
+                "phpunit/phpunit": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "JildertMiedema\\LaravelPlupload": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jildert Miedema",
+                    "email": "jildertmiedema@gmail.com"
+                }
+            ],
+            "description": "Laravel 5/Plupload - Handle large file uploads",
+            "keywords": [
+                "laravel",
+                "large files",
+                "pluload"
+            ],
+            "time": "2015-06-18 14:19:01"
         },
         {
             "name": "laravel/framework",

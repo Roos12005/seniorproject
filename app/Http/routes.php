@@ -31,3 +31,5 @@ Route::get('getNodeInSelectedCommunity/{id}','AnalysisController@getNodeInSelect
 Route::get('/','AdminController@index');
 Route::get('/database','DatabaseController@index');
 Route::post('/deleteData', 'AdminController@deleteData');
+Route::post('/database/uploadcdr', 'DatabaseController@uploadCDR');
+Route::post('/database/uploadprofile', 'DatabaseController@uploadProfile');

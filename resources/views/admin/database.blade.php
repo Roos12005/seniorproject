@@ -32,8 +32,83 @@
                 <em>
                     Note that closing or leaving this page while uploading is in progress will cause failure on uploading process.
                 </em>
+                </br>
+                </br>
                 
-            
+                <div class="col-lg-12" id="preprocess-form-wrapper">
+                    <header class="panel-heading m-bot15">
+                        Upload new Database
+                    </header>
+                    <div class="col-md-6">
+                        <div class="alert alert-warning fade in" id="cdr-uploader-wrapper">
+                            <h4>Choose CDR to Upload</h4>
+                            <p id="cdr-list">
+                                Empty
+                            </p>
+
+                            </br>
+
+                            <div>
+                                <div class="col-sm-6">
+                                    <div class="progress progress-striped active progress-sm" style="margin-top: 12px;">
+                                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" current="0" style="width: 0%" id="cdr-progress-bar">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="select-button-wrapper text-right col-sm-6">
+                                    <button class="btn btn-default" id="browse-cdr">
+                                        <i class="fa fa-phone"></i> Select CDR
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="alert alert-warning fade in" id="profile-uploader-wrapper">
+                            <h4>Choose Profiles to Upload</h4>
+                            <p id="profile-list">
+                                Empty
+                            </p>
+
+                            </br>
+                            <div>
+                                <div class="col-sm-6">
+                                    <div class="progress progress-striped active progress-sm" style="margin-top: 12px;">
+                                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" current="0" style="width: 0%" id="profile-progress-bar">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="select-button-wrapper text-right col-sm-6">
+                                    <button class="btn btn-default" id="browse-profile">
+                                        <i class="fa fa-users"></i> Select Profiles
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+
+
+                    <form action="#" class="form-horizontal bucket-form" id="preprocess-form" onsubmit="return false;">
+                        <div class="form-group" style="border: none;">
+                            <label class="col-sm-4 control-label" for="inputSuccess">Database Name</label>
+                            <div class="col-lg-6">
+                                <input type="text" class="form-control" id="database-name">
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <p>
+                                <em>
+                                    <strong> Warning! </strong> Do not leave this page until both boxes above <u>turn into Green</u>.
+                                </em>
+                            </p>
+                            <button class="btn btn-default" id="start-upload"><i class="fa fa-cloud-upload"></i> Upload</button>
+                        </div>  
+                    </form>
+                </div>
+
             </div>
         </section>
     </div>
@@ -44,9 +119,11 @@
 {!! Html::script('js/jquery.maskedinput.js'); !!}
 {!! Html::script('js/data-tables/jquery.dataTables.js'); !!}
 {!! Html::script('js/data-tables/DT_bootstrap.js'); !!}
+{!! Html::script('js/uploader/plupload.full.min.js'); !!}
 {!! Html::script('js/validator.js'); !!}
 {!! Html::script('js/date_helpers.js'); !!}
-{!! Html::script('js/admin_panel.js'); !!}
+{!! Html::script('js/uploader_factory.js'); !!}
+{!! Html::script('js/database_main.js'); !!}
 
 
 <!-- Date Range (Date Picker) -->
