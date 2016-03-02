@@ -27,7 +27,7 @@
             <div class="panel-body">
                 <p>
                     In case of you need to add new database for analysis, you may add your preferred database in this section. 
-                    Anyways, uploading a huge database (~ 5 GB) may take very long uploading time.
+                    Anyways, uploading a huge file may take very long uploading time.
                 </p>
                 <em>
                     Note that closing or leaving this page while uploading is in progress will cause failure on uploading process.

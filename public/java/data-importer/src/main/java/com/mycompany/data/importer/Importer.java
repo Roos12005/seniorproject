@@ -10,9 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.neo4j.graphdb.DynamicRelationshipType;
+import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -38,7 +39,7 @@ public class Importer {
     public static void main(String args[]) throws IOException {
         Map<String, Integer> incoming = new HashMap<>();
         Map<String, Integer> outgoing = new HashMap<>();
-        try (CSVReader reader = new CSVReader(new FileReader("large_sample.csv"), ',')) {
+        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_cdr"), ',')) {
             String[] nextLine;
             
             while ((nextLine = reader.readNext()) != null) {
@@ -58,13 +59,13 @@ public class Importer {
             reader.close();
         } 
         
-        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/test.graphdb");
+        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
 
-        NodeLabel[] nl = NodeLabel.values();
+        Label nl = DynamicLabel.label(args[0]);
         int i;
         long time;
         Transaction tx;
-        try (CSVReader reader = new CSVReader(new FileReader("large_sample.csv"), ',')) {
+        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_cdr"), ',')) {
             String[] nextLine;
             i = 0;
             time = System.currentTimeMillis();
@@ -76,7 +77,8 @@ public class Importer {
                 if (nodes.containsKey(nextLine[0])) {
                     a = nodes.get(nextLine[0]);
                 } else {
-                    a = gdb.createNode(nl[0]);
+                   
+                    a = gdb.createNode(nl);
                     a.setProperty("number", nextLine[0]);
                     a.setProperty("incoming", incoming.get(nextLine[0]) == null? 0 : incoming.get(nextLine[0]));
                     a.setProperty("outgoing", outgoing.get(nextLine[0]) == null? 0 : outgoing.get(nextLine[0]));
@@ -86,7 +88,7 @@ public class Importer {
                 if (nodes.containsKey(nextLine[1])) {
                     b = nodes.get(nextLine[1]);
                 } else {
-                    b = gdb.createNode(nl[0]);
+                    b = gdb.createNode(nl);
                     b.setProperty("number", nextLine[1]);
                     b.setProperty("incoming", incoming.get(nextLine[1]) == null? 0 : incoming.get(nextLine[1]));
                     b.setProperty("outgoing", outgoing.get(nextLine[1]) == null? 0 : outgoing.get(nextLine[1]));

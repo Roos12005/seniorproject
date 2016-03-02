@@ -48,14 +48,16 @@ class DatabaseController extends Controller{
         while($av = $validator->isWriteLocked()) {
             if(!$av) {
                 sleep(rand(1,10));
-                Log::info('waiting');
                 continue;
             }
         }
         try {
             $isGranted = $neo->grantLock($db_name);
             if($isGranted) {
-                // TODO : Trigger Java Importer
+                $command = "java -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' 2>&1';
+                $output = shell_exec($command);
+                Log::info($command);
+                Log::info($output);
             } else {
                 continue;
             }
