@@ -33,3 +33,4 @@ Route::get('/database','DatabaseController@index');
 Route::post('/deleteData', 'AdminController@deleteData');
 Route::post('/database/uploadcdr', 'DatabaseController@uploadCDR');
 Route::post('/database/uploadprofile', 'DatabaseController@uploadProfile');
+Route::post('/database/writedb', 'DatabaseController@writeToDatabase');

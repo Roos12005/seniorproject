@@ -81,12 +81,19 @@ UploaderFactory.prototype.onError = function(uploader) {
 UploaderFactory.prototype.onUploadCompleted = function(uploader, target, doFunction, fx, param) {
     var self = this;
     uploader.bind('UploadComplete', function(up, files) {
-        $('#' + target + '-uploader-wrapper').removeClass(self.wrapper_pending_class);
-        $('#' + target + '-uploader-wrapper').addClass(self.wrapper_success_class);
+        try {
+            $('#' + target + '-uploader-wrapper').removeClass(self.wrapper_pending_class);
+            $('#' + target + '-uploader-wrapper').addClass(self.wrapper_success_class);
+            console.log('completed');
+        } catch (err) {
 
-        if(doFunction) {
-            fx(param);
+        } finally {
+            if(doFunction) {
+                fx(param);
+            }
         }
+        
+        
     });
 
     return uploader;

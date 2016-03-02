@@ -31,9 +31,9 @@ class Neo4JValidator {
     public function isWriteLocked() {
         // 0 - unlock
         // 1 - locked
-        $q = 'MATCH (n:UploadLocker {status: 0}) RETURN n';
+        $q = 'MATCH (n:UploadLocker {status: 1}) RETURN n';
         $result = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
-        return sizeof($result) == 0;
+        return !empty($result);
     }
 
     public function isLabelDuplicated() {

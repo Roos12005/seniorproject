@@ -328,8 +328,9 @@ class Neo4JConnector {
         return $communities_list;
     }
 
-    public function grantLock() {
-        return $this->lockWrite();
+    public function grantLock($db_name) {
+        
+        return $this->lockWrite($db_name);
     }
 
     public function releaseLock() {
@@ -497,8 +498,8 @@ class Neo4JConnector {
         }
     }
 
-    public function lockWrite() {
-        $q = 'MATCH (n:UploadLocker {status: 0}) SET n.status = 1 RETURN n';
+    public function lockWrite($db_name) {
+        $q = 'MATCH (n:UploadLocker {status: 0}) SET n.status = 1, n.name = "' . $db_name . '" RETURN n';
         return sizeof($this->connector->sendCypherQuery($q)->getResult()->getTableFormat()) == 1;
     }
 

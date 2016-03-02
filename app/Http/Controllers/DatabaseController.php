@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\App;
 use App\Models\Call_Detail_Records;
 use App\Models\Users;
-use Illuminate\Http\Request;
+use Request;
 use File;
 use Neoxygen\NeoClient\ClientBuilder;
 use Plupload;
@@ -23,43 +23,51 @@ class DatabaseController extends Controller{
     }
 
     public function uploadCDR() {
-        // $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
-        // $validator = new Neo4JValidator($neo->getConnector());
-        
-        // while($av = $validator->isWriteLocked()) {
-        //     if(!$av) {
-        //         sleep(rand(1,10));
-        //         continue;
-        //     }
+        return Plupload::receive('file', function ($file){
+            $filename = str_replace(" ","_",$file->getClientOriginalName()) . '_cdr';
+            $file->move(storage_path() . '/tmp_db_store/', $filename);
 
-        //     try {
-        //         $isGranted = $neo->grantLock();
-        //         if($isGranted) {
-        //             // TODO : Trigger Java Importer
-        //             $isReleased = $neo->releaseLock();
-        //             if(!$isReleased) {
-        //                 throw new Exception("Database can't be unlocked. Manually unlocking is needed.");
-        //             }
-        //         } else {
-        //             continue;
-        //         }
-        //         break;
-        //     } catch (Exception $e) {
-        //         throw new Exception($e);
-        //     } finally {
-        //         $isReleased = $neo->releaseLock();
-        //         if(!$isReleased) {
-        //             throw new Exception("Database can't be unlocked. Manually unlocking is needed.");
-        //         }
-        //     }    
-        // }
-        
-
-        return "success";
+            return 'ready';
+        });
     }
 
     public function uploadProfile() {
-        
+        Plupload::receive('file', function ($file){
+            $filename = str_replace(" ","_",$file->getClientOriginalName()) . '_profile';
+            $file->move(storage_path() . '/tmp_db_store/', $filename);
+            return 'ready';
+        });
+    }
+
+    public function writeToDatabase() {
+        ignore_user_abort(true);
+
+        $db_name = Request::all()['name'];
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+        $validator = new Neo4JValidator($neo->getConnector());
+        while($av = $validator->isWriteLocked()) {
+            if(!$av) {
+                sleep(rand(1,10));
+                Log::info('waiting');
+                continue;
+            }
+        }
+        try {
+            $isGranted = $neo->grantLock($db_name);
+            if($isGranted) {
+                // TODO : Trigger Java Importer
+            } else {
+                continue;
+            }
+        } catch (Exception $e) {
+            throw new Exception($e);
+        } finally {
+            $isReleased = $neo->releaseLock();
+            if(!$isReleased) {
+                throw new Exception("Database can't be unlocked. Manually unlocking is needed.");
+            }
+        }    
+        return 'success';
     }
     
 }

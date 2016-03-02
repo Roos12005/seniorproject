@@ -125,7 +125,6 @@
 {!! Html::script('js/uploader_factory.js'); !!}
 {!! Html::script('js/database_main.js'); !!}
 
-
 <!-- Date Range (Date Picker) -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}
 {!! Html::script('js/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
@@ -135,6 +134,7 @@
 <!-- Date Range (Dropdown) -->
 {!! Html::script('js/select2/select2.js'); !!}
 {!! Html::script('js/select-init.js'); !!}
+
 
 <!--Check Box -->
 {!! Html::script('js/iCheck/jquery.icheck.js'); !!}
