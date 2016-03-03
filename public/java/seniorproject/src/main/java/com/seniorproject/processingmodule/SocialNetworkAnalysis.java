@@ -48,6 +48,7 @@ public class SocialNetworkAnalysis {
         
         String tid = args[0];
         boolean comOfCom = args[1].equals("1");
+        boolean comProfile = true;
         
         for (int i = 2; i < args.length; i++) {
             String key = args[i++];
@@ -76,7 +77,7 @@ public class SocialNetworkAnalysis {
         GraphDistance dis = new GraphDistance(hgraph);
         dis.execute(hgraph);
         long calTime = System.currentTimeMillis(); 
-       System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime - buildGraphTime) + " ms");
+        System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime - buildGraphTime) + " ms");
 
         Modularity mod = new Modularity(hgraph);
         int[] com = mod.buildCommunities(hgraph);
@@ -98,16 +99,69 @@ public class SocialNetworkAnalysis {
         (new DBAccess()).store(hgraph.getNodes(), hgraph.getFullEdges(), tid);
 
         if (comOfCom) {
+
             Set<Node> comNodes = new HashSet<>();
             List<Edge> comEdges = new ArrayList<>();
             int[] comMember = new int[tot.size()];
             String[] comColor = new String[tot.size()];
 
+            //community profile attributes
+            int[] comArpu = new int[tot.size()];
+            int[] comAis = new int[tot.size()];
+            int[] comCallOtherCarrier = new int[tot.size()];
+            int[] comDaytimeCall = new int[tot.size()];
+            int[] comNighttimeCall = new int[tot.size()];
+            int[] comWeekDayCall = new int[tot.size()];
+            int[] comWeekendCall = new int[tot.size()];
+            int[] comInGroupCall = new int[tot.size()];
+            int[] comOutGroupCall = new int[tot.size()];
+            int[] comDurationCall = new int[tot.size()];
+
+            //count member & keep color for each community
             for (Node node : hgraph.getNodes()) {
                 comMember[node.getCommunityID()]++;
                 comColor[node.getCommunityID()] = node.getColor();
+                comArpu[node.getCommunityID()] += Integer.parseInt(node.getPromotion().substring(0,node.getPromotion().length()-2));
+                if(node.getRnCode().equals("AIS")) {
+                    comAis[node.getCommunityID()]++;
+                }
             }
 
+
+            //create community edge
+            for (Edge edge : hgraph.getEdges()) {
+                int comSource = hgraph.getNodes().get(edge.getSource()).getCommunityID();
+                int comTarget = hgraph.getNodes().get(edge.getTarget()).getCommunityID();
+                comDurationCall[comSource] += edge.getDuration();
+                if (comSource != comTarget) {
+                    comEdges.add(new Edge(comSource, comTarget, 1.0f, edge.getStartDate(), edge.getStartTime(), edge.getCallDay(), edge.getDuration(), ""));
+                    comOutGroupCall[comSource]++;
+                } 
+                //aggregate attributes for community profile
+                else if(comProfile) {
+                    comInGroupCall[comSource]++;
+                    //daytime & nighttime profile
+                    if(Double.parseDouble(edge.getStartTime()) >= 5 && Double.parseDouble(edge.getStartTime()) <= 17) {
+                        comDaytimeCall[comSource]++;
+                    } else {
+                        comNighttimeCall[comSource]++;
+                    }
+
+                    //weekday & weekend profile
+                    if(edge.getCallDay().substring(0,1).equals("S")) {
+                        comWeekendCall[comSource]++;
+                    } else {
+                        comWeekDayCall[comSource]++;
+                    }
+
+                    //call to other carrier
+                    if(!(edge.getRnCode().equals("AIS"))) {
+                        comCallOtherCarrier[comSource]++;
+                    }
+                }
+            }
+
+            //create community node
             for (int id = 0; id < tot.size(); id++) {
                 Node node = new Node(id);
                 node.setCommunityID(id);
@@ -116,19 +170,15 @@ public class SocialNetworkAnalysis {
                 comNodes.add(node);
             }
 
-            for (Edge edge : hgraph.getEdges()) {
-                int comSource = hgraph.getNodes().get(edge.getSource()).getCommunityID();
-                int comTarget = hgraph.getNodes().get(edge.getTarget()).getCommunityID();
-                if (comSource != comTarget) {
-                    comEdges.add(new Edge(comSource, comTarget, 1.0f, edge.getStartDate(), edge.getStartTime(), edge.getCallDay(), edge.getDuration()));
-                }
-            }
-
             Graph comGraph = new Graph(comNodes, comEdges);
             GraphDistance comDis = new GraphDistance(comGraph);
             comDis.execute(comGraph);
             System.out.println("Calculating Community Graph Distance ... Done!");
-            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges(), tid);       
+            if(comProfile){
+                (new DBAccess()).storeCommunity(comGraph.getNodes(),comGraph.getFullEdges(),comMember,comArpu,comAis,comCallOtherCarrier,comDaytimeCall,comNighttimeCall,comWeekDayCall,comWeekendCall,comInGroupCall,comOutGroupCall,comDurationCall,tid);
+            } else {
+                (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getFullEdges(), tid);  
+            }     
         }
     }
 }

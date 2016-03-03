@@ -1,16 +1,17 @@
 package com.seniorproject.graphmodule;
 
 public class Edge {
-    int source;
-    int target;
-    double weight;
-    String startDate;
-    String startTime;
-    String callDay;
-    int duration;
+    private int source;
+    private int target;
+    private double weight;
+    private String startDate;
+    private String startTime;
+    private String callDay;
+    private int duration;
+    private String rnCode;
 
 
-    public Edge(int s, int t, double w, String sd, String st, String cd, int d) {
+    public Edge(int s, int t, double w, String sd, String st, String cd, int d, String rnc) {
         source = s;
         target = t;
         weight = w;
@@ -18,6 +19,7 @@ public class Edge {
         startTime = st;
         callDay = cd;
         duration = d;
+        rnCode = rnc;
     }
 
     public Edge(int s, int t, double w) {
@@ -98,5 +100,15 @@ public class Edge {
 
     public void setCallDay(String callDay) {
         this.callDay = callDay;
+    }
+
+    //getter & setter Carrier of B number (rnCode)
+    
+    public String getRnCode() {
+        return rnCode;
+    }
+
+    public void setRnCode(String rnCode) {
+        this.rnCode = rnCode;
     }
 }

@@ -35,8 +35,8 @@ public class Graph {
             this.outEdges.get(e.getSource()).add(e);
             this.allEdges.get(e.getSource()).add(e);
             this.allEdges.get(e.getTarget()).add(e);
-            if(!neighbors.get(e.source).contains(e.getTarget())) {
-                neighbors.get(e.source).add(this.nodes.get(e.getTarget()));
+            if(!neighbors.get(e.getSource()).contains(e.getTarget())) {
+                neighbors.get(e.getSource()).add(this.nodes.get(e.getTarget()));
             }
             if(!neighbors.get(e.getTarget()).contains(e.getSource())) {
                 neighbors.get(e.getTarget()).add(this.nodes.get(e.getSource()));

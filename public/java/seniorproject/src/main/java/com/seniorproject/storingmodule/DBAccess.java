@@ -36,6 +36,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import java.text.DecimalFormat;
 
 public class DBAccess {
 
@@ -128,7 +129,8 @@ public class DBAccess {
                                 Long.toString(Double.valueOf(relProps.get("startDate").toString()).longValue()),
                                 relProps.get("startTime").toString(),
                                 relProps.get("callDay").toString(),
-                                Integer.parseInt(relProps.get("duration").toString())
+                                Integer.parseInt(relProps.get("duration").toString()),
+                                calleeProps.get("rnCode").toString()
                         );
 
                         nodes.add(a);
@@ -152,7 +154,7 @@ public class DBAccess {
             Graph graph = Graph.create(dbAccess);
             Map<Integer, GrNode> grnodes = new HashMap<>();
             ITransaction tx = dbAccess.beginTX();
-            int i=0;
+
             for (Node n : nodes) {
                 GrNode tmp = graph.createNode();
                 tmp.addLabel("Processed" + tid);
@@ -167,7 +169,6 @@ public class DBAccess {
                 tmp.addProperty("Promotion", n.getPromotion());
                 tmp.addProperty("NoOfOutgoing", n.getNoOfOutgoing());
                 tmp.addProperty("NoOfIncoming", n.getNoOfIncoming());
-
                 tmp.addProperty("Color", n.getColor());
                 grnodes.put(n.getID(), tmp);
             }
@@ -197,7 +198,6 @@ public class DBAccess {
             Graph graph = Graph.create(dbAccess);
             Map<Integer, GrNode> grnodes = new HashMap<>();
             ITransaction tx = dbAccess.beginTX();
-            int i=0;
             
             for (Node n : nodes) {
                 GrNode tmp = graph.createNode();
@@ -230,11 +230,117 @@ public class DBAccess {
         }
     }
 
+    public void storeCommunity(NodeIterable nodes, List<Edge> edges, int[] comMember, int[]comArpu, int[] comAis, int[] comCallOtherCarrier, int[] comDaytimeCall, int[] comNighttimeCall, int[] comWeekdayCall, int[] comWeekendCall, int[] comInGroupCall, int[] comOutGroupCall, int[] comDurationCall, String tid) {
+        initDBConnection();
+        try {
+            Graph graph = Graph.create(dbAccess);
+            Map<Integer, GrNode> grnodes = new HashMap<>();
+            ITransaction tx = dbAccess.beginTX();
+            DecimalFormat df = new DecimalFormat("#.##");
+
+            int num_community = comMember.length;
+
+            /*
+            0 = member                 1 = averageArpu             2 = aisRatio
+            3 = call other carrier     4 = duration                5 = no. of call
+            */
+
+            double[] min = new double[6];
+            double[] max = new double[6];
+
+            for(int i = 0; i < 6; i++){
+                min[i] = Integer.MAX_VALUE;
+            }
+
+            //find min & max of each profiles 
+            for(int i = 0; i < num_community; i++){
+                if(comMember[i] < min[0]) min[0] = comMember[i];
+                if(comMember[i] > max[0]) max[0] = comMember[i];
+                if((double)comArpu[i]/(double)comAis[i] < min[1]) min[1] = (double)comArpu[i]/(double)comAis[i];
+                if((double)comArpu[i]/(double)comAis[i] > max[1]) max[1] = (double)comArpu[i]/(double)comAis[i];
+                if((double)comAis[i]/(double)comMember[i] < min[2]) min[2] = (double)comAis[i]/(double)comMember[i];
+                if((double)comAis[i]/(double)comMember[i] > max[2]) max[2] = (double)comAis[i]/(double)comMember[i];
+                if((double)comCallOtherCarrier[i]/(double)(comDaytimeCall[i] + comNighttimeCall[i]) < min[3]) min[3] = (double)comCallOtherCarrier[i]/(double)(comDaytimeCall[i] + comNighttimeCall[i]);
+                if((double)comCallOtherCarrier[i]/(double)(comDaytimeCall[i] + comNighttimeCall[i]) > max[3]) max[3] = (double)comCallOtherCarrier[i]/(double)(comDaytimeCall[i] + comNighttimeCall[i]);
+                if((double)comDurationCall[i]/(comDaytimeCall[i]+comNighttimeCall[i]) < min[4]) min[4] = (double)comDurationCall[i]/(comDaytimeCall[i]+comNighttimeCall[i]);
+                if((double)comDurationCall[i]/(comDaytimeCall[i]+comNighttimeCall[i]) > max[4]) max[4] = (double)comDurationCall[i]/(comDaytimeCall[i]+comNighttimeCall[i]);
+                if((double)(comDaytimeCall[i]+comNighttimeCall[i])/comAis[i] < min[5]) min[5] = (double)(comDaytimeCall[i]+comNighttimeCall[i])/comAis[i];
+                if((double)(comDaytimeCall[i]+comNighttimeCall[i])/comAis[i] > max[5]) max[5] = (double)(comDaytimeCall[i]+comNighttimeCall[i])/comAis[i];
+            }
+            
+            for (Node n : nodes) {
+                GrNode tmp = graph.createNode();
+                tmp.addLabel("ProcessedCom" + tid);
+                tmp.addProperty("Member", n.getMember());
+                tmp.addProperty("Eccentricity", n.getEccentricity());
+                tmp.addProperty("Betweenness", n.getBetweenness());
+                tmp.addProperty("Closeness", n.getCloseness());
+                tmp.addProperty("CommunityID", n.getCommunityID());
+                tmp.addProperty("Color", n.getColor());
+
+                //community profile attrbutes
+                tmp.addProperty("AverageArpu",df.format((double)comArpu[n.getCommunityID()]/(double)comAis[n.getCommunityID()]));
+                tmp.addProperty("AisRatio",df.format((double)comAis[n.getCommunityID()]/(double)n.getMember()));
+                tmp.addProperty("CallOtherCarrierRatio",df.format((double)comCallOtherCarrier[n.getCommunityID()]/(double)(comDaytimeCall[n.getCommunityID()] + comNighttimeCall[n.getCommunityID()])));
+                tmp.addProperty("DaytimeCall",comDaytimeCall[n.getCommunityID()]);
+                tmp.addProperty("NighttimeCall",comNighttimeCall[n.getCommunityID()]);
+                tmp.addProperty("WeekdayCall",comWeekdayCall[n.getCommunityID()]);
+                tmp.addProperty("WeekendCall",comWeekendCall[n.getCommunityID()]);
+                tmp.addProperty("InGroupCall",comInGroupCall[n.getCommunityID()]);
+                tmp.addProperty("OutGroupCall",comOutGroupCall[n.getCommunityID()]);
+                tmp.addProperty("AverageNoOfCall",df.format((double)(comDaytimeCall[n.getCommunityID()]+comNighttimeCall[n.getCommunityID()])/comAis[n.getCommunityID()]));
+                tmp.addProperty("AverageDurationCall",df.format((double)comDurationCall[n.getCommunityID()]/(comDaytimeCall[n.getCommunityID()]+comNighttimeCall[n.getCommunityID()])));
+
+                //community profile group
+                tmp.addProperty("MemberProfile",mapLevel(comMember[n.getCommunityID()],min[0],max[0]));
+                tmp.addProperty("AverageArpuProfile",mapLevel((double)comArpu[n.getCommunityID()]/(double)comAis[n.getCommunityID()],min[1],max[1]));
+                tmp.addProperty("AisRatioProfile",mapLevel((double)comAis[n.getCommunityID()]/(double)comMember[n.getCommunityID()],min[2],max[2]));
+                tmp.addProperty("CallOtherCarrierProfile",mapLevel((double)comCallOtherCarrier[n.getCommunityID()]/(double)(comDaytimeCall[n.getCommunityID()] + comNighttimeCall[n.getCommunityID()]),min[3],max[3]));
+                tmp.addProperty("AverageDurationProfile",mapLevel((double)comDurationCall[n.getCommunityID()]/(comDaytimeCall[n.getCommunityID()]+comNighttimeCall[n.getCommunityID()]),min[4],max[4]));
+                tmp.addProperty("AverageNoOfCallProfile",mapLevel((double)(comDaytimeCall[n.getCommunityID()]+comNighttimeCall[n.getCommunityID()])/comAis[n.getCommunityID()],min[5],max[5]));
+                if((comDaytimeCall[n.getCommunityID()] - comNighttimeCall[n.getCommunityID()]) < -5) tmp.addProperty("DaytimeNighttimeProfile","Nighttime");
+                else if((comDaytimeCall[n.getCommunityID()] - comNighttimeCall[n.getCommunityID()]) > 5) tmp.addProperty("DaytimeNighttimeProfile","Daytime");
+                else tmp.addProperty("DaytimeNighttimeProfile","Average");
+                if(((double)comWeekdayCall[n.getCommunityID()]/5 - (double)comWeekendCall[n.getCommunityID()]/2) < -1) tmp.addProperty("WeekdayWeekendProfile","Weekend");
+                else if(((double)comWeekdayCall[n.getCommunityID()]/5 - (double)comWeekendCall[n.getCommunityID()]/2) > 1) tmp.addProperty("WeekdayWeekendProfile","Weekday");
+                else tmp.addProperty("WeekdayWeekendProfile","Average");
+
+                grnodes.put(n.getID(), tmp);
+            }
+                
+            for (Edge e : edges) {
+                GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
+                rel.addProperty("Duration", e.getDuration());
+                rel.addProperty("StartDate", e.getStartDate());
+                rel.addProperty("StartTime", e.getStartTime());
+                rel.addProperty("CallDay", e.getCallDay());
+            }
+            List<JcError> errors = graph.store();
+            tx.close();
+            if (!errors.isEmpty()) {
+                printErrors(errors);
+            }
+        } catch (Exception e) {
+
+        } finally {
+            closeDBConnection();
+        }
+    }
+
     private void closeDBConnection() {
         if (dbAccess != null) {
             dbAccess.close();
             dbAccess = null;
         }
+    }
+
+    private String mapLevel(double value, double min, double max) {
+        double range = max - min;
+        if(value < min + range/5) return "Very Low";
+        else if(value < min + range*2/5) return "Low";
+        else if(value < min + range*3/5) return "Medium";
+        else if(value < min + range*4/5) return "High";
+        else return "Very High";
     }
 
     /**

@@ -18,11 +18,21 @@ public class Node {
     private String gender;
     private String rnCode;
     private String promotion;
-    private int member;
     private int noOfOutgoing;
     private int noOfIncoming;
-
     private String color;
+    private int member;
+
+    //community profile
+    // private int daytimeCall;
+    // private int nighttimeCall;
+    // private int weekdayCall;
+    // private int weekendCall;
+    // private int durationCall;
+    // private int inGroupCall;
+    // private int outGroupCall;
+    // private int averageArpu;
+    // private double quality;
 
     public Node(int s) {
         this.ID = s;
@@ -34,9 +44,20 @@ public class Node {
         this.rnCode = "null";
         this.gender = "null";
         this.promotion = "null";
-        this.member = 0;
         this.noOfOutgoing = 0;
         this.noOfIncoming = 0;
+
+        //community profile
+        this.member = 0;
+        // this.daytimeCall = 0;
+        // this.nighttimeCall = 0;
+        // this.weekdayCall = 0;
+        // this.weekendCall = 0;
+        // this.durationCall = 0;
+        // this.inGroupCall = 0;
+        // this.outGroupCall = 0;
+        // this.averageArpu = 0;
+        // this.conductance = 0;
     }
 
     public void setAttribute(String type, double value) {
@@ -175,16 +196,6 @@ public class Node {
         this.color = color;
     }
 
-    //getter & setter Member
-
-    public int getMember() {
-        return member;
-    }
-
-    public void setMember(int member) {
-        this.member = member;
-    }
-
     //getter & setter No Of. Call
 
     public int getNoOfOutgoing() {
@@ -204,4 +215,107 @@ public class Node {
     public void setNoOfIncoming(int noOfIncoming) {
         this.noOfIncoming = noOfIncoming;
     }
+
+
+    // Getter & Setter for community profile attributes //
+
+    //getter & setter Member
+
+    public int getMember() {
+        return member;
+    }
+
+    public void setMember(int member) {
+        this.member = member;
+    }
+
+    // //getter & setter Daytime Call
+
+    // public int getDaytimeCall() {
+    //     return daytimeCall;
+    // }
+
+    // public void setDaytimeCall(int daytimeCall) {
+    //     this.daytimeCall = daytimeCall;
+    // }
+
+    // //getter & setter Nighttime Call
+
+    // public int getNighttimeCall() {
+    //     return nighttimeCall;
+    // }
+
+    // public void setNighttimeCall(int nighttimeCall) {
+    //     this.nighttimeCall = nighttimeCall;
+    // }
+
+    // //getter & setter Weekday Call
+
+    // public int getWeekdayCall() {
+    //     return weekdayCall;
+    // }
+
+    // public void setWeekdayCall(int weekdayCall) {
+    //     this.weekdayCall = weekdayCall;
+    // }
+
+    // //getter & setter Weekend Call
+
+    // public int getWeekendCall() {
+    //     return weekendCall;
+    // }
+
+    // public void setWeekendCall(int weekendCall) {
+    //     this.weekendCall = weekendCall;
+    // }
+
+    // //getter & setter Duration Call
+
+    // public int getDurationCall() {
+    //     return durationCall;
+    // }
+
+    // public void setDurationCall(int durationCall) {
+    //     this.durationCall = durationCall;
+    // }
+
+    // //getter & setter In Group Call
+
+    // public int getInGroupCall() {
+    //     return inGroupCall;
+    // }
+
+    // public void setInGroupCall(int inGroupCall) {
+    //     this.inGroupCall = inGroupCall;
+    // }
+
+    // //getter & setter Out Group Call
+
+    // public int getOutGroupCall() {
+    //     return outGroupCall;
+    // }
+
+    // public void setOutGroupCall(int outGroupCall) {
+    //     this.outGroupCall = outGroupCall;
+    // }
+
+    // //getter & setter Average ARPU
+
+    // public int getAverageArpu() {
+    //     return averageArpu;
+    // }
+
+    // public void setAverageArpu(int averageArpu) {
+    //     this.averageArpu = averageArpu;
+    // }
+
+    // //getter & setter Conductance
+
+    // public double getQuality() {
+    //     return quality;
+    // }
+
+    // public void setQuality(double quality) {
+    //     this.quality = quality;
+    // }
 }
