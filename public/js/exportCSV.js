@@ -32,46 +32,127 @@
 
     function processData() {
         if(graphStatus['export-data'] == 0) {
-            graphStatus['export-data'] = 1;
-            $('#export-data').removeClass('btn-default').addClass('btn-warning');
-            $('#export-data i').removeClass('fa-times').addClass('fa-refresh');
-            ajaxSetup();
+
+            var existValue = false;
 
             var selectedCommunities = [];    
             $("#e2 :selected").each(function(){
+                existValue = true;
                 selectedCommunities.push($(this).val());
             });
 
-            var export_communities = new Array();
+            var data = {};
 
-            $.ajax({
-                type: "GET",
-                url: "http://localhost/seniorproject/public/getNodeCommunity/" + did,
-                data : {"senddata":selectedCommunities},
-                success: function(e){
-                    console.log(e);
-                    $('#export-data').removeClass('btn-warning').addClass('btn-success');
-                    $('#export-data i').removeClass('fa-refresh').addClass('fa-check');
+            var memberSelected = [];    
+            $("#memberProfileExport :selected").each(function(){
+                memberSelected.push($(this).val());
+            });
+            var aisRatioSelected = [];    
+            $("#aisRatioProfileExport :selected").each(function(){
+                aisRatioSelected.push($(this).val());
+            });
+            var daytimeNighttimeSelected = [];    
+            $("#daytimeNighttimeProfileExport :selected").each(function(){
+                daytimeNighttimeSelected.push($(this).val());
+            });
+            var weekdayWeekendSelected = [];    
+            $("#weekdayWeekendProfileExport :selected").each(function(){
+                weekdayWeekendSelected.push($(this).val());
+            });
+            var callOtherCarrierSelected = [];    
+            $("#callOtherCarrierProfileExport :selected").each(function(){
+                callOtherCarrierSelected.push($(this).val());
+            });
+            var averageNoOfCallSelected = [];    
+            $("#averageNoOfCallProfileExport :selected").each(function(){
+                averageNoOfCallSelected.push($(this).val());
+            });
+            var averageArpuSelected = [];    
+            $("#averArpuProfileExport :selected").each(function(){
+                averageArpuSelected.push($(this).val());
+            });
+            var averageDurationSelected = [];    
+            $("#averageDurationProfileExport :selected").each(function(){
+                averageDurationSelected.push($(this).val());
+            });
 
-                    for(var i in selectedCommunities){
-                        export_communities = export_communities.concat(e[selectedCommunities[i]]);
-                    }
-                    console.log(export_communities);
-                    JSONToCSVConvertor(export_communities, "Call Detail Records", true);
-                    // TODO : trigger button
-                    graphStatus['export-data'] = 1;
-                    discardExport();
-            },
-            error: function(rs, e){
-                console.log(rs.responseText);
-                alert('Problem occurs during fetch data.');
-            },
-        })
+            if(memberSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(memberSelected);
+                data['MemberProfile'] = myJsonString;
+            }
+            if(aisRatioSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(aisRatioSelected);
+                data['AisRatioProfile'] = myJsonString;
+            }
+            if(daytimeNighttimeSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(daytimeNighttimeSelected);
+                data['DaytimeNighttimeProfile'] = myJsonString;
+            }
+            if(weekdayWeekendSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(weekdayWeekendSelected);
+                data['WeekdayWeekendProfile'] = myJsonString;
+            }
+            if(callOtherCarrierSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(callOtherCarrierSelected);
+                data['CallOtherCarrierProfile'] = myJsonString;
+            }
+            if(averageNoOfCallSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(averageNoOfCallSelected);
+                data['AverageNoOfCallProfile'] = myJsonString;
+            }
+            if(averageArpuSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(averageArpuSelected);
+                data['AverageArpuProfile'] = myJsonString;
+            }
+            if(averageDurationSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(averageDurationSelected);
+                data['AverageDurationProfile'] = myJsonString;
+            }
+
+            if(existValue){
+                graphStatus['export-data'] = 1;
+                $('#export-data').removeClass('btn-default').addClass('btn-warning');
+                $('#export-data i').removeClass('fa-times').addClass('fa-refresh');
+                ajaxSetup();
+
+                var export_communities = new Array();
+
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getNodeCommunity/" + did,
+                    data : {"exportdata":selectedCommunities, "exportprofile":data},
+                    success: function(e){
+                        console.log(e);
+                        $('#export-data').removeClass('btn-warning').addClass('btn-success');
+                        $('#export-data i').removeClass('fa-refresh').addClass('fa-check');
+
+                        for(var i in e){
+                            export_communities = export_communities.concat(e[i]);
+                        }
+                        console.log(export_communities);
+                        JSONToCSVConvertor(export_communities, "Call Detail Records", true);
+
+                        // TODO : trigger button
+                        graphStatus['export-data'] = 1;
+                    },
+                    error: function(rs, e){
+                        console.log(rs.responseText);
+                        alert('Problem occurs during fetch data.');
+                    },
+                })
+            } else alert("Please fill in the box.");
         } else if(graphStatus['export-data'] == 1) {
             alert('The graph is already been exported.');
-        }
-        
-     }
+        }  
+     } 
 
     function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
         //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
@@ -148,14 +229,9 @@
         document.body.removeChild(link);
     }
 
-    function discardExport() {
-        $('#exportCSVModal').modal('hide');  
-     }
-
     !function(undefined){
         document.getElementById('export-data').addEventListener('click', addCommunity);
         document.getElementById('exportCSV-export').addEventListener('click', processData);
-        document.getElementById('exportCSV-cancel').addEventListener('click', discardExport);
     }();
 
 }();

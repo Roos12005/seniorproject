@@ -173,6 +173,11 @@
                             Community Group
                             <i class="fa fa-times status"></i>
                         </a>
+
+                        <a href="#communityProfileModal" data-toggle ="modal" class="btn btn-default single-col-button" id="community-profile">
+                            Community Profile
+                            <i class="fa fa-times status"></i>
+                        </a>
                         
                         <a href="#exportCSVModal" data-toggle ="modal" class="btn btn-default single-col-button" id="export-data">
                             Export Data
@@ -509,6 +514,120 @@
     <!-- Second Widget End -->
 </div>
 
+<div aria-hidden="true" aria-labelledby="communityProfileModalLabel" role="dialog" tabindex="-1" id="communityProfileModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Community Profile Filter</h4>
+            </div>
+            <div class="modal-body">
+            <ul>
+                <form action="#" class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Member Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="memberProfile" id="memberProfile" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">AIS Ratio Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="aisRatioProfile" id="aisRatioProfile" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Daytime & Nighttime Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="daytimeNighttimeProfile" id="daytimeNighttimeProfile" style="width:300px;" class="populate">
+                                <option value="Daytime">Daytime</option>
+                                <option value="Average">Average</option>
+                                <option value="Nighttime">Nighttime</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Weekday & Weekend Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="weekdayWeekendProfile" id="weekdayWeekendProfile" style="width:300px;" class="populate">
+                                <option value="Weekday">Weekday</option>
+                                <option value="Average">Average</option>
+                                <option value="Weekend">Weekend</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Call Other Carrier Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="callOtherCarrierProfile" id="callOtherCarrierProfile" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Average Number of Call Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="averageNoOfCallProfile" id="averageNoOfCallProfile" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Average ARPU Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="averageArpuProfile" id="averageArpuProfile" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Average Duration Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="averageDurationProfile" id="averageDurationProfile" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="sendprofile" id="sendprofile" value=""> 
+                    <div style="float: right;">
+                        <button class="btn btn-success" id="communityProfile-filter" onclick="return false;">Filter</button>
+                        <button class="btn btn-danger" type="button" data-dismiss="modal">Cancel</button>
+                    </div>
+                    <div class="clearfix"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div aria-hidden="true" aria-labelledby="exportCSVModalLabel" role="dialog" tabindex="-1" id="exportCSVModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -519,17 +638,110 @@
             <div class="modal-body">
             <ul>
                 <form action="#" class="form-horizontal " method="GET">
-                     <div class="form-group">
-                        <label class="col-lg-2 col-sm-2 control-label">Community</label>
-                        <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Community</label>
+                        <div class="col-lg-8">
                             <select multiple name="e2" id="e2" style="width:300px" class="populate">
-                            </select>
-                            <input type="hidden" name="senddata" id="senddata" value="">  
+                            </select>  
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Member Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="memberProfileExport" id="memberProfileExport" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">AIS Ratio Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="aisRatioProfileExport" id="aisRatioProfileExport" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Daytime & Nighttime Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="daytimeNighttimeProfileExport" id="daytimeNighttimeProfileExport" style="width:300px;" class="populate">
+                                <option value="Daytime">Daytime</option>
+                                <option value="Average">Average</option>
+                                <option value="Nighttime">Nighttime</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Weekday & Weekend Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="weekdayWeekendProfileExport" id="weekdayWeekendProfileExport" style="width:300px;" class="populate">
+                                <option value="Weekday">Weekday</option>
+                                <option value="Average">Average</option>
+                                <option value="Weekend">Weekend</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Call Other Carrier Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="callOtherCarrierProfileExport" id="callOtherCarrierProfileExport" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Average Number of Call Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="averageNoOfCallProfileExport" id="averageNoOfCallProfileExport" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Average ARPU Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="averageArpuProfileExport" id="averageArpuProfileExport" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 col-sm-3 control-label">Average Duration Profile</label>
+                        <div class="col-lg-8">
+                            <select multiple name="averageDurationProfileExport" id="averageDurationProfileExport" style="width:300px;" class="populate">
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="exportdata" id="exportdata" value="">
+                    <input type="hidden" name="exportcommunity" id="exportcommunity" value="">
                     <div style="float: right;">
                         <button class="btn btn-success" id="exportCSV-export" onclick="return false;">Export</button>
-                        <button class="btn btn-danger" id="exportCSV-cancel">Cancel</button>
+                        <button class="btn btn-danger" type="button" data-dismiss="modal">Cancel</button>
                     </div>
                     <div class="clearfix"></div>
                 </form> 

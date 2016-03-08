@@ -31,7 +31,7 @@
     var graphStatus = {
         'full-graph' : 0,
         'community-group' : 0,
-        'export-data' : 0,
+        'community-profile' : 0,
     }
 
     /**
@@ -892,27 +892,12 @@
         $('#' + button +' i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
      }
 
-     function resetAllButton() {
-        graphStatus['full-graph'] = 0;
-        graphStatus['community-group'] = 0;
-        graphStatus['export-data'] = 0;
-
-        $('#full-graph').removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
-        $('#full-graph i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
-
-        $('#community-group').removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
-        $('#community-group i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
-
-        $('#export-data').removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
-        $('#export-data i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
-
-     }
-
      function processData() {
         if(graphStatus['full-graph'] == 0) {
             flag['compute_com'] = false;
             colorByDefaultNode();
             resetButton('community-group');
+            resetButton('community-profile');
             runGraph();
             graphStatus['full-graph'] = 1;
             $('#full-graph').removeClass('btn-default').addClass('btn-success');
@@ -928,6 +913,7 @@
             flag['compute_com'] = true;
             colorByDefaultNode();
             resetButton('full-graph');
+            resetButton('community-profile');
             runGraph();
             graphStatus['community-group'] = 1;
             $('#community-group').removeClass('btn-default').addClass('btn-success');
@@ -951,6 +937,146 @@
         addHilightListener();
      }
 
+    function processCommunityProfile() {
+        if(graphStatus['community-profile'] == 0 && graphStatus['community-group'] == 1) {
+
+            var existValue = false;
+            var data = {};
+
+            var memberSelected = [];    
+            $("#memberProfile :selected").each(function(){
+                memberSelected.push($(this).val());
+            });
+            var aisRatioSelected = [];    
+            $("#aisRatioProfile :selected").each(function(){
+                aisRatioSelected.push($(this).val());
+            });
+            var daytimeNighttimeSelected = [];    
+            $("#daytimeNighttimeProfile :selected").each(function(){
+                daytimeNighttimeSelected.push($(this).val());
+            });
+            var weekdayWeekendSelected = [];    
+            $("#weekdayWeekendProfile :selected").each(function(){
+                weekdayWeekendSelected.push($(this).val());
+            });
+            var callOtherCarrierSelected = [];    
+            $("#callOtherCarrierProfile :selected").each(function(){
+                callOtherCarrierSelected.push($(this).val());
+            });
+            var averageNoOfCallSelected = [];    
+            $("#averageNoOfCallProfile :selected").each(function(){
+                averageNoOfCallSelected.push($(this).val());
+            });
+            var averageArpuSelected = [];    
+            $("#averArpuProfile :selected").each(function(){
+                averageArpuSelected.push($(this).val());
+            });
+            var averageDurationSelected = [];    
+            $("#averageDurationProfile :selected").each(function(){
+                averageDurationSelected.push($(this).val());
+            });
+
+            if(memberSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(memberSelected);
+                data['MemberProfile'] = myJsonString;
+            }
+            if(aisRatioSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(aisRatioSelected);
+                data['AisRatioProfile'] = myJsonString;
+            }
+            if(daytimeNighttimeSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(daytimeNighttimeSelected);
+                data['DaytimeNighttimeProfile'] = myJsonString;
+            }
+            if(weekdayWeekendSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(weekdayWeekendSelected);
+                data['WeekdayWeekendProfile'] = myJsonString;
+            }
+            if(callOtherCarrierSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(callOtherCarrierSelected);
+                data['CallOtherCarrierProfile'] = myJsonString;
+            }
+            if(averageNoOfCallSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(averageNoOfCallSelected);
+                data['AverageNoOfCallProfile'] = myJsonString;
+            }
+            if(averageArpuSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(averageArpuSelected);
+                data['AverageArpuProfile'] = myJsonString;
+            }
+            if(averageDurationSelected.length > 0){
+                existValue = true;
+                var myJsonString = JSON.stringify(averageDurationSelected);
+                data['AverageDurationProfile'] = myJsonString;
+            }
+
+            if(existValue){
+                graphStatus['community-profile'] = 1;
+                $('#community-profile').removeClass('btn-default').addClass('btn-warning');
+                $('#community-profile i').removeClass('fa-times').addClass('fa-refresh');
+                ajaxSetup();
+
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getNodeCommunityProfile/" + did,
+                    data : {"sendprofile":data},
+                    success: function(e){
+                        console.log(e);
+                        $('#community-profile').removeClass('btn-warning').addClass('btn-success');
+                        $('#community-profile i').removeClass('fa-refresh').addClass('fa-check');
+                    
+                        var filteredNodes = [];
+                        graphData.nodes.forEach(function(n) {
+                            for (var i = 0; i < e.length; i++) {
+                                if(n['attributes']['Modularity Class'] !== e[i]){
+                                    if(filteredNodes.indexOf(n) < 0 && i == e.length-1){
+                                        delete graphData.nodes[n['attributes']['Modularity Class']];
+                                        for (var j = 0; j < graphData.edges.length; j++){
+                                            if(graphData.edges[j] === undefined) {
+                                                continue;
+                                            }
+                                            if(graphData.edges[j]['source'] == n['id']){
+                                                delete graphData.edges[j];
+                                                break;
+                                            }
+                                            else if(graphData.edges[j]['target'] == n['id']){
+                                                delete graphData.edges[j];
+                                                break;
+                                            }
+                                        }
+                                        filteredNodes.push(n); 
+                                    }
+                                    continue;
+                                } else if(n['attributes']['Modularity Class'] == e[i]){
+                                    break;
+                                }
+                            }
+                        });
+                        $('#communityProfileModal').modal('hide');  
+                        plotPartialGraph(filteredNodes);
+                        resetButton('community-group');
+                        graphStatus['community-profile'] = 2;
+                    },
+                    error: function(rs, e){
+                        console.log(rs.responseText);
+                        alert('Problem occurs during fetch data.');
+                    },
+                })
+            } else alert("Please fill some community profile.");
+        } else if(graphStatus['community-profile'] == 1) {
+            alert('The graph is in processing.');
+        } else if(graphStatus['community-profile'] == 2) {
+            alert('The graph is already been shown.');
+        }   
+    }
+
     /**
      *  @brief Main function of this file
      *
@@ -962,6 +1088,7 @@
 
         document.getElementById('community-group').addEventListener('click', processCommunityData);
         document.getElementById('full-graph').addEventListener('click', processData);
+        document.getElementById('communityProfile-filter').addEventListener('click', processCommunityProfile);
     }();
 
 }();
