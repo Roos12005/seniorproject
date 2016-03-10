@@ -58,12 +58,13 @@
             defaultEdgeType: "curvedArrow",
             minEdgeSize : 0.2,
             maxEdgeSize : 0.5,
-            minNodeSize : 1,
+            minNodeSize : 0.1,
             maxNodeSize : 7,
-            zoomMin : 0.75,
-            zoomMax : 20,
+            zoomMin : 0.25,
+            zoomMax : 5,
             edgeColor : 'default',
-            defaultEdgeArrow: 'source'
+            defaultEdgeArrow: 'source',
+            mouseWheelEnabled: false
             // autoResize: false
             // zoomingRatio : 1
         });
@@ -84,7 +85,7 @@
         if(s.graph.nodes(n.id) !== undefined) {
             throw 'Node#' + n.id + '(' + n.label + ')' + ' is duplicated.';
         }
-        
+        n.size = 0.5;
         s.graph.addNode({
             id: n.id,
             label: n.label,
@@ -96,6 +97,7 @@
             defaultSize: n.size,
             attributes: n.attributes
         })
+
     }
 
     /**
@@ -348,11 +350,14 @@
             flag['activateClick'] = true;
         }
 
+        console.log(graphData.nodes);
+        s.refresh();
         // Display Graph using sigma object
         s.startForceAtlas2({});
         setTimeout(function () {
             s.killForceAtlas2();
         }, 1000);
+
     }
 
     /**  

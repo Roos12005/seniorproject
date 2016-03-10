@@ -17,11 +17,13 @@ class AdminController extends Controller{
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
         
         // Query All Data needed
+        $database = $neo->getAvailableDatabase();
         $preprocess_settings = $neo->getReadablePreprocessSettings();
         $preprocess_jobs = $neo->getReadablePreprocessJobs();
         $batch_jobs = $neo->getReadableBatchJobs();
-
+        // var_dump($database); exit();
         return view('admin.adminpanel', [
+                    'database' => $database,
                     'preprocess_settings' => $preprocess_settings, 
                     'preprocess_jobs' => $preprocess_jobs, 
                     'batch_jobs' => $batch_jobs
@@ -83,12 +85,12 @@ class AdminController extends Controller{
         // Inputs  - Filters
         $filters = $rec['filter'];
         $nid = $rec['nid'];
-
+        $database = $rec['database'];
         // Instantiate Neo4JConnector 
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
 
         // Start Batch Processing
-        $neo->startBatchProcess($filters, $nid);
+        $neo->startBatchProcess($filters, $nid, $database);
 
         return "Success";
    }

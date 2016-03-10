@@ -100,9 +100,9 @@
                     <div class="col-sm-6">
                         <select class="form-control" id="preprocess-database">
                             <optgroup label="Database Name">
-                                <option value="001">CU Location</option>
-                                <option value="002">Airport</option>
-                                <option value="003">QSCC</option>
+                                @foreach($database as $db) 
+                                    <option value="{{ $db['dbid'] }}"> {{ $db['dbid'] }} : {{ $db['n']['name'] }} </option>
+                                @endforeach
                             </optgroup>
                         </select>
                     </div>
@@ -427,9 +427,9 @@
                         <div class="col-sm-6">
                             <select class="form-control" id="batch-database">
                                 <optgroup label="Database Name">
-                                    <option value="001">CU Location</option>
-                                    <option value="002">Airport</option>
-                                    <option value="003">QSCC</option>
+                                    @foreach($database as $db) 
+                                        <option value="{{ $db['n']['name'] }}"> {{ $db['dbid'] }} : {{ $db['n']['name'] }} </option>
+                                    @endforeach
                                 </optgroup>
                             </select>
                         </div>

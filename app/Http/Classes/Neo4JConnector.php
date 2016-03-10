@@ -64,6 +64,10 @@ class Neo4JConnector {
         return $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
     }
 
+    public function getAvailableDatabase() {
+        return $this->execQuery("MATCH (n:Database) RETURN n, ID(n) as dbid");
+    }
+
     public function getReadableBatchJobs() {
         $raw = $this->queryAllBatchJob();
         return $this->toReadableJob($raw);
@@ -248,9 +252,10 @@ class Neo4JConnector {
         return ['f' => $filters, 'pid' => $result[0]['nid'],];
     }
 
-    public function startBatchProcess($filters, $nid) {
+    public function startBatchProcess($filters, $nid, $db) {
+        ignore_user_abort(true);
         $filters = $this->prepareData($filters);
-        $res = $this->beginProcess($filters, $nid, false);
+        $res = $this->beginProcess($filters, $nid, $db, false);
     }
 
     public function deleteData($type, $nid) {
@@ -283,7 +288,7 @@ class Neo4JConnector {
 
 
             // Start Processing
-            $this->beginProcess($filters, $r['nid'], true);
+            $this->beginProcess($filters, $r['nid'], 'todo', true);
         }
     }
 
@@ -337,6 +342,10 @@ class Neo4JConnector {
         return $this->unlockWrite();
     }
 
+    public function execQuery($query) {
+        return $this->connector->sendCypherQuery($query)->getResult()->getTableFormat();
+    }
+
     // ------------------------------------------------------------------------------------------------------------
 
     // --------------------------------------------- Private Functions --------------------------------------------
@@ -377,6 +386,7 @@ class Neo4JConnector {
         // Reject query whenever $this->connector has not been initialized
         $this->checkConnection();
 
+        // TODO : find another way to get source data or estimate resource
         $q = 'MATCH (n:Node)-[r:Call]->(m:Node) WHERE';
 
         $q = $q . ' r.startDate >= ' . $filters['startDate'][0] . ' AND r.startDate <= ' . $filters['startDate'][1] . ' AND';
@@ -396,9 +406,9 @@ class Neo4JConnector {
         return $ret;
     }
 
-    private function beginProcess($filters, $id, $isScheduler) {
+    private function beginProcess($filters, $id, $db, $isScheduler) {
         putenv('/seniortmp');
-        $command = "java -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id . ' 1';
+        $command = "java -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id . ' ' . $db . ' 1';
         foreach ($filters as $key => $value) {
             $len = sizeof($value);
             $command = $command . ' ' . $key . ' ';

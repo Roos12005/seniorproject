@@ -19,7 +19,7 @@ UploaderFactory.prototype.createUploader = function(element, chunk_size, url) {
         multi_selection: false,
         filters: {
           mime_types : [
-            // { title : "CDR files", extensions : "txt,csv" }
+                { title : "CDR files", extensions : "txt,csv" }
             ]
         },
         headers: {
@@ -84,7 +84,6 @@ UploaderFactory.prototype.onUploadCompleted = function(uploader, target, doFunct
         try {
             $('#' + target + '-uploader-wrapper').removeClass(self.wrapper_pending_class);
             $('#' + target + '-uploader-wrapper').addClass(self.wrapper_success_class);
-            console.log('completed');
         } catch (err) {
 
         } finally {

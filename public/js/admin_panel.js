@@ -80,32 +80,6 @@
         $(".table-filter").unbind();
         addTFilterListener();
 
-        // $(".table-filter").on('click', function() {
-        //     var tid = $(this).attr('data-tid');
-        //     var tag = $('#tf-' + tid);
-        //     var props = {
-        //         'date' : tag.attr('data-date'),
-        //         'carrier' : tag.attr('data-carrier'),
-        //         'period' : tag.attr('data-period'),
-        //         'noOfCall' : tag.attr('data-noOfCall'),
-        //         'duration' : tag.attr('data-duration'),
-        //         'days' : tag.attr('data-days'),
-        //         'mode' : tag.attr('data-calculation')
-        //     };
-            
-        //     $('#tf-date').html(props.date);
-        //     $('#tf-carrier').html(props.carrier);
-        //     $('#tf-period').html(props.period);
-        //     $('#tf-noOfCall').html(props.noOfCall);
-        //     $('#tf-duration').html(props.duration);
-        //     $('#tf-days').html(props.days);
-        //     $('#tf-calculation').html(unaryModetoReadable(props.mode));
-
-        //     console.log(props);
-        //     $('#tableModal').modal('show');
-        // });
-
-
         $('.delete-button').unbind();
         addDeleteButtonListener();
     }
@@ -113,28 +87,6 @@
     function rebindPFilterListener() {
         $(".preprocess-filter").unbind();
         addPFilterListener();
-        // $(".preprocess-filter").on('click', function() {
-        //     var pid = $(this).attr('data-pid');
-        //     var tag = $('#pf-' + pid);
-        //     var props = {
-        //         'date' : tag.attr('data-date'),
-        //         'carrier' : tag.attr('data-carrier'),
-        //         'period' : tag.attr('data-period'),
-        //         'noOfCall' : tag.attr('data-noOfCall'),
-        //         'duration' : tag.attr('data-duration'),
-        //         'days' : tag.attr('data-days'),
-
-        //     };
-            
-        //     $('#pf-date').html(props.date);
-        //     $('#pf-carrier').html(props.carrier);
-        //     $('#pf-period').html(props.period);
-        //     $('#pf-noOfCall').html(props.noOfCall);
-        //     $('#pf-duration').html(props.duration);
-        //     $('#pf-days').html(props.days);
-
-        //     $('#preprocessModal').modal('show');
-        // });
 
         $('.delete-button').unbind();
         addDeleteButtonListener();
@@ -280,7 +232,6 @@
                 alert('Please select at least one mode.');
                 return;
             }
-            
 
             var validator = new Validator();
 
@@ -327,6 +278,7 @@
             tmpStorage = {
                 "d" : submit,
                 "type" : 'preprocess',
+                "database" : $('#preprocess-database').val()
             };
             console.log(submit);
             submitForm();
@@ -424,6 +376,7 @@
                     'rnCode' : carriers
                 },
                 'mode' : mode,
+                'database' : $('#batch-database').val(),
                 'description' : $('#batch-description').val()
             }
             console.log('Batch Form submission : ');
@@ -519,6 +472,8 @@
     function submitForm() {
         var d = tmpStorage['d'];
         var type = tmpStorage['type'];
+        var db = d['database'];
+        console.log(db);
         var others = {
             'customers' : tmpStorage['customers'],
             'estimatedExecTime' : tmpStorage['execTime'],
@@ -528,7 +483,7 @@
         $.ajax({
             type: "POST",
             url: "http://localhost/seniorproject/public/processSetup",
-            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others},
+            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others, 'database' : db},
             success: function(e){
                 console.log(e);
                 if(type == 'batch') {
@@ -551,7 +506,7 @@
                     $.ajax({
                         type: "POST",
                         url: "http://localhost/seniorproject/public/startProcess",
-                        data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others, 'nid' : e.nid},
+                        data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others, 'nid' : e.nid, 'database' : db},
                         success: function(e){},
                         error: function(rs, e){
                             console.log(rs.responseText);

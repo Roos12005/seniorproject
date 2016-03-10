@@ -10,6 +10,12 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <repositories>  
+     <repository>  
+       <id>mvn-neo4j</id>  
+       <url>http://m2.neo4j.org/content/groups/everything</url>  
+     </repository>  
+ </repositories>
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
@@ -28,6 +34,16 @@
             <groupId>net.iot-solutions.graphdb</groupId>
             <artifactId>jcypher</artifactId>
             <version>3.2.0</version>
+        </dependency>
+        <dependency>  
+            <groupId>org.neo4j</groupId>  
+            <artifactId>neo4j-rest-graphdb</artifactId>  
+            <version>2.0.0-M06</version>  
+          </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>1.1</version>
         </dependency>
     </dependencies>
     <build>

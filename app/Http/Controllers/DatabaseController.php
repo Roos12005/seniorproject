@@ -43,6 +43,7 @@ class DatabaseController extends Controller{
         ignore_user_abort(true);
 
         $db_name = Request::all()['name'];
+        $db_name = str_replace(" ","_",$db_name);
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
         $validator = new Neo4JValidator($neo->getConnector());
         while($av = $validator->isWriteLocked()) {
@@ -54,7 +55,7 @@ class DatabaseController extends Controller{
         try {
             $isGranted = $neo->grantLock($db_name);
             if($isGranted) {
-                $command = "java -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' 2>&1';
+                $command = "java -Xmx4096m -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' 2>&1';
                 $output = shell_exec($command);
                 Log::info($command);
                 Log::info($output);
@@ -65,6 +66,13 @@ class DatabaseController extends Controller{
             throw new Exception($e);
         } finally {
             $isReleased = $neo->releaseLock();
+            $neo->execQuery('CREATE (n:Database {name: "' . $db_name . '"})');
+
+            $filename1 = $db_name . '_cdr';
+            $filename2 = $db_name . '_profile';
+
+            unlink(storage_path() . '/tmp_db_store/' . $filename1);
+            unlink(storage_path() . '/tmp_db_store/' . $filename2);
             if(!$isReleased) {
                 throw new Exception("Database can't be unlocked. Manually unlocking is needed.");
             }

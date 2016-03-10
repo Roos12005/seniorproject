@@ -62,4 +62,20 @@ public class NodeIterable implements Iterable<Node>, Iterator<Node> {
     public boolean contains(int n) {
         return this.nodes.containsKey(n);
     }
+    
+    public static NodeIterable[] split(NodeIterable nodes, int n) {
+        NodeIterable[] aNodes = new NodeIterable[n];
+        for(int i=0;i<n;i++) {
+            aNodes[i] = new NodeIterable();
+        }
+        int next = 0;
+        for(Node node : nodes) {
+               aNodes[next].add(node);
+               if(next >= n) {
+                   next = next % n;
+               }
+        }
+        
+        return aNodes;
+    }
 }

@@ -82,6 +82,7 @@ public class Importer {
                     a.setProperty("number", nextLine[0]);
                     a.setProperty("incoming", incoming.get(nextLine[0]) == null? 0 : incoming.get(nextLine[0]));
                     a.setProperty("outgoing", outgoing.get(nextLine[0]) == null? 0 : outgoing.get(nextLine[0]));
+                    a.setProperty("rnCode", "AIS");
                     nodes.put(nextLine[0], a);
                 }
 
@@ -92,6 +93,7 @@ public class Importer {
                     b.setProperty("number", nextLine[1]);
                     b.setProperty("incoming", incoming.get(nextLine[1]) == null? 0 : incoming.get(nextLine[1]));
                     b.setProperty("outgoing", outgoing.get(nextLine[1]) == null? 0 : outgoing.get(nextLine[1]));
+                    b.setProperty("rnCode", "AIS");
                     nodes.put(nextLine[1], b);
                 }
 
@@ -100,10 +102,10 @@ public class Importer {
 //                r.setProperty("startDate", nextLine[1]);
 //                r.setProperty("duration", nextLine[5]);
 //                r.setProperty("callDay", "");
-                r.setProperty("startTime", "");
-                r.setProperty("startDate", "");
-                r.setProperty("duration", "");
-                r.setProperty("callDay", "");
+                r.setProperty("startTime", "12.00");
+                r.setProperty("startDate", "20150902");
+                r.setProperty("duration", "10");
+                r.setProperty("callDay", "Monday");
                 if (i % 50000 == 0) {
                     tx.success();
                     tx.finish();

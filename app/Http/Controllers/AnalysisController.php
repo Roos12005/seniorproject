@@ -76,12 +76,12 @@ class AnalysisController extends Controller{
             ];
             $user_info = [
               'label' => $result['n']['Number'],
-              'x' => 10*cos(2 * $key * M_PI/$node_count),
-              'y' => 10*sin(2 * $key * M_PI/$node_count),
+              'x' => 100*cos(2 * $key * M_PI/$node_count),
+              'y' => 100*sin(2 * $key * M_PI/$node_count),
               'id' => $result['n_id'],
               'attributes' => $user_stat,
               'color' => $result['n']['Color'],
-              'size' => 1
+              'size' => 0.5
             ];
             array_push($node_list, $user_info);
         }
