@@ -1,8 +1,5 @@
 package com.seniorproject.graphmodule;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Node {
@@ -21,6 +18,7 @@ public class Node {
     private int member;
     private int noOfOutgoing;
     private int noOfIncoming;
+    private double arpu;
 
     private String color;
 
@@ -204,4 +202,31 @@ public class Node {
     public void setNoOfIncoming(int noOfIncoming) {
         this.noOfIncoming = noOfIncoming;
     }
+    
+    /**
+     * @return the arpu
+     */
+    public double getArpu() {
+        return arpu;
+    }
+
+    /**
+     * @param arpu the arpu to set
+     */
+    public void setArpu(double arpu) {
+        this.arpu = arpu;
+    }
+    
+    public void setAttributes(Map<String, Object> attr) {
+        this.setLabel(attr.get("number").toString());
+        this.setAge(attr.get("age").toString());
+        this.setGender(attr.get("gender").toString());
+        this.setRnCode(attr.get("carrier").toString());
+        this.setPromotion(attr.get("promotion").toString());
+        this.setNoOfIncoming(Integer.parseInt(attr.get("incoming").toString()));
+        this.setNoOfOutgoing(Integer.parseInt(attr.get("outgoing").toString()));
+        this.setArpu(Double.parseDouble(attr.get("arpu").toString()));
+    }
+
+
 }

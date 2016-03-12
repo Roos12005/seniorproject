@@ -44,11 +44,11 @@ import org.neo4j.rest.graphdb.RestGraphDatabase;
 
 public class DBAccess {
 
-    
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
     private static Semaphore semaphore = new Semaphore(4);
-    
+
     private static IDBAccess dbAccess;
+
     public DBAccess() {
 
     }
@@ -68,7 +68,7 @@ public class DBAccess {
     }
 
     public com.seniorproject.graphmodule.Graph loadAll(Map<String, List<String>> sFilters,
-        Map<String, List<Double>> fFilters, String db) {
+            Map<String, List<Double>> fFilters, String db) {
 
         Set<Node> nodes = new HashSet<>();
         List<Edge> edges = new ArrayList<>();
@@ -76,56 +76,102 @@ public class DBAccess {
         String rnCode_Regex = "";
         String callDay_Regex = "";
 
-        for(String rnCode : sFilters.get("rnCode")) {
+        for (String rnCode : sFilters.get("rnCode")) {
             rnCode_Regex = rnCode_Regex + rnCode + "|";
         }
-        for(String callDay : sFilters.get("callDay")) {
+        for (String callDay : sFilters.get("callDay")) {
             callDay_Regex = callDay_Regex + callDay + "|";
         }
-     
-        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
+        rnCode_Regex = rnCode_Regex.substring(0, rnCode_Regex.length()-1);
+        callDay_Regex = callDay_Regex.substring(0, callDay_Regex.length()-1);
+        GraphDatabaseService graphDb = null;
         
-        Map<String, Object> params = new HashMap<>();    
-        params.put("rnCode", rnCode_Regex);
-        params.put("callDay", callDay_Regex);
-        params.put("durationMin", fFilters.get("duration").get(0));
-        params.put("durationMax", fFilters.get("duration").get(1));
-        params.put("startTime", fFilters.get("startTime").get(0));
-        params.put("endTime", fFilters.get("startTime").get(1));
-        params.put("startDate", fFilters.get("startDate").get(0));
-        params.put("endDate", fFilters.get("startDate").get(1));
-        params.put("incomingMin", 0);
-        params.put("incomingMax", 10000);
-        params.put("outgoingMin", 0);
-        params.put("outgoingMax", 10000);
-        
-        
-        String cypher = "MATCH (n:" + db + ")-[r:Call]->(m)";
-        cypher = cypher + "WHERE n.rnCode =~ {rnCode} AND m.rnCode =~ {rnCode} AND";
-        cypher = cypher + "r.duration >= {durationMin} AND r.duration <= {durationMax} AND callDay =~ {callDay}"
-                + "r.startTime >= {startTime} AND r.startTime <= {endTime} AND r.startDate >= {startDate} AND r.startDate <= {endDate}";
-        cypher = cypher + "RETURN n,m,r";
-        try ( Transaction tx = graphDb.beginTx();
-                Result result = graphDb.execute( cypher , params) ) {
+        try {
+            graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("rnCode", rnCode_Regex);
+            params.put("callDay", callDay_Regex);
+            params.put("durationMin", fFilters.get("duration").get(0));
+            params.put("durationMax", fFilters.get("duration").get(1));
+            params.put("startTime", fFilters.get("startTime").get(0));
+            params.put("endTime", fFilters.get("startTime").get(1));
+            params.put("startDate", fFilters.get("startDate").get(0));
+            params.put("endDate", fFilters.get("startDate").get(1));
+            params.put("incomingMin", 0);
+            params.put("incomingMax", 10000);
+            params.put("outgoingMin", 0);
+            params.put("outgoingMax", 10000);
+
+            String cypher = "MATCH (n:" + db + ")-[r:Call]->(m) ";
+            cypher = cypher + "WHERE n.carrier =~ {rnCode} AND m.carrier =~ {rnCode} AND ";
+            cypher = cypher + "r.duration >= {durationMin} AND r.duration <= {durationMax} AND r.callDay =~ {callDay}  AND "
+                    + "r.startTime >= {startTime} AND r.startTime <= {endTime} AND r.startDate >= {startDate} AND r.startDate <= {endDate} ";
+            cypher = cypher + "RETURN ID(n) as nnid,n.number, n.age, n.gender, n.incoming, n.outgoing, n.promotion, n.carrier, n.arpu, "
+                    + "ID(m) as mmid, m.number, m.age, m.gender, m.incoming, m.outgoing, m.promotion, m.carrier, m.arpu,"
+                    + "r.duration, r.startDate, r.startTime, r.callDay";
+
+            try (Transaction tx = graphDb.beginTx();
+                    Result result = graphDb.execute(cypher, params)) {
                 tx.success();
-              while ( result.hasNext() ) {
-                  Map<String,Object> row = result.next();
-                  for ( Entry<String,Object> column : row.entrySet() ) {
-//                      rows += column.getKey() + ": " + column.getValue() + "; ";
-//                      System.out.println(column.getKey() + ": " + column.getValue() + "; ");
-                  }
-//                  rows += "\n";
-              }
-              
-          } catch (Exception e) {
-              e.printStackTrace();
-          }finally {
+                while (result.hasNext()) {
+                    Map<String, Object> row = result.next();
+
+                    // Hashmap for storing attributes
+                    Map<String, Object> a = new HashMap<>();
+                    Map<String, Object> b = new HashMap<>();
+                    Map<String, Object> r = new HashMap<>();
+
+                    // Get all attribues returned from executing cypher
+                    // Note : Returning order is uncontrollable;
+                    for (Entry<String, Object> column : row.entrySet()) {
+
+                        String domain = column.getKey().substring(0, 1);
+                        String attr = column.getKey().substring(2);
+
+                        if (domain.equals("n")) {
+                            a.put(attr, column.getValue());
+                        } else if (domain.equals("m")) {
+                            b.put(attr, column.getValue());
+                        } else if (domain.equals("r")) {
+                            r.put(attr, column.getValue());
+                        } else {
+                            // This should not be triggered
+                            throw new Exception("Invalid Cypher Return : Load All Function");
+                        }
+                    }
+
+                    int aid = Integer.parseInt(a.get("id").toString()),
+                            bid = Integer.parseInt(b.get("id").toString());
+
+                    Node caller = new Node(aid);
+                    Node callee = new Node(bid);
+                    Edge rel = new Edge(
+                            aid,
+                            bid,
+                            Integer.parseInt(r.get("duration").toString()),
+                            Long.toString(Double.valueOf(r.get("startDate").toString()).longValue()),
+                            r.get("startTime").toString(),
+                            r.get("callDay").toString(),
+                            Integer.parseInt(r.get("duration").toString())
+                    );
+
+                    caller.setAttributes(a);
+                    callee.setAttributes(b);
+
+                    nodes.add(caller);
+                    nodes.add(callee);
+                    edges.add(rel);
+                }
+                return new com.seniorproject.graphmodule.Graph(nodes, edges);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } finally {
             System.out.println("Graph is shut down successfully");
             graphDb.shutdown();
         }
         return null;
-
-
 
 //GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("C:/Users/thanp548/Documents/Neo4j/default.graphdb");
 //        Label label = DynamicLabel.label(db);
@@ -198,58 +244,15 @@ public class DBAccess {
 //        }
     }
 
-        public void store(NodeIterable nodes, List<Edge> edges, String tid) {
-//        initDBConnection();
-//        try {
-//            Graph graph = Graph.create(dbAccess);
-//            Map<Integer, GrNode> grnodes = new HashMap<>();
-//            ITransaction tx = dbAccess.beginTX();
-//            int i=0;
-//            for (Node n : nodes) {
-//                GrNode tmp = graph.createNode();
-//                tmp.addLabel("Processed" + tid);
-//                tmp.addProperty("Number", n.getLabel());
-//                tmp.addProperty("Eccentricity", n.getEccentricity());
-//                tmp.addProperty("Betweenness", n.getBetweenness());
-//                tmp.addProperty("Closeness", n.getCloseness());
-//                tmp.addProperty("CommunityID", n.getCommunityID());
-//                tmp.addProperty("Age", n.getAge());
-//                tmp.addProperty("Gender", n.getGender());
-//                tmp.addProperty("RnCode", n.getRnCode());
-//                tmp.addProperty("Promotion", n.getPromotion());
-//                tmp.addProperty("NoOfOutgoing", n.getNoOfOutgoing());
-//                tmp.addProperty("NoOfIncoming", n.getNoOfIncoming());
-//
-//                tmp.addProperty("Color", n.getColor());
-//                grnodes.put(n.getID(), tmp);
-//            }
-//                
-//            for (Edge e : edges) {
-//                GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
-//                rel.addProperty("Duration", e.getDuration());
-//                rel.addProperty("StartDate", e.getStartDate());
-//                rel.addProperty("StartTime", e.getStartTime());
-//                rel.addProperty("CallDay", e.getCallDay());
-//            }
-//            List<JcError> errors = graph.store();
-//            tx.close();
-//            if (!errors.isEmpty()) {
-//                printErrors(errors);
-//            }
-//        } catch (Exception e) {
-//
-//        } finally {
-//            closeDBConnection();
+    public void store(NodeIterable nodes, List<Edge> edges, String tid) {
+
+//        GraphDatabaseService gdb = new RestGraphDatabase("http://localhost:7474/db/data", "neo4j", "aiscu");
+//        NodeIterable[] aNodes = NodeIterable.split(nodes, Config.THREAD_POOL);
+//        StoringAgent[] sa = new StoringAgent[Config.THREAD_POOL];
+//        for (int i = 0; i < Config.THREAD_POOL; i++) {
+//            sa[i] = new StoringAgent(gdb, aNodes[i], "thread" + i);
+//            sa[i].start();
 //        }
-        
-        
-        GraphDatabaseService gdb = new RestGraphDatabase("http://localhost:7474/db/data", "neo4j", "aiscu");   
-        NodeIterable[] aNodes = NodeIterable.split(nodes, Config.THREAD_POOL);
-        StoringAgent[] sa = new StoringAgent[Config.THREAD_POOL];
-        for(int i=0;i<Config.THREAD_POOL; i++) {
-            sa[i] = new StoringAgent(gdb, aNodes[i], "thread" + i);
-            sa[i].start();
-        }
     }
 
     public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) {
@@ -258,8 +261,8 @@ public class DBAccess {
             Graph graph = Graph.create(dbAccess);
             Map<Integer, GrNode> grnodes = new HashMap<>();
             ITransaction tx = dbAccess.beginTX();
-            int i=0;
-            
+            int i = 0;
+
             for (Node n : nodes) {
                 GrNode tmp = graph.createNode();
                 tmp.addLabel("ProcessedCom" + tid);
@@ -271,7 +274,7 @@ public class DBAccess {
                 tmp.addProperty("Color", n.getColor());
                 grnodes.put(n.getID(), tmp);
             }
-                
+
             for (Edge e : edges) {
                 GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
                 rel.addProperty("Duration", e.getDuration());
@@ -329,60 +332,62 @@ public class DBAccess {
         System.out.println("");
         System.out.println(str);
     }
+
     class InsertTask implements Runnable {
-        
+
         private NodeIterable nodes = null;
         private EdgeIterable edges = null;
         private String tid;
+
         public InsertTask(NodeIterable nodes, EdgeIterable edges, String tid) {
             this.nodes = nodes;
             this.edges = edges;
             this.tid = tid;
         }
-        
+
         @Override
         public void run() {
             try {
                 // do something
-            Graph graph = Graph.create(dbAccess);
-            Map<Integer, GrNode> grnodes = new HashMap<>();
-            ITransaction tx = dbAccess.beginTX();
-            int i=0;
-            for (Node n : nodes) {
-                GrNode tmp = graph.createNode();
-                tmp.addLabel("Processed" + tid);
-                tmp.addProperty("Number", n.getLabel());
-                tmp.addProperty("Eccentricity", n.getEccentricity());
-                tmp.addProperty("Betweenness", n.getBetweenness());
-                tmp.addProperty("Closeness", n.getCloseness());
-                tmp.addProperty("CommunityID", n.getCommunityID());
-                tmp.addProperty("Age", n.getAge());
-                tmp.addProperty("Gender", n.getGender());
-                tmp.addProperty("RnCode", n.getRnCode());
-                tmp.addProperty("Promotion", n.getPromotion());
-                tmp.addProperty("NoOfOutgoing", n.getNoOfOutgoing());
-                tmp.addProperty("NoOfIncoming", n.getNoOfIncoming());
+                Graph graph = Graph.create(dbAccess);
+                Map<Integer, GrNode> grnodes = new HashMap<>();
+                ITransaction tx = dbAccess.beginTX();
+                int i = 0;
+                for (Node n : nodes) {
+                    GrNode tmp = graph.createNode();
+                    tmp.addLabel("Processed" + tid);
+                    tmp.addProperty("Number", n.getLabel());
+                    tmp.addProperty("Eccentricity", n.getEccentricity());
+                    tmp.addProperty("Betweenness", n.getBetweenness());
+                    tmp.addProperty("Closeness", n.getCloseness());
+                    tmp.addProperty("CommunityID", n.getCommunityID());
+                    tmp.addProperty("Age", n.getAge());
+                    tmp.addProperty("Gender", n.getGender());
+                    tmp.addProperty("RnCode", n.getRnCode());
+                    tmp.addProperty("Promotion", n.getPromotion());
+                    tmp.addProperty("NoOfOutgoing", n.getNoOfOutgoing());
+                    tmp.addProperty("NoOfIncoming", n.getNoOfIncoming());
 
-                tmp.addProperty("Color", n.getColor());
-                grnodes.put(n.getID(), tmp);
-            }
-                
-            for (Edge e : edges) {
-                GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
-                rel.addProperty("Duration", e.getDuration());
-                rel.addProperty("StartDate", e.getStartDate());
-                rel.addProperty("StartTime", e.getStartTime());
-                rel.addProperty("CallDay", e.getCallDay());
-            }
-            List<JcError> errors = graph.store();
-            tx.close();
-            if (!errors.isEmpty()) {
-                printErrors(errors);
-            }
+                    tmp.addProperty("Color", n.getColor());
+                    grnodes.put(n.getID(), tmp);
+                }
+
+                for (Edge e : edges) {
+                    GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
+                    rel.addProperty("Duration", e.getDuration());
+                    rel.addProperty("StartDate", e.getStartDate());
+                    rel.addProperty("StartTime", e.getStartTime());
+                    rel.addProperty("CallDay", e.getCallDay());
+                }
+                List<JcError> errors = graph.store();
+                tx.close();
+                if (!errors.isEmpty()) {
+                    printErrors(errors);
+                }
             } finally {
                 closeDBConnection();
                 semaphore.release();
             }
         }
-    } 
+    }
 }

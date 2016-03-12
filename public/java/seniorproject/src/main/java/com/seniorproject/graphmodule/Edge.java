@@ -1,5 +1,7 @@
 package com.seniorproject.graphmodule;
 
+import java.util.Map;
+
 public class Edge {
     int source;
     int target;
@@ -98,5 +100,15 @@ public class Edge {
 
     public void setCallDay(String callDay) {
         this.callDay = callDay;
+    }
+    
+    public void setAttributes(Map<String, Object> attr) {
+        this.setCallDay(attr.get("callDay").toString());
+        this.setDuration(Integer.parseInt(attr.get("duration").toString()));
+        this.setSource(Integer.parseInt(attr.get("source").toString()));
+        this.setTarget(Integer.parseInt(attr.get("target").toString()));
+        this.setStartDate(attr.get("startDate").toString());
+        this.setStartTime(attr.get("startTime").toString());
+        this.setWeight(this.getDuration()/60 + (this.getDuration() % 60 == 0? 0 : 1));
     }
 }

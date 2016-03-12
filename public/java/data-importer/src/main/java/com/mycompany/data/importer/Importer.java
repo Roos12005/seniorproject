@@ -39,6 +39,11 @@ public class Importer {
     public static void main(String args[]) throws IOException {
         Map<String, Integer> incoming = new HashMap<>();
         Map<String, Integer> outgoing = new HashMap<>();
+        Map<String, String> age = new HashMap<>();
+        Map<String, String> gender = new HashMap<>();
+        Map<String, String> arpu = new HashMap<>();
+        Map<String, String> promotion = new HashMap<>();
+        
         try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_cdr"), ',')) {
             String[] nextLine;
             
@@ -56,6 +61,17 @@ public class Importer {
                 }
             }
             
+            reader.close();
+        }
+        
+        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_profile"), ',')) {
+            String[] nextLine;
+            while ((nextLine = reader.readNext()) != null) {
+                age.put(nextLine[0],nextLine[1]);
+                gender.put(nextLine[0],nextLine[2]);
+                arpu.put(nextLine[0],nextLine[3]);
+                promotion.put(nextLine[0],nextLine[4]);
+            }
             reader.close();
         } 
         
@@ -77,12 +93,15 @@ public class Importer {
                 if (nodes.containsKey(nextLine[0])) {
                     a = nodes.get(nextLine[0]);
                 } else {
-                   
                     a = gdb.createNode(nl);
                     a.setProperty("number", nextLine[0]);
                     a.setProperty("incoming", incoming.get(nextLine[0]) == null? 0 : incoming.get(nextLine[0]));
                     a.setProperty("outgoing", outgoing.get(nextLine[0]) == null? 0 : outgoing.get(nextLine[0]));
-                    a.setProperty("rnCode", "AIS");
+                    a.setProperty("carrier","AIS");
+                    a.setProperty("age", age.get(nextLine[0]) == null? "unknown" : age.get(nextLine[0]));
+                    a.setProperty("gender", gender.get(nextLine[0]) == null? "unknown" : gender.get(nextLine[0]));
+                    a.setProperty("arpu", arpu.get(nextLine[0]) == null? "unknown" : arpu.get(nextLine[0]));
+                    a.setProperty("promotion", promotion.get(nextLine[0]) == null? "unknown" : promotion.get(nextLine[0]));
                     nodes.put(nextLine[0], a);
                 }
 
@@ -93,19 +112,19 @@ public class Importer {
                     b.setProperty("number", nextLine[1]);
                     b.setProperty("incoming", incoming.get(nextLine[1]) == null? 0 : incoming.get(nextLine[1]));
                     b.setProperty("outgoing", outgoing.get(nextLine[1]) == null? 0 : outgoing.get(nextLine[1]));
-                    b.setProperty("rnCode", "AIS");
+                    b.setProperty("carrier",nextLine[6]);
+                    b.setProperty("age", age.get(nextLine[1]) == null? "unknown" : age.get(nextLine[1]));
+                    b.setProperty("gender", gender.get(nextLine[1]) == null? "unknown" : gender.get(nextLine[1]));
+                    b.setProperty("arpu", arpu.get(nextLine[1]) == null? "unknown" : arpu.get(nextLine[1]));
+                    b.setProperty("promotion", promotion.get(nextLine[1]) == null? "unknown" : promotion.get(nextLine[1]));
                     nodes.put(nextLine[1], b);
                 }
 
                 Relationship r = a.createRelationshipTo(b, LINK);
-//                r.setProperty("startTime", nextLine[1]);
-//                r.setProperty("startDate", nextLine[1]);
-//                r.setProperty("duration", nextLine[5]);
-//                r.setProperty("callDay", "");
-                r.setProperty("startTime", "12.00");
-                r.setProperty("startDate", "20150902");
-                r.setProperty("duration", "10");
-                r.setProperty("callDay", "Monday");
+                r.setProperty("startDate", Integer.parseInt(nextLine[2]));
+                r.setProperty("startTime", Double.parseDouble(nextLine[3]));
+                r.setProperty("callDay", nextLine[4]);
+                r.setProperty("duration", Integer.parseInt(nextLine[5]));
                 if (i % 50000 == 0) {
                     tx.success();
                     tx.finish();
