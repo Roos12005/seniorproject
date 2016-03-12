@@ -207,9 +207,9 @@ public class GraphDistance {
         for (Node s : hgraph.getNodes()) {
             int s_index = indicies.get(s);
             
-            s.setAttribute(ECCENTRICITY, nodeEccentricity[s_index]);
-            s.setAttribute(CLOSENESS, nodeCloseness[s_index]);
-            s.setAttribute(BETWEENNESS, nodeBetweenness[s_index]);
+            s.setProperty(ECCENTRICITY, nodeEccentricity[s_index]);
+            s.setProperty(CLOSENESS, nodeCloseness[s_index]);
+            s.setProperty(BETWEENNESS, nodeBetweenness[s_index]);
         }
     }
 

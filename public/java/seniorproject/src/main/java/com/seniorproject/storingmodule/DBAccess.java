@@ -5,6 +5,7 @@
  */
 package com.seniorproject.storingmodule;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.EdgeIterable;
 import com.seniorproject.graphmodule.Node;
@@ -20,6 +21,8 @@ import iot.jcypher.query.JcQueryResult;
 import iot.jcypher.query.result.JcError;
 import iot.jcypher.transaction.ITransaction;
 import static iot.jcypher.util.Util.appendErrorList;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -143,9 +146,14 @@ public class DBAccess {
 
                     int aid = Integer.parseInt(a.get("id").toString()),
                             bid = Integer.parseInt(b.get("id").toString());
-
+                    
+                    
+                    
                     Node caller = new Node(aid);
                     Node callee = new Node(bid);
+                    caller.setLabel(a.get("number").toString());
+                    callee.setLabel(b.get("number").toString());
+                    
                     Edge rel = new Edge(
                             aid,
                             bid,
@@ -155,10 +163,14 @@ public class DBAccess {
                             r.get("callDay").toString(),
                             Integer.parseInt(r.get("duration").toString())
                     );
+                    
+                    a.remove("id");
+                    b.remove("id");
+                    a.remove("number");
+                    b.remove("number");
 
-                    caller.setAttributes(a);
-                    callee.setAttributes(b);
-
+                    caller.setProperties(a);
+                    callee.setProperties(b);
                     nodes.add(caller);
                     nodes.add(callee);
                     edges.add(rel);
@@ -172,80 +184,20 @@ public class DBAccess {
             graphDb.shutdown();
         }
         return null;
-
-//GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("C:/Users/thanp548/Documents/Neo4j/default.graphdb");
-//        Label label = DynamicLabel.label(db);
-//        try (Transaction tx = graphDb.beginTx();
-//                ResourceIterator<org.neo4j.graphdb.Node> customers = graphDb.findNodes(label)) {
-//            org.neo4j.graphdb.Node caller;
-//
-//            while (customers.hasNext()) {
-//                caller = customers.next();
-//
-//                for (Relationship rel : caller.getRelationships(Direction.OUTGOING)) {
-//                    org.neo4j.graphdb.Node callee = rel.getOtherNode(caller);
-//
-//                    // Filter here
-//                    Map<String, Object> callerProps = caller.getAllProperties();
-//                    Map<String, Object> calleeProps = callee.getAllProperties();
-//                    Map<String, Object> relProps = rel.getAllProperties();
-//
-//                    if(Integer.parseInt(relProps.get("duration").toString()) > fFilters.get("duration").get(0) &&
-//                        Integer.parseInt(relProps.get("duration").toString()) < fFilters.get("duration").get(1) &&
-//                        Double.parseDouble(relProps.get("startTime").toString()) > fFilters.get("startTime").get(0) &&
-//                        Double.parseDouble(relProps.get("startTime").toString()) < fFilters.get("startTime").get(1) &&
-//                        callerProps.get("rnCode").toString().matches(rnCode_Regex) &&
-//                        calleeProps.get("rnCode").toString().matches(rnCode_Regex) &&
-//                        relProps.get("callDay").toString().matches(callDay_Regex) &&
-//                        Double.parseDouble(relProps.get("startDate").toString()) > fFilters.get("startDate").get(0) &&
-//                        Double.parseDouble(relProps.get("startDate").toString()) < fFilters.get("startDate").get(1) ) {
-//
-//                        Node a = new Node((int) caller.getId());
-////                        a.setAge(callerProps.get("age").toString());
-////                        a.setGender(callerProps.get("gender").toString());
-//                        a.setLabel(callerProps.get("number").toString());
-//                        a.setNoOfOutgoing(Integer.parseInt(callerProps.get("outgoing").toString()));
-//                        a.setNoOfIncoming(Integer.parseInt(callerProps.get("incoming").toString()));
-//                        a.setRnCode(callerProps.get("rnCode").toString());
-////                        a.setPromotion(callerProps.get("promotion").toString());
-//
-//                        Node b = new Node((int) callee.getId());
-////                        b.setAge(calleeProps.get("age").toString());
-////                        b.setGender(calleeProps.get("gender").toString());
-//                        b.setLabel(calleeProps.get("number").toString());
-//                        b.setNoOfOutgoing(Integer.parseInt(calleeProps.get("outgoing").toString()));
-//                        b.setNoOfIncoming(Integer.parseInt(calleeProps.get("incoming").toString()));
-//                        b.setRnCode(calleeProps.get("rnCode").toString());
-////                        b.setPromotion(calleeProps.get("promotion").toString());
-//
-//                        Edge r = new Edge(
-//                                a.getID(),
-//                                b.getID(),
-//                                1,
-//                                //Integer.parseInt(relProps.get("duration").toString()), // weight
-//                                Long.toString(Double.valueOf(relProps.get("startDate").toString()).longValue()),
-//                                relProps.get("startTime").toString(),
-//                                relProps.get("callDay").toString(),
-//                                Integer.parseInt(relProps.get("duration").toString())
-//                        );
-//
-//                        nodes.add(a);
-//                        nodes.add(b);
-//                        edges.add(r);
-//                    }
-//
-//                }
-//            }
-//            System.out.println("Reading Graph is Done");
-//            customers.close();
-//            return new com.seniorproject.graphmodule.Graph(nodes, edges);
-//        } finally {
-//            graphDb.shutdown();
-//        }
     }
 
-    public void store(NodeIterable nodes, List<Edge> edges, String tid) {
-
+    public void store(NodeIterable nodes, List<Edge> edges, String tid) throws IOException {
+        Map<Integer, String> numberMapper = new HashMap<>();
+        CSVWriter writer = new CSVWriter(new FileWriter("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/processed_" + tid + "_profile.csv"), ',');
+        for(Node n : nodes) {
+            String[] line = n.splitPropertiesWithLabel();
+            numberMapper.put(n.getID(), n.getLabel());
+            writer.writeNext(line);
+        }
+        
+        writer.close();
+        
+        
 //        GraphDatabaseService gdb = new RestGraphDatabase("http://localhost:7474/db/data", "neo4j", "aiscu");
 //        NodeIterable[] aNodes = NodeIterable.split(nodes, Config.THREAD_POOL);
 //        StoringAgent[] sa = new StoringAgent[Config.THREAD_POOL];
@@ -266,12 +218,12 @@ public class DBAccess {
             for (Node n : nodes) {
                 GrNode tmp = graph.createNode();
                 tmp.addLabel("ProcessedCom" + tid);
-                tmp.addProperty("Member", n.getMember());
-                tmp.addProperty("Eccentricity", n.getEccentricity());
-                tmp.addProperty("Betweenness", n.getBetweenness());
-                tmp.addProperty("Closeness", n.getCloseness());
-                tmp.addProperty("CommunityID", n.getCommunityID());
-                tmp.addProperty("Color", n.getColor());
+                tmp.addProperty("Member", n.getProperty("member"));
+                tmp.addProperty("Eccentricity", n.getProperty("eccentricity"));
+                tmp.addProperty("Betweenness", n.getProperty("betweenness"));
+                tmp.addProperty("Closeness", n.getProperty("closeness"));
+                tmp.addProperty("CommunityID", n.getProperty("communityID"));
+                tmp.addProperty("Color", n.getProperty("color"));
                 grnodes.put(n.getID(), tmp);
             }
 
@@ -331,63 +283,5 @@ public class DBAccess {
         String str = sb.toString();
         System.out.println("");
         System.out.println(str);
-    }
-
-    class InsertTask implements Runnable {
-
-        private NodeIterable nodes = null;
-        private EdgeIterable edges = null;
-        private String tid;
-
-        public InsertTask(NodeIterable nodes, EdgeIterable edges, String tid) {
-            this.nodes = nodes;
-            this.edges = edges;
-            this.tid = tid;
-        }
-
-        @Override
-        public void run() {
-            try {
-                // do something
-                Graph graph = Graph.create(dbAccess);
-                Map<Integer, GrNode> grnodes = new HashMap<>();
-                ITransaction tx = dbAccess.beginTX();
-                int i = 0;
-                for (Node n : nodes) {
-                    GrNode tmp = graph.createNode();
-                    tmp.addLabel("Processed" + tid);
-                    tmp.addProperty("Number", n.getLabel());
-                    tmp.addProperty("Eccentricity", n.getEccentricity());
-                    tmp.addProperty("Betweenness", n.getBetweenness());
-                    tmp.addProperty("Closeness", n.getCloseness());
-                    tmp.addProperty("CommunityID", n.getCommunityID());
-                    tmp.addProperty("Age", n.getAge());
-                    tmp.addProperty("Gender", n.getGender());
-                    tmp.addProperty("RnCode", n.getRnCode());
-                    tmp.addProperty("Promotion", n.getPromotion());
-                    tmp.addProperty("NoOfOutgoing", n.getNoOfOutgoing());
-                    tmp.addProperty("NoOfIncoming", n.getNoOfIncoming());
-
-                    tmp.addProperty("Color", n.getColor());
-                    grnodes.put(n.getID(), tmp);
-                }
-
-                for (Edge e : edges) {
-                    GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
-                    rel.addProperty("Duration", e.getDuration());
-                    rel.addProperty("StartDate", e.getStartDate());
-                    rel.addProperty("StartTime", e.getStartTime());
-                    rel.addProperty("CallDay", e.getCallDay());
-                }
-                List<JcError> errors = graph.store();
-                tx.close();
-                if (!errors.isEmpty()) {
-                    printErrors(errors);
-                }
-            } finally {
-                closeDBConnection();
-                semaphore.release();
-            }
-        }
     }
 }

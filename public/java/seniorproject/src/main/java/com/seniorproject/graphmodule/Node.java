@@ -1,56 +1,23 @@
 package com.seniorproject.graphmodule;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Node {
+    private static final String REGEX_DOUBLE = "[\\x00-\\x20]*[+-]?(((((\\p{Digit}+)(\\.)?((\\p{Digit}+)?)([eE][+-]?(\\p{Digit}+))?)|(\\.((\\p{Digit}+))([eE][+-]?(\\p{Digit}+))?)|(((0[xX](\\p{XDigit}+)(\\.)?)|(0[xX](\\p{XDigit}+)?(\\.)(\\p{XDigit}+)))[pP][+-]?(\\p{Digit}+)))[fFdD]?))[\\x00-\\x20]*";
+    private static final String REGEX_INTEGER = "^-?\\d+$";
+    
     private int ID;
     private String label;
-
-    //attributes
-    private double eccentricity;
-    private double closeness;
-    private double betweenness;
-    private int communityID;
-    private String age;
-    private String gender;
-    private String rnCode;
-    private String promotion;
-    private int member;
-    private int noOfOutgoing;
-    private int noOfIncoming;
-    private double arpu;
-
-    private String color;
+    
+    private Map<String, Object> properties;
 
     public Node(int s) {
         this.ID = s;
-        this.betweenness = 0;
-        this.closeness = 0;
-        this.eccentricity = 0;
-        this.color = "";
-        this.age = "null";
-        this.rnCode = "null";
-        this.gender = "null";
-        this.promotion = "null";
-        this.member = 0;
-        this.noOfOutgoing = 0;
-        this.noOfIncoming = 0;
-    }
-
-    public void setAttribute(String type, double value) {
-        switch (type) {
-            case "eccentricity":
-                this.setEccentricity(value);
-                break;
-            case "closenesscentrality":
-                this.setCloseness(value);
-                break;
-            case "betweennesscentrality":
-                this.setBetweenness(value);
-                break;
-            default:
-                break;
-        }
+        this.properties = new HashMap<>();
     }
 
     @Override
@@ -73,77 +40,23 @@ public class Node {
         this.ID = id;
     }
 
-    //getter & setter Eccentricity
-
-    public double getEccentricity() {
-        return this.eccentricity;
+    public Map<String, Object> getProperties() {
+        return this.properties;
     }
-
-    public void setEccentricity(double eccentricity) {
-        this.eccentricity = eccentricity;
+    
+    public Object getProperty(String name) {
+        return this.properties.get(name);
     }
-
-    //getter & setter Closeness Centrality
-
-    public double getCloseness() {
-        return this.closeness;
+    
+    public void setProperty(String name, Object value) {
+        this.properties.put(name, value);
     }
-
-    public void setCloseness(double closeness) {
-        this.closeness = closeness;
+    
+    public void setProperties(Map<String, Object> props) {
+        for(Entry<String, Object> prop : props.entrySet()) {
+            this.properties.put(prop.getKey(), prop.getValue());
+        }
     }
-
-    //getter & setter Betweenness Centrality
-
-    public double getBetweenness() {
-        return this.betweenness;
-    }
-
-    public void setBetweenness(double betweenness) {
-        this.betweenness = betweenness;
-    }
-
-    //getter & setter Age
-
-    public String getAge() {
-        return this.age;
-    }
-
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    //getter & setter Gender
-
-    public String getGender() {
-        return this.gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    //getter & setter RnCode
-
-    public String getRnCode() {
-        return this.rnCode;
-    }
-
-    public void setRnCode(String rnCode) {
-        this.rnCode = rnCode;
-    }
-
-    //getter & setter Promotion
-
-    public String getPromotion() {
-        return this.promotion;
-    }
-
-    public void setPromotion(String promotion) {
-        this.promotion = promotion;
-    }
-
-    //getter & setter Label
 
     public String getLabel() {
         return label;
@@ -153,80 +66,28 @@ public class Node {
         this.label = label;
     }
 
-    //getter & setter CommunityID
-
-    public int getCommunityID() {
-        return communityID;
-    }
-
-    public void setCommunityID(int communityID) {
-        this.communityID = communityID;
-    }
-
-    //getter & setter Color
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    //getter & setter Member
-
-    public int getMember() {
-        return member;
-    }
-
-    public void setMember(int member) {
-        this.member = member;
-    }
-
-    //getter & setter No Of. Call
-
-    public int getNoOfOutgoing() {
-        return this.noOfOutgoing;
-    }
-
-    public void setNoOfOutgoing(int noOfOutgoing) {
-        this.noOfOutgoing = noOfOutgoing;
-    }
-
-    //getter & setter No. of Receive
-
-    public int getNoOfIncoming() {
-        return this.noOfIncoming;
-    }
-
-    public void setNoOfIncoming(int noOfIncoming) {
-        this.noOfIncoming = noOfIncoming;
+    public String[] splitProperties() {
+        List<String> allProp = new ArrayList();
+        
+        for(Entry<String, Object> prop : this.properties.entrySet()) {
+            allProp.add(prop.getValue().toString());
+        }
+        
+        return allProp.toArray(new String[this.properties.size()]);
     }
     
-    /**
-     * @return the arpu
-     */
-    public double getArpu() {
-        return arpu;
-    }
-
-    /**
-     * @param arpu the arpu to set
-     */
-    public void setArpu(double arpu) {
-        this.arpu = arpu;
+    public String[] splitPropertiesWithLabel() {
+        List<String> allProp = new ArrayList();
+        
+        allProp.add(this.getLabel());
+        for(Entry<String, Object> prop : this.properties.entrySet()) {
+            allProp.add(prop.getValue().toString());
+        }
+        
+        return allProp.toArray(new String[this.properties.size()]);
     }
     
-    public void setAttributes(Map<String, Object> attr) {
-        this.setLabel(attr.get("number").toString());
-        this.setAge(attr.get("age").toString());
-        this.setGender(attr.get("gender").toString());
-        this.setRnCode(attr.get("carrier").toString());
-        this.setPromotion(attr.get("promotion").toString());
-        this.setNoOfIncoming(Integer.parseInt(attr.get("incoming").toString()));
-        this.setNoOfOutgoing(Integer.parseInt(attr.get("outgoing").toString()));
-        this.setArpu(Double.parseDouble(attr.get("arpu").toString()));
+    private double toDouble(Object obj) {
+        return Double.parseDouble(obj.toString());
     }
-
-
 }

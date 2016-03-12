@@ -37,7 +37,7 @@ public class SocialNetworkAnalysis {
     public static void markColor(Graph hgraph, int totalCommunities) {
         String[] colors = generateColor(totalCommunities);
         for (Node n : hgraph.getNodes()) {
-            n.setColor(colors[n.getCommunityID()]);
+            n.setProperty("color", colors[Integer.parseInt(n.getProperty("communityID").toString())]);
         }
     }
 
@@ -88,7 +88,7 @@ public class SocialNetworkAnalysis {
         Set<Integer> tot = new HashSet<>();
         int idx = 0;
         for (Node node : hgraph.getNodes()) {
-            node.setCommunityID(com[idx]);
+            node.setProperty("communityID", com[idx]);
             tot.add(com[idx]);
             idx++;
         }
