@@ -94,9 +94,9 @@ public class Modularity {
                 //Remove Node Connection to this community
                 Double neighEdgesTo = nodeConnectionsWeight[neighbor].get(to);
                 if (neighEdgesTo == null) {
-                    nodeConnectionsWeight[neighbor].put(to, e.getWeight());
+                    nodeConnectionsWeight[neighbor].put(to, Double.parseDouble(e.getProperty("weight").toString()));
                 } else {
-                    nodeConnectionsWeight[neighbor].put(to, neighEdgesTo + e.getWeight());
+                    nodeConnectionsWeight[neighbor].put(to, neighEdgesTo + Double.parseDouble(e.getProperty("weight").toString()));
                 }
                 Integer neighCountEdgesTo = nodeConnectionsCount[neighbor].get(to);
                 if (neighCountEdgesTo == null) {
@@ -108,9 +108,9 @@ public class Modularity {
                 Community adjCom = nodeCommunities[neighbor];
                 Double wEdgesto = adjCom.connectionsWeight.get(to);
                 if (wEdgesto == null) {
-                    adjCom.connectionsWeight.put(to, e.getWeight());
+                    adjCom.connectionsWeight.put(to, Double.parseDouble(e.getProperty("weight").toString()));
                 } else {
-                    adjCom.connectionsWeight.put(to, wEdgesto + e.getWeight());
+                    adjCom.connectionsWeight.put(to, wEdgesto + Double.parseDouble(e.getProperty("weight").toString()));
                 }
 
                 Integer cEdgesto = adjCom.connectionsCount.get(to);
@@ -122,9 +122,9 @@ public class Modularity {
 
                 Double nodeEdgesTo = nodeConnectionsWeight[node].get(adjCom);
                 if (nodeEdgesTo == null) {
-                    nodeConnectionsWeight[node].put(adjCom, e.getWeight());
+                    nodeConnectionsWeight[node].put(adjCom, Double.parseDouble(e.getProperty("weight").toString()));
                 } else {
-                    nodeConnectionsWeight[node].put(adjCom, nodeEdgesTo + e.getWeight());
+                    nodeConnectionsWeight[node].put(adjCom, nodeEdgesTo + Double.parseDouble(e.getProperty("weight").toString()));
                 }
 
                 Integer nodeCountEdgesTo = nodeConnectionsCount[node].get(adjCom);
@@ -137,9 +137,9 @@ public class Modularity {
                 if (to != adjCom) {
                     Double comEdgesto = to.connectionsWeight.get(adjCom);
                     if (comEdgesto == null) {
-                        to.connectionsWeight.put(adjCom, e.getWeight());
+                        to.connectionsWeight.put(adjCom, Double.parseDouble(e.getProperty("weight").toString()));
                     } else {
-                        to.connectionsWeight.put(adjCom, comEdgesto + e.getWeight());
+                        to.connectionsWeight.put(adjCom, comEdgesto + Double.parseDouble(e.getProperty("weight").toString()));
                     }
 
                     Integer comCountEdgesto = to.connectionsCount.get(adjCom);
@@ -167,7 +167,7 @@ public class Modularity {
                     nodeConnectionsWeight[neighbor].remove(community);
                     nodeConnectionsCount[neighbor].remove(community);
                 } else {
-                    nodeConnectionsWeight[neighbor].put(community, edgesTo - e.getWeight());
+                    nodeConnectionsWeight[neighbor].put(community, edgesTo - Double.parseDouble(e.getProperty("weight").toString()));
                     nodeConnectionsCount[neighbor].put(community, countEdgesTo - 1);
                 }
 
@@ -180,7 +180,7 @@ public class Modularity {
                     adjCom.connectionsWeight.remove(community);
                     adjCom.connectionsCount.remove(community);
                 } else {
-                    adjCom.connectionsWeight.put(community, oEdgesto - e.getWeight());
+                    adjCom.connectionsWeight.put(community, oEdgesto - Double.parseDouble(e.getProperty("weight").toString()));
                     adjCom.connectionsCount.put(community, oCountEdgesto - 1);
                 }
 
@@ -195,7 +195,7 @@ public class Modularity {
                         community.connectionsWeight.remove(adjCom);
                         community.connectionsCount.remove(adjCom);
                     } else {
-                        community.connectionsWeight.put(adjCom, comEdgesto - e.getWeight());
+                        community.connectionsWeight.put(adjCom, comEdgesto - Double.parseDouble(e.getProperty("weight").toString()));
                         community.connectionsCount.put(adjCom, comCountEdgesto - 1);
                     }
                 }
@@ -206,7 +206,7 @@ public class Modularity {
                     nodeConnectionsWeight[node].remove(adjCom);
                     nodeConnectionsCount[node].remove(adjCom);
                 } else {
-                    nodeConnectionsWeight[node].put(adjCom, nodeEgesTo - e.getWeight());
+                    nodeConnectionsWeight[node].put(adjCom, nodeEgesTo - Double.parseDouble(e.getProperty("weight").toString()));
                     nodeConnectionsCount[node].put(adjCom, nodeCountEgesTo - 1);
                 }
 
@@ -265,9 +265,9 @@ public class Modularity {
                 Community com = nodeCommunities[i];
                 communities.add(com);
                 for (Edge e : newTopology[i]) {
-                    nodeConnectionsWeight[i].put(nodeCommunities[e.getTarget()], e.getWeight());
+                    nodeConnectionsWeight[i].put(nodeCommunities[e.getTarget()], Double.parseDouble(e.getProperty("weight").toString()));
                     nodeConnectionsCount[i].put(nodeCommunities[e.getTarget()], 1);
-                    com.connectionsWeight.put(nodeCommunities[e.getTarget()], e.getWeight());
+                    com.connectionsWeight.put(nodeCommunities[e.getTarget()], Double.parseDouble(e.getProperty("weight").toString()));
                     com.connectionsCount.put(nodeCommunities[e.getTarget()], 1);
                 }
 

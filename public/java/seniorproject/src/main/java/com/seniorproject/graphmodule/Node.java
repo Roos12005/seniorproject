@@ -87,6 +87,17 @@ public class Node {
         return allProp.toArray(new String[this.properties.size()]);
     }
     
+    public String[] getPropertiesName() {
+        List<String> allProp = new ArrayList();
+        
+        allProp.add("a_number");
+        for(Entry<String, Object> prop : this.properties.entrySet()) {
+            allProp.add(prop.getKey());
+        }
+        
+        return allProp.toArray(new String[this.properties.size()]);
+    }
+    
     private double toDouble(Object obj) {
         return Double.parseDouble(obj.toString());
     }

@@ -6,8 +6,8 @@ import com.seniorproject.graphmodule.Node;
 import java.util.*;
 
 public class GraphDistance {
-    public static final String BETWEENNESS = "betweennesscentrality";
-    public static final String CLOSENESS = "closenesscentrality";
+    public static final String BETWEENNESS = "betweenness";
+    public static final String CLOSENESS = "closeness";
     public static final String ECCENTRICITY = "eccentricity";
     
     private double[] betweenness;

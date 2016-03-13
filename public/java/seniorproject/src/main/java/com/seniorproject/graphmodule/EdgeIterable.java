@@ -18,7 +18,7 @@ public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
 
     public boolean add(Edge e){
         if(edges.containsKey(toID(e))) {
-            edges.get(toID(e)).increaseWeight(roundDuration(e.getDuration()));
+            edges.get(toID(e)).increaseWeight(roundDuration(Integer.parseInt(e.getProperty("duration").toString())));
         } else {
             edges.put(toID(e), e);
             ids.add(toID(e));

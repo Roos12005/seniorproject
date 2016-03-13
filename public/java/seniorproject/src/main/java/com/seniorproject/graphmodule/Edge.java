@@ -1,35 +1,41 @@
 package com.seniorproject.graphmodule;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Edge {
     int source;
     int target;
-    double weight;
-    String startDate;
-    String startTime;
-    String callDay;
-    int duration;
+    private Map<String, Object> properties;
 
 
     public Edge(int s, int t, double w, String sd, String st, String cd, int d) {
-        source = s;
-        target = t;
-        weight = w;
-        startDate = sd;
-        startTime = st;
-        callDay = cd;
-        duration = d;
+        this.source = s;
+        this.target = t;
+        this.properties = new HashMap<>();
+        
+        this.properties.put("duration", d);
+        this.properties.put("weight", w);
+        this.properties.put("startDate", sd);
+        this.properties.put("startTime", st);
+        this.properties.put("callDay", cd);
+        
     }
 
     public Edge(int s, int t, double w) {
-        source = s;
-        target = t;
-        weight = w;
+        this.source = s;
+        this.target = t;
+        this.properties = new HashMap<>();
+        this.properties.put("weight", w);
     }
 
     public void increaseWeight(double f) {
-        this.weight += f;
+        double prevWeight = Double.parseDouble(this.properties.get("weight").toString());
+        double newWeight = prevWeight + f;
+        this.properties.put("weight", newWeight);
     }
 
     //getter & setter Source
@@ -52,63 +58,45 @@ public class Edge {
         this.target = target;
     }
 
-    //getter & setter Weight
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    //getter & setter Duration
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    //getter & setter StartDate
-
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-
-    //getter & setter StartTime
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    //getter & setter CallDay
-    
-    public String getCallDay() {
-        return callDay;
-    }
-
-    public void setCallDay(String callDay) {
-        this.callDay = callDay;
+    public Map<String, Object> getProperties() {
+        return this.properties;
     }
     
-    public void setAttributes(Map<String, Object> attr) {
-        this.setCallDay(attr.get("callDay").toString());
-        this.setDuration(Integer.parseInt(attr.get("duration").toString()));
-        this.setSource(Integer.parseInt(attr.get("source").toString()));
-        this.setTarget(Integer.parseInt(attr.get("target").toString()));
-        this.setStartDate(attr.get("startDate").toString());
-        this.setStartTime(attr.get("startTime").toString());
-        this.setWeight(this.getDuration()/60 + (this.getDuration() % 60 == 0? 0 : 1));
+    public Object getProperty(String name) {
+        return this.properties.get(name);
+    }
+    
+    public void setProperties(Map<String, Object> props) {
+        for(Entry<String, Object> prop : props.entrySet()) {
+            this.properties.put(prop.getKey(), prop.getValue());
+        }
+    }
+    
+    public void setProperty(String name, Object value) {
+        this.properties.put(name, value);
+    }
+    
+    public String[] splitPropertiesWithNode() {
+        List<String> allProp = new ArrayList<>();
+        
+        allProp.add(this.getSource() + "");
+        allProp.add(this.getTarget() + "");
+        for(Entry<String, Object> prop : this.properties.entrySet()) {
+            allProp.add(prop.getValue().toString());
+        }
+        
+        return allProp.toArray(new String[this.properties.size()]);
+    }
+    
+    public String[] getPropertiesName() {
+        List<String> allProp = new ArrayList<>();
+        
+        allProp.add("a_number");
+        allProp.add("b_number");
+        for(Entry<String, Object> prop : this.properties.entrySet()) {
+            allProp.add(prop.getKey());
+        }
+        
+        return allProp.toArray(new String[this.properties.size()]);
     }
 }

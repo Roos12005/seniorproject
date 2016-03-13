@@ -7,20 +7,8 @@ package com.seniorproject.storingmodule;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import com.seniorproject.graphmodule.Edge;
-import com.seniorproject.graphmodule.EdgeIterable;
 import com.seniorproject.graphmodule.Node;
 import com.seniorproject.graphmodule.NodeIterable;
-import iot.jcypher.database.DBAccessFactory;
-import iot.jcypher.database.DBProperties;
-import iot.jcypher.database.DBType;
-import iot.jcypher.database.IDBAccess;
-import iot.jcypher.graph.GrNode;
-import iot.jcypher.graph.GrRelation;
-import iot.jcypher.graph.Graph;
-import iot.jcypher.query.JcQueryResult;
-import iot.jcypher.query.result.JcError;
-import iot.jcypher.transaction.ITransaction;
-import static iot.jcypher.util.Util.appendErrorList;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,47 +17,43 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.rest.graphdb.RestGraphDatabase;
 
 public class DBAccess {
-
-    private static ExecutorService pool = Executors.newFixedThreadPool(4);
-    private static Semaphore semaphore = new Semaphore(4);
-
-    private static IDBAccess dbAccess;
 
     public DBAccess() {
 
     }
-
+    
+    /**
+     * Convert list of string into regular expression
+     *
+     * @param  s  - List of String
+     * @return regular expression created from list of string
+     * 
+     */
     public static String toRegex(List<String> s) {
-        String tmp = s.get(0);
+        String regex = s.get(0);
         for (int i = 1; i < s.size(); i++) {
-            tmp += tmp + "|" + s.get(i);
+            regex += regex + "|" + s.get(i);
         }
-        return tmp;
+        return regex;
     }
 
-    private static void initDBConnection() {
-        Properties props = new Properties();
-        props.setProperty(DBProperties.SERVER_ROOT_URI, Config.HOST_NAME);
-        dbAccess = DBAccessFactory.createDBAccess(DBType.REMOTE, props, Config.USERNAME, Config.PASSWORD);
-    }
-
+    /**
+     * Query nodes and relationships from embedded Neo4J database
+     *
+     * @param  sFilters  - Map containing string-type filter name and value
+     * @param fFilters - Map containing numeric-type filter name and value
+     * @param db - database name
+     * 
+     * @return graph object containing filtered nodes and edges
+     * 
+     */
     public com.seniorproject.graphmodule.Graph loadAll(Map<String, List<String>> sFilters,
             Map<String, List<Double>> fFilters, String db) {
 
@@ -90,7 +74,7 @@ public class DBAccess {
         GraphDatabaseService graphDb = null;
         
         try {
-            graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
+            graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(Config.DATABASE_DIR + Config.SOURCE_DATABASE);
 
             Map<String, Object> params = new HashMap<>();
             params.put("rnCode", rnCode_Regex);
@@ -132,15 +116,19 @@ public class DBAccess {
                         String domain = column.getKey().substring(0, 1);
                         String attr = column.getKey().substring(2);
 
-                        if (domain.equals("n")) {
-                            a.put(attr, column.getValue());
-                        } else if (domain.equals("m")) {
-                            b.put(attr, column.getValue());
-                        } else if (domain.equals("r")) {
-                            r.put(attr, column.getValue());
-                        } else {
-                            // This should not be triggered
-                            throw new Exception("Invalid Cypher Return : Load All Function");
+                        switch (domain) {
+                            case "n":
+                                a.put(attr, column.getValue());
+                                break;
+                            case "m":
+                                b.put(attr, column.getValue());
+                                break;
+                            case "r":
+                                r.put(attr, column.getValue());
+                                break;
+                            default:
+                                // This should not be triggered
+                                throw new Exception("Invalid Cypher Return : Load All Function");
                         }
                     }
 
@@ -177,7 +165,9 @@ public class DBAccess {
                 }
                 return new com.seniorproject.graphmodule.Graph(nodes, edges);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("======== Error occured in LoadAll function ========");
+                System.err.println(e.getMessage());
+                System.out.println("======================================");
             }
         } finally {
             System.out.println("Graph is shut down successfully");
@@ -185,103 +175,97 @@ public class DBAccess {
         }
         return null;
     }
-
+    
+    /**
+     * Store nodes and edges as customers in CSV format
+     *
+     * @param nodes - NodeIterable containing all nodes to be stored
+     * @param edges - List of edges to be stored
+     * @param tid - Table ID
+     * @throws java.io.IOException
+     * 
+     */
     public void store(NodeIterable nodes, List<Edge> edges, String tid) throws IOException {
         Map<Integer, String> numberMapper = new HashMap<>();
-        CSVWriter writer = new CSVWriter(new FileWriter("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/processed_" + tid + "_profile.csv"), ',');
+        CSVWriter writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_" + tid + "_profile.csv"), ',');
+        
+        boolean isFirst = true;
+        String[] line = null;
+        
         for(Node n : nodes) {
-            String[] line = n.splitPropertiesWithLabel();
+            if(isFirst) {
+                line = n.getPropertiesName();
+                writer.writeNext(line);
+                isFirst = false;
+            }
+            line = n.splitPropertiesWithLabel();
             numberMapper.put(n.getID(), n.getLabel());
             writer.writeNext(line);
         }
-        
         writer.close();
         
+        writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_" + tid + "_cdr.csv"), ',');
+        isFirst = true;
+        for(Edge e : edges) {
+            if(isFirst) {
+                line = e.getPropertiesName();
+                writer.writeNext(line);
+                isFirst = false;
+            }
+            line = e.splitPropertiesWithNode();
+            
+            line[0] = numberMapper.get(Integer.parseInt(line[0]));
+            line[1] = numberMapper.get(Integer.parseInt(line[1]));
+            
+            writer.writeNext(line);
+        }
+        writer.close();
+    }
+    
+    /**
+     * Store nodes and edges as communities in CSV format
+     *
+     * @param nodes - NodeIterable containing all nodes to be stored
+     * @param edges - List of edges to be stored
+     * @param tid - Table ID
+     * @throws java.io.IOException
+     * 
+     */
+    public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) throws IOException {
+        Map<Integer, String> numberMapper = new HashMap<>();
+        CSVWriter writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_com_" + tid + "_profile.csv"), ',');
         
-//        GraphDatabaseService gdb = new RestGraphDatabase("http://localhost:7474/db/data", "neo4j", "aiscu");
-//        NodeIterable[] aNodes = NodeIterable.split(nodes, Config.THREAD_POOL);
-//        StoringAgent[] sa = new StoringAgent[Config.THREAD_POOL];
-//        for (int i = 0; i < Config.THREAD_POOL; i++) {
-//            sa[i] = new StoringAgent(gdb, aNodes[i], "thread" + i);
-//            sa[i].start();
-//        }
-    }
-
-    public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) {
-        initDBConnection();
-        try {
-            Graph graph = Graph.create(dbAccess);
-            Map<Integer, GrNode> grnodes = new HashMap<>();
-            ITransaction tx = dbAccess.beginTX();
-            int i = 0;
-
-            for (Node n : nodes) {
-                GrNode tmp = graph.createNode();
-                tmp.addLabel("ProcessedCom" + tid);
-                tmp.addProperty("Member", n.getProperty("member"));
-                tmp.addProperty("Eccentricity", n.getProperty("eccentricity"));
-                tmp.addProperty("Betweenness", n.getProperty("betweenness"));
-                tmp.addProperty("Closeness", n.getProperty("closeness"));
-                tmp.addProperty("CommunityID", n.getProperty("communityID"));
-                tmp.addProperty("Color", n.getProperty("color"));
-                grnodes.put(n.getID(), tmp);
+        boolean isFirst = true;
+        String[] line = null;
+        
+        for(Node n : nodes) {
+            if(isFirst) {
+                line = n.getPropertiesName();
+                writer.writeNext(line);
+                isFirst = false;
             }
-
-            for (Edge e : edges) {
-                GrRelation rel = graph.createRelation("Call", grnodes.get(e.getSource()), grnodes.get(e.getTarget()));
-                rel.addProperty("Duration", e.getDuration());
-                rel.addProperty("StartDate", e.getStartDate());
-                rel.addProperty("StartTime", e.getStartTime());
-                rel.addProperty("CallDay", e.getCallDay());
-            }
-            List<JcError> errors = graph.store();
-            tx.close();
-            if (!errors.isEmpty()) {
-                printErrors(errors);
-            }
-        } catch (Exception e) {
-
-        } finally {
-            closeDBConnection();
+            line = n.splitPropertiesWithLabel();
+            line[0] = n.getProperty("communityID").toString();
+            numberMapper.put(n.getID(), line[0]);
+            writer.writeNext(line);
         }
-    }
-
-    private void closeDBConnection() {
-        if (dbAccess != null) {
-            dbAccess.close();
-            dbAccess = null;
+        writer.close();
+        
+        writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_com_" + tid + "_cdr.csv"), ',');
+        isFirst = true;
+        for(Edge e : edges) {
+            if(isFirst) {
+                line = e.getPropertiesName();
+                writer.writeNext(line);
+                isFirst = false;
+            }
+            line = e.splitPropertiesWithNode();
+            
+            line[0] = numberMapper.get(Integer.parseInt(line[0]));
+            line[1] = numberMapper.get(Integer.parseInt(line[1]));
+            
+            writer.writeNext(line);
         }
-    }
-
-    /**
-     * print errors to System.out
-     *
-     * @param result
-     */
-    private static void printErrors(JcQueryResult result) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("---------------General Errors:");
-        appendErrorList(result.getGeneralErrors(), sb);
-        sb.append("\n---------------DB Errors:");
-        appendErrorList(result.getDBErrors(), sb);
-        sb.append("\n---------------end Errors:");
-        String str = sb.toString();
-        System.out.println("");
-        System.out.println(str);
-    }
-
-    /**
-     * print errors to System.out
-     *
-     * @param result
-     */
-    private static void printErrors(List<JcError> errors) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("---------------Errors:");
-        appendErrorList(errors, sb);
-        sb.append("\n---------------end Errors:");
-        String str = sb.toString();
-        System.out.println("");
-        System.out.println(str);
+        writer.close();
     }
 }
