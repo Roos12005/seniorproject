@@ -65,7 +65,8 @@ class AnalysisController extends Controller{
         'Closeness Centrality' => $result['n']['Closeness'],
         'Age' => $result['n']['Age'],
         'Gender' => $result['n']['Gender'],
-        'RnCode' => $result['n']['RnCode'],
+        'Carrier' => $result['n']['Carrier'],
+        'Arpu' => $result['n']['Arpu'],
         'Promotion' => $result['n']['Promotion'],
         'NoOfOutgoing' => $result['n']['NoOfOutgoing'],
         'NoOfIncoming' => $result['n']['NoOfIncoming']
@@ -205,7 +206,8 @@ class AnalysisController extends Controller{
         'Closeness Centrality' => $result['n']['Closeness'],
         'Age' => $result['n']['Age'],
         'Gender' => $result['n']['Gender'],
-        'RnCode' => $result['n']['RnCode'],
+        'Carrier' => $result['n']['Carrier'],
+        'Arpu' => $result['n']['Arpu'],
         'Promotion' => $result['n']['Promotion'],
         'NoOfOutgoing' => $result['n']['NoOfOutgoing'],
         'NoOfIncoming' => $result['n']['NoOfIncoming']
@@ -244,7 +246,15 @@ class AnalysisController extends Controller{
           'Modularity Class' => $result['n']['CommunityID'],
           'Eccentricity' => $result['n']['Eccentricity'],
           'Closeness Centrality' => $result['n']['Closeness'],
-          'Member' => $result['n']['Member']
+          'Member' => $result['n']['Member'],
+          'Member Profile' => $result['n']['MemberProfile'],
+          'Ais Ratio Profile' => $result['n']['AisRatioProfile'],
+          'Daytime Nighttime Profile' => $result['n']['DaytimeNighttimeProfile'],
+          'Weekday Weekend Profile' => $result['n']['WeekdayWeekendProfile'],
+          'Call Other Carrier Profile' => $result['n']['CallOtherCarrierProfile'],
+          'Average No Of Call Profile' => $result['n']['AverageNoOfCallProfile'],
+          'Average Arpu Profile' => $result['n']['AverageArpuProfile'],
+          'Average Duration Profile' => $result['n']['AverageDurationProfile'],
         ];
         $community_info = [
           'label' => "Community".$result['n']['CommunityID'],
@@ -305,6 +315,52 @@ class AnalysisController extends Controller{
         $edge_id += 1;
         array_push($edge_list, $edge_info);
       }
+       // $q = 'MATCH (n:ProcessedCom'. $id . ')-[r:Call]->(m:ProcessedCom'. $id.') RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
+       //  $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+       //  $edge_list = array();
+       //  $call_list = array();
+       //  $edge_id = 9945;
+       //  foreach ($results as $result) {
+       //    $call = ['source' => $result['n_id'],'target' => $result['m_id']];
+       //    $noDayTime = 0;
+       //    $noNightTime = 0;
+       //    if($result['r']['StartTime'] >= 5 && $result['r']['StartTime'] <= 17){
+       //      $noDayTime += 1;
+       //    } else {
+       //      $noNightTime += 1;
+       //    }
+       //    if(!in_array($call, $call_list)){
+       //      array_push($call_list, $call);
+       //      $edge_prop = [
+       //          'duration' => $result['r']['Duration'],
+       //          'noDayTime' => $noDayTime,
+       //          'noNightTime' => $noNightTime,
+       //          'weight' => 1
+       //      ];
+       //      $edge_info = [
+       //        'target' => $result['m_id'],
+       //        'color' => '',
+       //        'label' => '',
+       //        'source' => $result['n_id'],
+       //        'attributes' => $edge_prop,
+       //        'id' => $edge_id,
+       //        'size' => 1
+       //      ];
+       //      array_push($edge_list,$edge_info);
+       //      $edge_id++;
+       //    } else {
+       //      foreach($edge_list as $key => $value){ 
+       //        if($edge_list[$key]['source'] == $result['n_id'] && $edge_list[$key]['target'] == $result['m_id']){
+       //          $edge_list[$key]['attributes']['weight'] = $edge_list[$key]['attributes']['weight'] + 1;
+       //          $edge_list[$key]['attributes']['duration'] += $result['r']['Duration'];
+       //          $edge_list[$key]['attributes']['noDayTime'] += $noDayTime;
+       //          $edge_list[$key]['attributes']['noNightTime'] += $noNightTime;
+       //        }
+       //      }
+              
+       //    }
+       //  }
+
     return response()->json(['nodes' => $community_list, 'edges' => $edge_list]); 
   }
 
@@ -320,13 +376,13 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:Processed' . $id . ') -[r:Call]-> (m:Processed' . $id . ') RETURN count(r)';
     $all_call = $client->sendCypherQuery($q)->getResult()->get('count(r)');
 
-    $q = 'MATCH (n:Processed' . $id . '{RnCode:"AIS"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . '{Carrier:"AIS"}) RETURN count(n)';
     $ais_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{RnCode:"TRUE"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . '{Carrier:"TRUE"}) RETURN count(n)';
     $true_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{RnCode:"DTAC"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . '{Carrier:"DTAC"}) RETURN count(n)';
     $dtac_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
     return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'calls' => $all_call]);
@@ -356,7 +412,8 @@ class AnalysisController extends Controller{
             'Closeness Centrality' => $result['n']['Closeness'],
             'Age' => $result['n']['Age'],
             'Gender' => $result['n']['Gender'],
-            'RnCode' => $result['n']['RnCode'],
+            'Carrier' => $result['n']['Carrier'],
+            'Arpu' => $result['n']['Arpu'],
             'Promotion' => $result['n']['Promotion'],
             'NoOfOutgoing' => $result['n']['NoOfOutgoing'],
             'NoOfIncoming' => $result['n']['NoOfIncoming']

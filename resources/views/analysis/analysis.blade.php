@@ -113,8 +113,8 @@
                         <a class="btn btn-default three-col-button hilightNode" id="h-ais">
                             AIS Only
                         </a>
-                        <a class="btn btn-default three-col-button hilightNode" id="h-promotion">
-                            Promotion
+                        <a class="btn btn-default three-col-button hilightNode" id="h-arpu">
+                            ARPU
                         </a>
                         <a class="btn btn-default three-col-button hilightNode" id="h-degree">
                             Degree 
@@ -350,6 +350,14 @@
                             <div class="clearfix separate-line"></div>
 
                             <div class="col-sm-12">
+                                <label class=" col-sm-5 control-label">ARPU</label>
+                                <div class=" col-sm-7">
+                                    <p class="form-control-static" id="carpu">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+
+                            <div class="col-sm-12">
                                 <label class=" col-sm-5 control-label">Call</label>
                                 <div class=" col-sm-7">
                                     <p class="form-control-static" id="cnoOfCall">-</p>
@@ -454,17 +462,61 @@
                             </div>
                             <div class="clearfix separate-line"></div>
                             <div class="col-sm-12">
-                                <label class=" col-sm-8 control-label">Profile</label>
+                                <label class=" col-sm-8 control-label">Member Profile</label>
                                 <div class=" col-sm-3">
-                                    <p class="form-control-static" id="profile">-</p>
+                                    <p class="form-control-static" id="memberProfileInfor">-</p>
                                 </div>
                             </div>
                             <div class="clearfix separate-line"></div>
-                            <!-- <div class="col-sm-12">
-                                <a href="#" class="btn btn-default more-button">
-                                    View Community Details
-                                </a>
-                            </div> -->
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Ais Ratio Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="aisRatioProfileInfor">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Daytime Nighttime Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="daytimeNighttimeProfileInfor">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Weekday Weekend Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="weekdayWeekendProfileInfor">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Call Other Carrier Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="callOtherCarrierProfileInfor">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Average No of Call Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="averageNoOfCallProfileInfor">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Average ARPU Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="averageArpuProfileInfor">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
+                            <div class="col-sm-12">
+                                <label class=" col-sm-8 control-label">Average Duration Profile</label>
+                                <div class=" col-sm-3">
+                                    <p class="form-control-static" id="averageDurationProfileInfor">-</p>
+                                </div>
+                            </div>
+                            <div class="clearfix separate-line"></div>
                         </div>
                         <!-- Community Body End -->
                     </div>
@@ -534,6 +586,7 @@
                                 <option value="High">High</option>
                                 <option value="Very High">Very High</option>
                             </select>
+                            <p class="help-block">Membership </p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -546,6 +599,7 @@
                                 <option value="High">High</option>
                                 <option value="Very High">Very High</option>
                             </select>
+                            <p class="help-block">Ratio of ais number and other carrier number </p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -556,6 +610,7 @@
                                 <option value="Average">Average</option>
                                 <option value="Nighttime">Nighttime</option>
                             </select>
+                            <p class="help-block">Daytime (5.00 - 17.00) & Nighttime (17.00 - 5.00)</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -566,6 +621,7 @@
                                 <option value="Average">Average</option>
                                 <option value="Weekend">Weekend</option>
                             </select>
+                            <p class="help-block">Weekday (Mon - Fri) & Weekend (Sat - Sun) </p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -578,6 +634,7 @@
                                 <option value="High">High</option>
                                 <option value="Very High">Very High</option>
                             </select>
+                            <p class="help-block">Number calling to other carrier (True,Dtac,Others) </p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -590,6 +647,7 @@
                                 <option value="High">High</option>
                                 <option value="Very High">Very High</option>
                             </select>
+                            <p class="help-block">Average number of call </p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -602,6 +660,7 @@
                                 <option value="High">High</option>
                                 <option value="Very High">Very High</option>
                             </select>
+                            <p class="help-block">Average ARPU</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -614,9 +673,11 @@
                                 <option value="High">High</option>
                                 <option value="Very High">Very High</option>
                             </select>
+                            <p class="help-block">Average call duration per call</p>
                         </div>
                     </div>
                     <input type="hidden" name="sendprofile" id="sendprofile" value=""> 
+                    <p class="help-block" style="color:red;"><i>*Leave blank for not specify</i></p>
                     <div style="float: right;">
                         <button class="btn btn-success" id="communityProfile-filter" onclick="return false;">Filter</button>
                         <button class="btn btn-danger" type="button" data-dismiss="modal">Cancel</button>

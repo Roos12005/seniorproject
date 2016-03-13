@@ -41,6 +41,7 @@ public class Importer {
         Map<String, Integer> outgoing = new HashMap<>();
         Map<String, String> age = new HashMap<>();
         Map<String, String> gender = new HashMap<>();
+        Map<String, String> arpu = new HashMap<>();
         Map<String, String> promotion = new HashMap<>();
         try (CSVReader reader = new CSVReader(new FileReader("/Users/KIM/Desktop/sample_cdr.csv"), ',')) {
             String[] nextLine;
@@ -66,7 +67,8 @@ public class Importer {
             while ((nextLine = reader.readNext()) != null) {
                 age.put(nextLine[0],nextLine[1]);
                 gender.put(nextLine[0],nextLine[2]);
-                promotion.put(nextLine[0],nextLine[3]);
+                arpu.put(nextLine[0],nextLine[3]);
+                promotion.put(nextLine[0],nextLine[4]);
             }
             reader.close();
         } 
@@ -105,9 +107,10 @@ public class Importer {
                     a.setProperty("number", nextLine[0]);
                     a.setProperty("incoming", incoming.get(nextLine[0]) == null? 0 : incoming.get(nextLine[0]));
                     a.setProperty("outgoing", outgoing.get(nextLine[0]) == null? 0 : outgoing.get(nextLine[0]));
-                    a.setProperty("rnCode","AIS");
+                    a.setProperty("carrier","AIS");
                     a.setProperty("age", age.get(nextLine[0]) == null? "unknown" : age.get(nextLine[0]));
                     a.setProperty("gender", gender.get(nextLine[0]) == null? "unknown" : gender.get(nextLine[0]));
+                    a.setProperty("arpu", arpu.get(nextLine[0]) == null? "unknown" : arpu.get(nextLine[0]));
                     a.setProperty("promotion", promotion.get(nextLine[0]) == null? "unknown" : promotion.get(nextLine[0]));
                     nodes.put(nextLine[0], a);
                 }
@@ -119,9 +122,10 @@ public class Importer {
                     b.setProperty("number", nextLine[1]);
                     b.setProperty("incoming", incoming.get(nextLine[1]) == null? 0 : incoming.get(nextLine[1]));
                     b.setProperty("outgoing", outgoing.get(nextLine[1]) == null? 0 : outgoing.get(nextLine[1]));
-                    b.setProperty("rnCode",nextLine[6]);
+                    b.setProperty("carrier",nextLine[6]);
                     b.setProperty("age", age.get(nextLine[1]) == null? "unknown" : age.get(nextLine[0]));
                     b.setProperty("gender", gender.get(nextLine[1]) == null? "unknown" : gender.get(nextLine[0]));
+                    b.setProperty("arpu", arpu.get(nextLine[0]) == null? "unknown" : arpu.get(nextLine[0]));
                     b.setProperty("promotion", promotion.get(nextLine[1]) == null? "unknown" : promotion.get(nextLine[0]));
                     nodes.put(nextLine[1], b);
                 }

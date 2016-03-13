@@ -121,8 +121,9 @@ public class SocialNetworkAnalysis {
             for (Node node : hgraph.getNodes()) {
                 comMember[node.getCommunityID()]++;
                 comColor[node.getCommunityID()] = node.getColor();
-                comArpu[node.getCommunityID()] += Integer.parseInt(node.getPromotion().substring(0,node.getPromotion().length()-2));
-                if(node.getRnCode().equals("AIS")) {
+                //comArpu[node.getCommunityID()] += Integer.parseInt(node.getPromotion().substring(0,node.getPromotion().length()-2));
+                comArpu[node.getCommunityID()] += Integer.parseInt(node.getArpu());
+                if(node.getCarrier().equals("AIS")) {
                     comAis[node.getCommunityID()]++;
                 }
             }

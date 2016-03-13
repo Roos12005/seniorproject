@@ -12,7 +12,7 @@
 */
 
 Route::get('/analysis/{id}','AnalysisController@main');
-Route::get('/aboutus','AboutUsController@getAboutUs');
+Route::get('/aboutus','PageController@getAboutUs');
 Route::post('/getEstimation','AdminController@getEstimation');
 Route::post('/processSetup','AdminController@processSetup');
 Route::post('/startProcess','AdminController@startProcess');

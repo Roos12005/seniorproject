@@ -20,8 +20,8 @@
     var colors = [];
     var numIDMapper = {};
     var s;
-    var currentHighlightNode = 'default';
-    var currentHighlightEdge = 'default';
+    var currentHighlightNode = 'null';
+    var currentHighlightEdge = 'null';
     var flag = {
         compute_com : false,
         activateClick : false,
@@ -58,8 +58,8 @@
             defaultEdgeType: "curvedArrow",
             minEdgeSize : 0.2,
             maxEdgeSize : 0.5,
-            minNodeSize : 1,
-            maxNodeSize : 7,
+            minNodeSize : 2,
+            maxNodeSize : 5,
             zoomMin : 0.75,
             zoomMax : 20,
             edgeColor : 'default',
@@ -186,13 +186,13 @@
                 user_num = e['nodes'].length;
 
                 $.each(e.nodes, function(index, user_info) {
-                    if(user_info['attributes']['RnCode'] == "AIS"){
+                    if(user_info['attributes']['Carrier'] == "AIS"){
                         carrier[0] += 1;
                     }
-                    else if(user_info['attributes']['RnCode'] == "DTAC"){
+                    else if(user_info['attributes']['Carrier'] == "DTAC"){
                         carrier[1] += 1;
                     }
-                    else if(user_info['attributes']['RnCode'] == "TRUE"){
+                    else if(user_info['attributes']['Carrier'] == "TRUE"){
                         carrier[2] += 1;
                     }
                     else {
@@ -214,6 +214,29 @@
                 document.getElementById('unique_numbers').innerHTML = user_num;
                 document.getElementById('communities').innerHTML = communities.length;
                 document.getElementById('transactions').innerHTML = e['edges'].length;
+            },
+            error: function(rs, e){
+                console.log(rs.responseText);
+                alert('Problem occurs during fetch data.');
+            },
+            async: false,
+        })
+
+        $.ajax({
+            type: "GET",
+            url: "http://localhost/seniorproject/public/getCarrier/" + did,
+            data : {},
+            success: function(e){
+                console.log(e);
+                var user_num = e['all'];
+
+                carrier[0] = e['ais'];
+                carrier[1] = e['true'];
+                carrier[2] = e['dtac'];
+                carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
+
+                document.getElementById('unique_numbers').innerHTML = e['all'];
+                document.getElementById('transactions').innerHTML = e['calls'];
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -353,6 +376,8 @@
         setTimeout(function () {
             s.killForceAtlas2();
         }, 1000);
+        colorByDefaultNode();
+        colorByDefaultEdge();
     }
 
     /**  
@@ -577,14 +602,14 @@
         }
         
         // TODO : Update right column
-        // document.getElementById('cname').innerHTML = 'Unknown';
         document.getElementById('cage').innerHTML = nodeData.attributes['Age'];
         document.getElementById('cnumber').innerHTML = nodeData.label;
+        document.getElementById('carpu').innerHTML = nodeData.attributes['Arpu'];
         document.getElementById('cpromotion').innerHTML = nodeData.attributes['Promotion'];
-        document.getElementById('ccarrier').innerHTML = nodeData.attributes['RnCode'];
+        document.getElementById('ccarrier').innerHTML = nodeData.attributes['Carrier'];
         document.getElementById('cgender').innerHTML = nodeData.attributes['Gender'];
-        document.getElementById('cnoOfCall').innerHTML = nodeData.attributes['NoOfCall'];
-        document.getElementById('cnoOfReceive').innerHTML = nodeData.attributes['NoOfReceive'];
+        document.getElementById('cnoOfCall').innerHTML = nodeData.attributes['NoOfOutgoing'];
+        document.getElementById('cnoOfReceive').innerHTML = nodeData.attributes['NoOfIncoming'];
         document.getElementById('cc').innerHTML = cc.indexOf(nodeData.attributes['Closeness Centrality']) + ' (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
         document.getElementById('bc').innerHTML = bc.indexOf(nodeData.attributes['Betweenness Centrality']) + ' (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
         document.getElementById('comid').innerHTML = nodeData.attributes['Modularity Class'];
@@ -592,6 +617,14 @@
             document.getElementById('comrank').innerHTML = communityRank.indexOf(nodeData.attributes['Member']) + 1;
             document.getElementById('comsize').innerHTML = nodeData.attributes['Member'];
             document.getElementById('comnum').innerHTML = nodeData.attributes['Member'];
+            document.getElementById('memberProfileInfor').innerHTML = nodeData.attributes['Member Profile'];
+            document.getElementById('aisRatioProfileInfor').innerHTML = nodeData.attributes['Ais Ratio Profile'];
+            document.getElementById('daytimeNighttimeProfileInfor').innerHTML = nodeData.attributes['Daytime Nighttime Profile'];
+            document.getElementById('weekdayWeekendProfileInfor').innerHTML = nodeData.attributes['Weekday Weekend Profile'];
+            document.getElementById('callOtherCarrierProfileInfor').innerHTML = nodeData.attributes['Call Other Carrier Profile'];
+            document.getElementById('averageNoOfCallProfileInfor').innerHTML = nodeData.attributes['Average No Of Call Profile'];
+            document.getElementById('averageArpuProfileInfor').innerHTML = nodeData.attributes['Average Arpu Profile'];
+            document.getElementById('averageDurationProfileInfor').innerHTML = nodeData.attributes['Average Duration Profile'];
         } else {
             document.getElementById('comrank').innerHTML = communityRank.indexOf(communities[nodeData.attributes['Modularity Class']]) + 1;
             document.getElementById('comsize').innerHTML = communities[nodeData.attributes['Modularity Class']];
@@ -629,6 +662,8 @@
             node.color = '#a5adb0';
             node.size = node.defaultSize;
         });
+
+
         currentHighlightNode = 'default';
         s.refresh();
     }
@@ -687,7 +722,7 @@
         document.getElementById('highlightNodeColor').innerHTML = 'AIS - Green , TRUE - RED , DTAC - Blue , Other - GREY';
         hilightButton('#h-carrier','Node');
         s.graph.nodes().forEach(function(node) {
-            node.color = node['attributes']['RnCode'] == 'TRUE' ? "#e74c3c" : (node['attributes']['RnCode'] == 'AIS' ? "#40d47e" : (node['attributes']['RnCode'] == 'DTAC' ? "#3498db" : '#000000'));
+            node.color = node['attributes']['Carrier'] == 'TRUE' ? "#e74c3c" : (node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : (node['attributes']['RnCode'] == 'DTAC' ? "#3498db" : '#000000'));
         });
         s.refresh();
         currentHighlightNode = 'carrier';
@@ -707,29 +742,29 @@
         currentHighlightNode = 'ais';
     }
 
-    function colorByPromotion() {
-        if(currentHighlightNode == 'promotion') return;
+    function colorByArpu() {
+        if(currentHighlightNode == 'arpu') return;
         colorByDefaultNode();
-        hilightButton('#h-promotion','Node');
-        document.getElementById('highlightNode').innerHTML = 'Promotion';
+        hilightButton('#h-arpu','Node');
+        document.getElementById('highlightNode').innerHTML = 'ARPU';
         document.getElementById('highlightNodeSize').innerHTML = '';
         document.getElementById('highlightNodeColor').innerHTML = 'Coloy by ARPU';
         var maxARPU = 0.1;
         s.graph.nodes().forEach(function(node) {
-            if(parseInt((node['attributes']['Promotion'].split(' '))[0]) > maxARPU) {
-                maxARPU = parseInt((node['attributes']['Promotion'].split(' '))[0]);
+            if(parseInt(node['attributes']['Arpu']) > maxARPU) {
+                maxARPU = parseInt(node['attributes']['Arpu']);
             }
         });
 
         var ARPU = 0;
         s.graph.nodes().forEach(function(node) {
-            ARPU = parseInt((node['attributes']['Promotion'].split(' '))[0]);
+            ARPU = parseInt(node['attributes']['Arpu']);
             var colorScale =  255 * ARPU/maxARPU;
             var hexString = parseInt(colorScale).toString(16);
             hexString = hexString.length == 1? '0' + hexString : hexString;
             node.color = '#' + hexString + "0000";
         });
-        currentHighlightNode = 'promotion';
+        currentHighlightNode = 'arpu';
         s.refresh();
     }
 
@@ -768,8 +803,8 @@
         colorByDefaultNode();
         hilightButton('#h-degreeIn','Node');
         document.getElementById('highlightNode').innerHTML = 'Degree In';
-        document.getElementById('highlightNodeSize').innerHTML = 'Size by Number of Receive';
-        document.getElementById('highlightNodeColor').innerHTML = '';
+        document.getElementById('highlightNodeSize').innerHTML = '';
+        document.getElementById('highlightNodeColor').innerHTML = 'Color by Number of Receive';
         var maxDegreeIn = 0;
         s.graph.nodes().forEach(function(node) {
             if(node['attributes']['NoOfIncoming'] > maxDegreeIn) {
@@ -777,7 +812,11 @@
             }
         });
         s.graph.nodes().forEach(function(node) {
-            node.size = 10 * node['attributes']['NoOfIncoming']/maxDegreeIn;
+            var colorScale =  255 * Math.pow(1.25,node['attributes']['NoOfIncoming'])/Math.pow(1.25,maxDegreeIn);
+
+            var hexString = parseInt(colorScale).toString(16);
+            hexString = hexString.length == 1? '0' + hexString : hexString;
+            node.color = '#' + hexString + "0000";
         });
         currentHighlightNode = 'degreeIn';
         s.refresh();
@@ -788,8 +827,8 @@
         colorByDefaultNode();
         hilightButton('#h-degreeOut','Node');
         document.getElementById('highlightNode').innerHTML = 'Degree Out';
-        document.getElementById('highlightNodeSize').innerHTML = 'Size by Number of Call';
-        document.getElementById('highlightNodeColor').innerHTML = '';
+        document.getElementById('highlightNodeSize').innerHTML = '';
+        document.getElementById('highlightNodeColor').innerHTML = 'Color by Number of Call';
         var maxDegreeOut = 0;
         s.graph.nodes().forEach(function(node) {
             if(node['attributes']['NoOfOutgoing'] > maxDegreeOut) {
@@ -797,7 +836,11 @@
             }
         });
         s.graph.nodes().forEach(function(node) {
-            node.size = 10 * node['attributes']['NoOfOutgoing']/maxDegreeOut;
+            var colorScale =  255 * Math.pow(1.25,node['attributes']['NoOfOutgoing'])/Math.pow(1.25,maxDegreeOut);
+
+            var hexString = parseInt(colorScale).toString(16);
+            hexString = hexString.length == 1? '0' + hexString : hexString;
+            node.color = '#' + hexString + "0000";
         });
         currentHighlightNode = 'degreeOut';
         s.refresh();
@@ -808,9 +851,14 @@
         hilightButton('#h-defaultEdge','Edge');
         document.getElementById('highlightEdge').innerHTML = 'Default';
         document.getElementById('highlightEdgeColor').innerHTML = '';
-        s.graph.edges().forEach(function(edge) {
-            edge.color = '#a5adb0';
+        s.graph.nodes().forEach(function(node){
+            s.graph.edges().forEach(function(edge) {
+                if(edge['source'] == node.id){
+                    edge.color = node.communityColor;
+                }
+            });
         });
+
         currentHighlightEdge = 'default';
         s.refresh();
     }
@@ -824,7 +872,7 @@
             var red = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 252;
             var green = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 212;
             var blue = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 64;
-            edge.color = "rgb("+red+","+green+","+blue+")";
+            edge.color = '#'+ parseInt(red).toString(16)+ parseInt(green).toString(16)+parseInt(blue).toString(16);
         });
         s.refresh();
         currentHighlightEdge = 'daynight';
@@ -875,7 +923,7 @@
         document.getElementById('h-centrality').addEventListener('click', colorByCentrality);
         document.getElementById('h-carrier').addEventListener('click', colorByCarrier);
         document.getElementById('h-ais').addEventListener('click', colorByAIS);
-        document.getElementById('h-promotion').addEventListener('click', colorByPromotion);
+        document.getElementById('h-arpu').addEventListener('click', colorByArpu);
         document.getElementById('h-degree').addEventListener('click', colorByDegree);
         document.getElementById('h-degreeIn').addEventListener('click', colorByDegreeIn);
         document.getElementById('h-degreeOut').addEventListener('click', colorByDegreeOut);
@@ -895,7 +943,8 @@
      function processData() {
         if(graphStatus['full-graph'] == 0) {
             flag['compute_com'] = false;
-            colorByDefaultNode();
+            currentHighlightNode = 'null';
+            currentHighlightEdge = 'null';
             resetButton('community-group');
             resetButton('community-profile');
             runGraph();
@@ -911,7 +960,8 @@
      function processCommunityData() {
         if(graphStatus['community-group'] == 0) {
             flag['compute_com'] = true;
-            colorByDefaultNode();
+            currentHighlightNode = 'null';
+            currentHighlightEdge = 'null';
             resetButton('full-graph');
             resetButton('community-profile');
             runGraph();

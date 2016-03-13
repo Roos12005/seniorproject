@@ -97,8 +97,8 @@ public class DBAccess {
                         Integer.parseInt(relProps.get("duration").toString()) < fFilters.get("duration").get(1) &&
                         Double.parseDouble(relProps.get("startTime").toString()) > fFilters.get("startTime").get(0) &&
                         Double.parseDouble(relProps.get("startTime").toString()) < fFilters.get("startTime").get(1) &&
-                        callerProps.get("rnCode").toString().matches(rnCode_Regex) &&
-                        calleeProps.get("rnCode").toString().matches(rnCode_Regex) &&
+                        callerProps.get("carrier").toString().matches(rnCode_Regex) &&
+                        calleeProps.get("carrier").toString().matches(rnCode_Regex) &&
                         relProps.get("callDay").toString().matches(callDay_Regex) &&
                         Double.parseDouble(relProps.get("startDate").toString()) > fFilters.get("startDate").get(0) &&
                         Double.parseDouble(relProps.get("startDate").toString()) < fFilters.get("startDate").get(1) ) {
@@ -109,7 +109,8 @@ public class DBAccess {
                         a.setLabel(callerProps.get("number").toString());
                         a.setNoOfOutgoing(Integer.parseInt(callerProps.get("outgoing").toString()));
                         a.setNoOfIncoming(Integer.parseInt(callerProps.get("incoming").toString()));
-                        a.setRnCode(callerProps.get("rnCode").toString());
+                        a.setCarrier(callerProps.get("carrier").toString());
+                        a.setArpu(callerProps.get("arpu").toString());
                         a.setPromotion(callerProps.get("promotion").toString());
 
                         Node b = new Node((int) callee.getId());
@@ -118,7 +119,8 @@ public class DBAccess {
                         b.setLabel(calleeProps.get("number").toString());
                         b.setNoOfOutgoing(Integer.parseInt(calleeProps.get("outgoing").toString()));
                         b.setNoOfIncoming(Integer.parseInt(calleeProps.get("incoming").toString()));
-                        b.setRnCode(calleeProps.get("rnCode").toString());
+                        b.setCarrier(calleeProps.get("carrier").toString());
+                        b.setArpu(calleeProps.get("arpu").toString());
                         b.setPromotion(calleeProps.get("promotion").toString());
 
                         Edge r = new Edge(
@@ -130,7 +132,7 @@ public class DBAccess {
                                 relProps.get("startTime").toString(),
                                 relProps.get("callDay").toString(),
                                 Integer.parseInt(relProps.get("duration").toString()),
-                                calleeProps.get("rnCode").toString()
+                                calleeProps.get("carrier").toString()
                         );
 
                         nodes.add(a);
@@ -165,7 +167,8 @@ public class DBAccess {
                 tmp.addProperty("CommunityID", n.getCommunityID());
                 tmp.addProperty("Age", n.getAge());
                 tmp.addProperty("Gender", n.getGender());
-                tmp.addProperty("RnCode", n.getRnCode());
+                tmp.addProperty("Carrier", n.getCarrier());
+                tmp.addProperty("Arpu", n.getArpu());
                 tmp.addProperty("Promotion", n.getPromotion());
                 tmp.addProperty("NoOfOutgoing", n.getNoOfOutgoing());
                 tmp.addProperty("NoOfIncoming", n.getNoOfIncoming());
