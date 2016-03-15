@@ -12,11 +12,10 @@
 */
 
 Route::get('/analysis/{id}','AnalysisController@main');
-Route::get('/aboutus','AboutUsController@getAboutUs');
+Route::get('/aboutus','PageController@getAboutUs');
 Route::post('/getEstimation','AdminController@getEstimation');
 Route::post('/processSetup','AdminController@processSetup');
 Route::post('/startProcess','AdminController@startProcess');
-
 
 //Get Data
 Route::get('/exportCSV','AdminController@exportCSV');
@@ -26,6 +25,7 @@ Route::get('getNodeCommunity/{id}','AnalysisController@getNodeCommunity');
 Route::get('getCommunityOfCommunity/{id}','AnalysisController@getCommunityOfCommunity');
 Route::get('getCarrier/{id}','AnalysisController@getCarrier');
 Route::get('getNodeInSelectedCommunity/{id}','AnalysisController@getNodeInSelectedCommunity');
+Route::get('getNodeCommunityProfile/{id}','AnalysisController@getNodeCommunityProfile');
 
 //Admin 
 Route::get('/','AdminController@index');

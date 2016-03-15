@@ -22,17 +22,9 @@
                 <div class="text-center">
                     <img src="images/ais-cu.jpg" width="600" height"450" />
                 </div>  
-                <p>
-                    <br/>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed placerat leo vel facilisis convallis. 
-                    Curabitur fringilla posuere laoreet. Aenean mauris justo, sodales ut est vel, scelerisque condimentum nunc. 
-                    Donec sed sagittis libero, id ullamcorper lectus. Sed lobortis urna eu leo semper efficitur. Etiam et nisi est. 
-                    Nunc nisl tellus, viverra aliquam lectus at, sollicitudin volutpat orci.Integer eu lacus sapien. 
-                    Praesent ultrices consequat elit et dignissim. Sed at tempor augue. Nullam egestas varius dolor, id 
-                    sollicitudin ipsum vestibulum id. Donec porta vel tortor non dignissim. Mauris elit neque, tincidunt a 
-                    justo id, pretium ultricies lacus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Class 
-                    aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Quisque libero nunc, 
-                    fringilla sed convallis non, egestas non arcu. Aliquam tincidunt odio quis dui elementum egestas.
+                <p style ="margin-left:40px; margin-right:40px;">
+                    <br><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;คณะวิศวกรรมศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย โดย ภาควิชาวิศวกรรมคอมพิวเตอร์ ได้ทำข้อตกลงความร่วมมือกับบริษัท แอดวานซ์ อินโฟร์ เซอร์วิส จำกัด (มหาชน) ในการดำเนินโครงการวิจัยร่วมเพื่อนำเทคโนโลยี Big Data มาใช้ในการวิเคราะห์ข้อมูลการใช้งานบริการโทรศัพท์เคลื่อนที่ของลูกค้าเอไอเอส เพื่อแบ่งกลุ่มผู้ใช้บริการอย่างละเอียด หรือ ไมโครเซ็กเมนต์ ภายใต้แนวคิดที่ว่าผู้ใช้บริการแต่ละคนมีลักษณะที่แตกต่างกันในหลายมิติ เช่น ลักษณะทางประชากร สังคม เศรษฐกิจ พฤติกรรม และความสนใจเป็นต้น ซึ่งผลลัพธ์ของงานวิจัยจะช่วยให้เอไอเอสมีความเข้าใจในกลุ่มลูกค้าของบริษัทฯมากยิ่งขึ้น สามารถพัฒนาบริการที่สามารถตอบสนองความต้องการเฉพาะกลุ่มและการตลาดที่เจาะจงกลุ่มเป้าหมายได้เป็นอย่างดี
                 </p>
             </div>
         </section>
