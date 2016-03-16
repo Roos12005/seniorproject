@@ -12,7 +12,7 @@ public class Edge {
     private Map<String, Object> properties;
 
 
-    public Edge(int s, int t, double w, String sd, String st, String cd, int d) {
+    public Edge(int s, int t, double w, String sd, String st, String cd, int d, String calleeCarrier) {
         this.source = s;
         this.target = t;
         this.properties = new HashMap<>();
@@ -22,7 +22,7 @@ public class Edge {
         this.properties.put("startDate", sd);
         this.properties.put("startTime", st);
         this.properties.put("callDay", cd);
-        
+        this.properties.put("calleeCarrier", calleeCarrier);
     }
 
     public Edge(int s, int t, double w) {

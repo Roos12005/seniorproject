@@ -1,0 +1,7 @@
+"a_number","callOtherCarrierRatio","weekdayCall","color","memberProfile","averageArpu","closeness","nighttimeCall","averageDurationProfile","aisRatioProfile","daytimeCall","daytimeNighttimeProfile","outGroupCall","averageNoOfCallProfile","member","weekdayWeekendProfile","averageArpuProfile","callOtherCarrierProfile","eccentricity","averageNoOfCall","aisRatio","averageDurationCall","weekendCall","inGroupCall","betweenness","communityID"
+"0","0","105","#7c8082","Low","671.69","1.0","70","Low","Very High","72","Average","91","Low","16","Weekday","Medium","None","1.0","8.88","1","294.39","37","142","0.0","0"
+"1","0","128","#7a8c71","High","623.16","1.0","89","Very High","Very High","81","Nighttime","106","Low","19","Weekday","Very Low","None","1.0","8.95","1","314.86","42","170","0.0","1"
+"2","0","155","#7b7f6b","Very High","689.45","1.0","106","Very Low","Very High","112","Daytime","128","High","22","Average","High","None","1.0","9.91","1","292.63","63","218","0.0","2"
+"3","0","105","#7fb596","Low","743.38","1.0","78","Medium","Very High","77","Average","103","High","16","Weekend","Very High","None","1.0","9.69","1","301.72","50","155","0.0","3"
+"4","0","86","#689b89","Very Low","597.43","1.0","62","Very Low","Very High","52","Nighttime","76","Very Low","14","Weekday","Very Low","None","1.0","8.14","1","286.83","28","114","0.0","4"
+"5","0","108","#2fc961","Very Low","680.43","1.0","79","Very High","Very High","71","Nighttime","96","Very High","14","Average","Medium","None","1.0","10.71","1","317.99","42","150","0.0","5"

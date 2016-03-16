@@ -142,6 +142,14 @@ public class DBAccess {
                     caller.setLabel(a.get("number").toString());
                     callee.setLabel(b.get("number").toString());
                     
+                    a.remove("id");
+                    b.remove("id");
+                    a.remove("number");
+                    b.remove("number");
+                    
+                    caller.setProperties(a);
+                    callee.setProperties(b);
+                    
                     Edge rel = new Edge(
                             aid,
                             bid,
@@ -149,16 +157,13 @@ public class DBAccess {
                             Long.toString(Double.valueOf(r.get("startDate").toString()).longValue()),
                             r.get("startTime").toString(),
                             r.get("callDay").toString(),
-                            Integer.parseInt(r.get("duration").toString())
+                            Integer.parseInt(r.get("duration").toString()),
+                            callee.getProperty("carrier").toString()
                     );
                     
-                    a.remove("id");
-                    b.remove("id");
-                    a.remove("number");
-                    b.remove("number");
+                    
 
-                    caller.setProperties(a);
-                    callee.setProperties(b);
+                    
                     nodes.add(caller);
                     nodes.add(callee);
                     edges.add(rel);
