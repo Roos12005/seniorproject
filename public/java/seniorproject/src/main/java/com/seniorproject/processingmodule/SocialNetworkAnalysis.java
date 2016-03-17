@@ -107,7 +107,7 @@ public class SocialNetworkAnalysis {
             String[] comColor = new String[tot.size()];
 
             //community profile attributes
-            int[] comArpu = new int[tot.size()];
+            double[] comArpu = new double[tot.size()];
             int[] comAis = new int[tot.size()];
             int[] comCallOtherCarrier = new int[tot.size()];
             int[] comDaytimeCall = new int[tot.size()];
@@ -122,7 +122,7 @@ public class SocialNetworkAnalysis {
                 int communityID = Integer.parseInt(node.getProperty("communityID").toString());
                 comMember[communityID]++;
                 comColor[communityID] = node.getProperty("color").toString();
-                comArpu[communityID] += Integer.parseInt(node.getProperty("arpu").toString());
+                comArpu[communityID] += node.getProperty("arpu").toString().equals("unknown")? 0 : Double.parseDouble(node.getProperty("arpu").toString());
                 if (node.getProperty("carrier").toString().equals("AIS")) {
                     comAis[communityID]++;
                 }
@@ -192,7 +192,7 @@ public class SocialNetworkAnalysis {
         }
     }
 
-    private static double[][] findBoundary(int num_community, int[] comMember, int[] comArpu, int[] comAis,
+    private static double[][] findBoundary(int num_community, int[] comMember, double[] comArpu, int[] comAis,
             int[] comCallOtherCarrier, int[] comDaytimeCall, int[] comNighttimeCall, int[] comDurationCall) {
         double[] min = new double[num_community];
         double[] max = new double[num_community];
@@ -262,7 +262,7 @@ public class SocialNetworkAnalysis {
         }
     }
 
-    private static Set<Node> profilingCommunities(Set<Node> nodes, int num_community, int[] comMember, int[] comArpu, int[] comAis,
+    private static Set<Node> profilingCommunities(Set<Node> nodes, int num_community, int[] comMember, double[] comArpu, int[] comAis,
             int[] comCallOtherCarrier, int[] comDaytimeCall, int[] comNighttimeCall, int[] comDurationCall, int[] comWeekdayCall,
             int[] comWeekendCall, int[] comInGroupCall, int[] comOutGroupCall) {
 

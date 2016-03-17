@@ -71,10 +71,10 @@ public class DBAccess {
         }
         rnCode_Regex = rnCode_Regex.substring(0, rnCode_Regex.length()-1);
         callDay_Regex = callDay_Regex.substring(0, callDay_Regex.length()-1);
-        GraphDatabaseService graphDb = null;
+        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(Config.DATABASE_DIR + Config.SOURCE_DATABASE);
         
         try {
-            graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(Config.DATABASE_DIR + Config.SOURCE_DATABASE);
+            
 
             Map<String, Object> params = new HashMap<>();
             params.put("rnCode", rnCode_Regex);
@@ -91,7 +91,7 @@ public class DBAccess {
             params.put("outgoingMax", 10000);
 
             String cypher = "MATCH (n:" + db + ")-[r:Call]->(m) ";
-            cypher = cypher + "WHERE n.carrier =~ {rnCode} AND m.carrier =~ {rnCode} AND ";
+            cypher = cypher + "WHERE "; //n.carrier =~ {rnCode} AND m.carrier =~ {rnCode} AND ";
             cypher = cypher + "r.duration >= {durationMin} AND r.duration <= {durationMax} AND r.callDay =~ {callDay}  AND "
                     + "r.startTime >= {startTime} AND r.startTime <= {endTime} AND r.startDate >= {startDate} AND r.startDate <= {endDate} ";
             cypher = cypher + "RETURN ID(n) as nnid,n.number, n.age, n.gender, n.incoming, n.outgoing, n.promotion, n.carrier, n.arpu, "
