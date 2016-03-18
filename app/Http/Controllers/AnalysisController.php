@@ -44,7 +44,7 @@ class AnalysisController extends Controller{
   //Get all CDR
   public function getCDR($id) {
     $start = Carbon\Carbon::now()->timestamp;
-    putenv("TMPDIR=/tmp");
+    putenv("TMPDIR=/seniortmp");
     set_time_limit(0);
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
@@ -59,32 +59,32 @@ class AnalysisController extends Controller{
     $node_count = sizeof($results);
     foreach($results as $key => $result) {
       $user_stat = [
-        'Betweenness Centrality' => $result['n']['Betweenness'],
-        'Modularity Class' => $result['n']['CommunityID'],
-        'Eccentricity' => $result['n']['Eccentricity'],
-        'Closeness Centrality' => $result['n']['Closeness'],
-        'Age' => $result['n']['Age'],
-        'Gender' => $result['n']['Gender'],
-        'Carrier' => $result['n']['Carrier'],
-        'Arpu' => $result['n']['Arpu'],
-        'Promotion' => $result['n']['Promotion'],
-        'NoOfOutgoing' => $result['n']['NoOfOutgoing'],
-        'NoOfIncoming' => $result['n']['NoOfIncoming']
+        'Betweenness Centrality' => $result['n']['betweenness'],
+        'Modularity Class' => $result['n']['communityID'],
+        'Eccentricity' => $result['n']['eccentricity'],
+        'Closeness Centrality' => $result['n']['closeness'],
+        'Age' => $result['n']['age'],
+        'Gender' => $result['n']['gender'],
+        'Carrier' => $result['n']['carrier'],
+        'Arpu' => $result['n']['arpu'],
+        'Promotion' => $result['n']['promotion'],
+        'NoOfOutgoing' => $result['n']['incoming'],
+        'NoOfIncoming' => $result['n']['outgoing']
       ];
       $user_info = [
-        'label' => $result['n']['Number'],
+        'label' => $result['n']['a_number'],
         'x' => 10*cos(2 * $key * M_PI/$node_count),
         'y' => 10*sin(2 * $key * M_PI/$node_count),
         'id' => $result['n_id'],
         'attributes' => $user_stat,
-        'color' => $result['n']['Color'],
+        'color' => $result['n']['color'],
         'size' => 1
       ];
       array_push($node_list, $user_info);
     }
 
     $call_list = array();
-    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') RETURN distinct n.Number as n_num, m.Number as m_num';
+    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') RETURN distinct n.a_number as n_num, m.a_number as m_num';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     foreach($results as $result){
       $call_info = [
@@ -97,16 +97,16 @@ class AnalysisController extends Controller{
     $edge_id = 9945;
     $edge_list = array();
     foreach($call_list as $call){
-      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.Number = '".$call['source']."' AND m.Number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.a_number = '".$call['source']."' AND m.a_number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
       $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
       $duration = 0;
       $weight = 0;
       $noDayTime = 0;
       $noNightTime = 0;
       foreach ($results[0]['collect_r'] as $value) {
-        $duration += $value['Duration'];
+        $duration += $value['duration'];
         $weight += 1;
-        if($value['StartTime'] >= 5 && $value['StartTime'] <= 17){
+        if($value['startTime'] >= 5 && $value['startTime'] <= 17){
           $noDayTime += 1;
         } else {
           $noNightTime += 1;
@@ -135,17 +135,18 @@ class AnalysisController extends Controller{
 
   //Get number of Community for export data
   public function getCommunities($id) {
+    putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
             ->build();
     
-    $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.CommunityID';
+    $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.communityID';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $communities_list = array();
     foreach($results as $key => $result) {
       $community_info = [
-        'CommunityID' => $result['n.CommunityID']
+        'CommunityID' => $result['n.communityID']
       ];
       array_push($communities_list, $community_info);
     }
@@ -155,6 +156,7 @@ class AnalysisController extends Controller{
 
   //Get nodes in selected community for export data
   public function getNodeCommunity($id) {
+    putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
            ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
            ->setAutoFormatResponse(true)
@@ -172,22 +174,22 @@ class AnalysisController extends Controller{
       }
       $queryProfileCondition = substr($queryProfileCondition,0,strlen($queryProfileCondition)-5);
 
-       $s = 'MATCH (n:ProcessedCom' . $id . ') '.(string)$queryProfileCondition.' RETURN n.CommunityID';
+       $s = 'MATCH (n:ProcessedCom' . $id . ') '.(string)$queryProfileCondition.' RETURN n.a_number';
        $results = $client->sendCypherQuery($s)->getResult()->getTableFormat();
        foreach($results as $key => $result) {
-          $query = $query ." n.CommunityID = ".$result['n.CommunityID']." OR ";
+          $query = $query ." n.communityID = ".$result['n.a_number']." OR ";
        }
     }
 
     if(!is_null($communityCondition)) {
       foreach($communityCondition as $community) {
-        $query = $query ." n.CommunityID = ".(string)$community." OR ";
+        $query = $query ." n.communityID = ".(string)$community." OR ";
       }
     }
 
     $query = substr($query,0,strlen($query)-4);
 
-    $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.CommunityID';
+    $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.communityID';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $communities_num = count($results);
     $communities_list = array();
@@ -195,24 +197,24 @@ class AnalysisController extends Controller{
       $communities_list[$x] = array();
     }
 
-    $r = 'MATCH (n:Processed' . $id . ') '.(string)$query.' RETURN n, n.CommunityID';
+    $r = 'MATCH (n:Processed' . $id . ') '.(string)$query.' RETURN n, n.communityID';
     $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
     foreach($results as $key => $result) {
       $user_info = [
-        'label' => $result['n']['Number'],
-        'Betweenness Centrality' => $result['n']['Betweenness'],
-        'Modularity Class' => $result['n']['CommunityID'],
-        'Eccentricity' => $result['n']['Eccentricity'],
-        'Closeness Centrality' => $result['n']['Closeness'],
-        'Age' => $result['n']['Age'],
-        'Gender' => $result['n']['Gender'],
-        'Carrier' => $result['n']['Carrier'],
-        'Arpu' => $result['n']['Arpu'],
-        'Promotion' => $result['n']['Promotion'],
-        'NoOfOutgoing' => $result['n']['NoOfOutgoing'],
-        'NoOfIncoming' => $result['n']['NoOfIncoming']
+        'label' => $result['n']['a_number'],
+        'Betweenness Centrality' => $result['n']['betweenness'],
+        'Modularity Class' => $result['n']['communityID'],
+        'Eccentricity' => $result['n']['eccentricity'],
+        'Closeness Centrality' => $result['n']['closeness'],
+        'Age' => $result['n']['age'],
+        'Gender' => $result['n']['gender'],
+        'Carrier' => $result['n']['carrier'],
+        'Arpu' => $result['n']['arpu'],
+        'Promotion' => $result['n']['promotion'],
+        'NoOfOutgoing' => $result['n']['outgoing'],
+        'NoOfIncoming' => $result['n']['incoming']
       ];
-      array_push($communities_list[$result['n']['CommunityID']], $user_info);
+      array_push($communities_list[$result['n']['communityID']], $user_info);
     }
 
     for ($x = 0; $x < count($communities_list); $x++) {
@@ -226,13 +228,14 @@ class AnalysisController extends Controller{
 
   //Get nodes community of community
   public function getCommunityOfCommunity($id) {
+    putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
             ->build();
 
-    $q = 'MATCH (n:Processed' . $id . ') RETURN count(distinct n.CommunityID)';
-    $community_num = $client->sendCypherQuery($q)->getResult()->get('count(distinct n.CommunityID)');
+    $q = 'MATCH (n:Processed' . $id . ') RETURN count(distinct n.communityID)';
+    $community_num = $client->sendCypherQuery($q)->getResult()->get('count(distinct n.communityID)');
 
     $community_list = array();
 
@@ -242,34 +245,34 @@ class AnalysisController extends Controller{
       $node_count = sizeof($results);
       foreach($results as $key => $result) {
         $community_stat = [
-          'Betweenness Centrality' => $result['n']['Betweenness'],
-          'Modularity Class' => $result['n']['CommunityID'],
-          'Eccentricity' => $result['n']['Eccentricity'],
-          'Closeness Centrality' => $result['n']['Closeness'],
-          'Member' => $result['n']['Member'],
-          'Member Profile' => $result['n']['MemberProfile'],
-          'Ais Ratio Profile' => $result['n']['AisRatioProfile'],
-          'Daytime Nighttime Profile' => $result['n']['DaytimeNighttimeProfile'],
-          'Weekday Weekend Profile' => $result['n']['WeekdayWeekendProfile'],
-          'Call Other Carrier Profile' => $result['n']['CallOtherCarrierProfile'],
-          'Average No Of Call Profile' => $result['n']['AverageNoOfCallProfile'],
-          'Average Arpu Profile' => $result['n']['AverageArpuProfile'],
-          'Average Duration Profile' => $result['n']['AverageDurationProfile'],
+          'Betweenness Centrality' => $result['n']['betweenness'],
+          'Modularity Class' => $result['n']['a_number'],
+          'Eccentricity' => $result['n']['eccentricity'],
+          'Closeness Centrality' => $result['n']['closeness'],
+          'Member' => $result['n']['member'],
+          'Member Profile' => $result['n']['memberProfile'],
+          'Ais Ratio Profile' => $result['n']['aisRatioProfile'],
+          'Daytime Nighttime Profile' => $result['n']['daytimeNighttimeProfile'],
+          'Weekday Weekend Profile' => $result['n']['weekdayWeekendProfile'],
+          'Call Other Carrier Profile' => $result['n']['callOtherCarrierProfile'],
+          'Average No Of Call Profile' => $result['n']['averageNoOfCallProfile'],
+          'Average Arpu Profile' => $result['n']['averageArpuProfile'],
+          'Average Duration Profile' => $result['n']['averageDurationProfile'],
         ];
         $community_info = [
-          'label' => "Community".$result['n']['CommunityID'],
+          'label' => "Community".$result['n']['a_number'],
           'x' => 10*cos(2 * M_PI/$community_num),
           'y' => 10*sin(2 * M_PI/$community_num),
           'id' => $result['n_id'],
           'attributes' => $community_stat,
-          'color' => $result['n']['Color'],
+          'color' => $result['n']['color'],
           'size' => 1
         ];
         array_push($community_list, $community_info);
       }
 
       $call_list = array();
-      $q = 'MATCH (n:ProcessedCom' . $id . ')-[r:Call]->(m:ProcessedCom' . $id . ') RETURN distinct n.CommunityID as n_num, m.CommunityID as m_num';
+      $q = 'MATCH (n:ProcessedCom' . $id . ')-[r:Call]->(m:ProcessedCom' . $id . ') RETURN distinct n.a_number as n_num, m.a_number as m_num';
       $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
       foreach($results as $result){
         $call_info = [
@@ -282,16 +285,16 @@ class AnalysisController extends Controller{
       $edge_id = 9945;
       $edge_list = array();
       foreach($call_list as $call){
-        $q = "MATCH (n:ProcessedCom" . $id . ")-[r:Call]->(m:ProcessedCom" . $id . ") WHERE n.CommunityID = ".$call['source']." AND m.CommunityID = ".$call['target']." RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+        $q = 'MATCH (n:ProcessedCom' . $id . ')-[r:Call]->(m:ProcessedCom' . $id . ') WHERE n.a_number = "'.$call['source'].'" AND m.a_number = "'.$call['target'].'" RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $duration = 0;
         $weight = 0;
         $noDayTime = 0;
         $noNightTime = 0;
         foreach ($results[0]['collect_r'] as $value) {
-          $duration += $value['Duration'];
+          $duration += $value['duration'];
           $weight += 1;
-          if($value['StartTime'] >= 5 && $value['StartTime'] <= 17){
+          if($value['startTime'] >= 5 && $value['startTime'] <= 17){
             $noDayTime += 1;
           } else {
             $noNightTime += 1;
@@ -366,6 +369,7 @@ class AnalysisController extends Controller{
 
   //Get numbers of nodes in each carrier
   public function getCarrier($id){
+    putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
@@ -376,13 +380,13 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:Processed' . $id . ') -[r:Call]-> (m:Processed' . $id . ') RETURN count(r)';
     $all_call = $client->sendCypherQuery($q)->getResult()->get('count(r)');
 
-    $q = 'MATCH (n:Processed' . $id . '{Carrier:"AIS"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . '{carrier:"AIS"}) RETURN count(n)';
     $ais_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{Carrier:"TRUE"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . '{carrier:"TRUE"}) RETURN count(n)';
     $true_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{Carrier:"DTAC"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . '{carrier:"DTAC"}) RETURN count(n)';
     $dtac_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
     return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'calls' => $all_call]);
@@ -390,6 +394,7 @@ class AnalysisController extends Controller{
 
   //Get nodes in selected community for double click listener
   public function getNodeInSelectedCommunity($id){
+    putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
@@ -399,39 +404,39 @@ class AnalysisController extends Controller{
     $communities_list = array();
     $edge_list = array();
 
-    $q = 'MATCH (n:Processed' . $id . ') WHERE n.CommunityID = '.$selectedCommunity.' RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') WHERE n.communityID = "'.$selectedCommunity.'" RETURN count(n)';
     $community_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $r = 'MATCH (n:Processed' . $id . ') WHERE n.CommunityID = '.$selectedCommunity.' RETURN n, ID(n) as n_id';
+    $r = 'MATCH (n:Processed' . $id . ') WHERE n.communityID = "'.$selectedCommunity.'" RETURN n, ID(n) as n_id';
     $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
     foreach($results as $key => $result) {
         $user_stat = [
-            'Betweenness Centrality' => $result['n']['Betweenness'],
-            'Modularity Class' => $result['n']['CommunityID'],
-            'Eccentricity' => $result['n']['Eccentricity'],
-            'Closeness Centrality' => $result['n']['Closeness'],
-            'Age' => $result['n']['Age'],
-            'Gender' => $result['n']['Gender'],
-            'Carrier' => $result['n']['Carrier'],
-            'Arpu' => $result['n']['Arpu'],
-            'Promotion' => $result['n']['Promotion'],
-            'NoOfOutgoing' => $result['n']['NoOfOutgoing'],
-            'NoOfIncoming' => $result['n']['NoOfIncoming']
+            'Betweenness Centrality' => $result['n']['betweenness'],
+            'Modularity Class' => $result['n']['communityID'],
+            'Eccentricity' => $result['n']['eccentricity'],
+            'Closeness Centrality' => $result['n']['closeness'],
+            'Age' => $result['n']['age'],
+            'Gender' => $result['n']['gender'],
+            'Carrier' => $result['n']['carrier'],
+            'Arpu' => $result['n']['arpu'],
+            'Promotion' => $result['n']['promotion'],
+            'NoOfOutgoing' => $result['n']['outgoing'],
+            'NoOfIncoming' => $result['n']['incoming']
         ];
         $user_info = [
-          'label' => $result['n']['Number'],
+          'label' => $result['n']['a_number'],
           'x' => 10*cos(2 * $key * M_PI / $community_num),
           'y' => 10*sin(2 * $key * M_PI / $community_num),
           'id' => $result['n_id'],
           'attributes' => $user_stat,
-          'color' => $result['n']['Color'],
+          'color' => $result['n']['color'],
           'size' => 1
         ];
       array_push($communities_list, $user_info);
     }
 
     $call_list = array();
-    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') WHERE n.CommunityID = '.$selectedCommunity.' AND m.CommunityID = '.$selectedCommunity.' RETURN distinct n.Number as n_num, m.Number as m_num';
+    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') WHERE n.communityID = "'.$selectedCommunity.'" AND m.communityID = "'.$selectedCommunity.'" RETURN distinct n.a_number as n_num, m.a_number as m_num';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     foreach($results as $result){
       $call_info = [
@@ -444,16 +449,16 @@ class AnalysisController extends Controller{
     $edge_id = 9945;
     $edge_list = array();
     foreach($call_list as $call){
-      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.CommunityID = ".$selectedCommunity." AND m.CommunityID = ".$selectedCommunity." AND n.Number = '".$call['source']."' AND m.Number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.communityID = '".$selectedCommunity."' AND m.communityID = '".$selectedCommunity."' AND n.a_number = '".$call['source']."' AND m.a_number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
       $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
       $duration = 0;
       $weight = 0;
       $noDayTime = 0;
       $noNightTime = 0;
       foreach ($results[0]['collect_r'] as $value) {
-        $duration += $value['Duration'];
+        $duration += $value['duration'];
         $weight += 1;
-        if($value['StartTime'] >= 5 && $value['StartTime'] <= 17){
+        if($value['startTime'] >= 5 && $value['startTime'] <= 17){
           $noDayTime += 1;
         } else {
           $noNightTime += 1;
@@ -481,6 +486,7 @@ class AnalysisController extends Controller{
     return response()->json(["nodes" => $communities_list,"edges" => $edge_list]);
   } 
   public function getNodeCommunityProfile($id){
+    putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
@@ -494,11 +500,11 @@ class AnalysisController extends Controller{
     }
     $query = substr($query,0,strlen($query)-5);
 
-    $q = 'MATCH (n:ProcessedCom' . $id . ') '.(string)$query.' RETURN n.CommunityID';
+    $q = 'MATCH (n:ProcessedCom' . $id . ') '.(string)$query.' RETURN n.communityID';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $communities_list = array();
     foreach($results as $key => $result) {
-      array_push($communities_list, $result['n.CommunityID']);
+      array_push($communities_list, $result['n.communityID']);
     }
     return  response()->json($communities_list);
   }

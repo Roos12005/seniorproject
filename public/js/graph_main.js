@@ -509,7 +509,8 @@
 
                     s.refresh();
                     flag['clickListenerComOfCom'] = true;
-                }
+                },
+                async: false
             });        
         } else { 
             var filteredNodes = [];

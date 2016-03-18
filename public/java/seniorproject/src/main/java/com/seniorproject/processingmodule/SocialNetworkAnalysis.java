@@ -123,7 +123,8 @@ public class SocialNetworkAnalysis {
                 comMember[communityID]++;
                 comColor[communityID] = node.getProperty("color").toString();
                 comArpu[communityID] += node.getProperty("arpu").toString().equals("unknown")? 0 : Double.parseDouble(node.getProperty("arpu").toString());
-                if (node.getProperty("carrier").toString().equals("AIS")) {
+                // if (node.getProperty("carrier").toString().equals("AIS")) {
+                if(!node.getProperty("arpu").toString().equals("unknown")){
                     comAis[communityID]++;
                 }
             }

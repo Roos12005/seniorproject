@@ -36,11 +36,11 @@ public class Migrator {
         return datetime.substring(11, 13) + datetime.substring(14, 16) + datetime.substring(17, 19);
     }
 
-    private static Map<String, Node> createNodes(GraphDatabaseService gdb, String files) throws IOException {
-        Label nl = DynamicLabel.label("");
+    private static Map<String, Node> createNodes(GraphDatabaseService gdb, String file, String label) throws IOException {
+        Label nl = DynamicLabel.label(label);
         Transaction tx;
         Map<String, Node> nodes = new HashMap<>();
-        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/cdr"), ',')) {
+        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/" + file), ',')) {
             String[] nextLine;
             int i = 0;
             tx = gdb.beginTx();
@@ -48,7 +48,7 @@ public class Migrator {
             nextLine = reader.readNext();
             String[] columns = new String[nextLine.length];
             for(int idx=0;idx<nextLine.length;idx++) {
-                columns[i] = nextLine[i];
+                columns[idx] = nextLine[idx];
             }
             
             while ((nextLine = reader.readNext()) != null) {
@@ -74,17 +74,50 @@ public class Migrator {
         return nodes;
     }
     
-    private static void createRelationships(GraphDatabaseService gdb, String file, Map<String, Node> nodes) {
-        
+    private static void createRelationships(GraphDatabaseService gdb, String file, Map<String, Node> nodes) throws IOException {
+        Transaction tx;
+        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/" + file), ',')) {
+            String[] nextLine;
+            int i = 0;
+            tx = gdb.beginTx();
+            
+            nextLine = reader.readNext();
+            String[] columns = new String[nextLine.length];
+            for(int idx=0;idx<nextLine.length;idx++) {
+                columns[idx] = nextLine[idx];
+            }
+            
+            while ((nextLine = reader.readNext()) != null) {
+                Node a = nodes.get(nextLine[0]);
+                Node b = nodes.get(nextLine[1]);
+                
+                Relationship r = a.createRelationshipTo(b, LINK);
+                for(int idx=0;idx<nextLine.length;idx++) {
+                    r.setProperty(columns[idx], nextLine[idx]);
+                }
+
+                if (i % 50000 == 0) {
+                    tx.success();
+                    tx.finish();
+                    tx = gdb.beginTx();
+                }
+                i++;
+            }
+        }
+
+        tx.success();
+        tx.finish();
     }
 
     public static void main(String args[]) throws IOException {
 
-        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
+        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/default.graphdb");
 
         // TODO : this should loop through all files
-        Map<String, Node> storedNodes = createNodes(gdb, "");
-        createRelationships(gdb, "", storedNodes);
+        Map<String, Node> storedNodes = createNodes(gdb, "processed_190568_profile.csv", "Processed377032_t");
+        createRelationships(gdb, "processed_190568_cdr.csv", storedNodes);
+        Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_190568_profile.csv", "ProcessedCom377032_t");
+        createRelationships(gdb, "processed_com_190568_cdr.csv", storedComNodes);
         
         gdb.shutdown();
     }

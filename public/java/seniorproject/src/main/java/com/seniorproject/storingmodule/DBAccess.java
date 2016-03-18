@@ -158,7 +158,7 @@ public class DBAccess {
                             r.get("startTime").toString(),
                             r.get("callDay").toString(),
                             Integer.parseInt(r.get("duration").toString()),
-                            callee.getProperty("carrier").toString()
+                            callee.getProperty("arpu").toString().equals("unknown") ? "unknown" : "AIS"
                     );
                     
                     
