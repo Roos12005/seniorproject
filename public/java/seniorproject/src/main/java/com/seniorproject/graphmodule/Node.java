@@ -90,7 +90,7 @@ public class Node {
     public String[] getPropertiesName() {
         List<String> allProp = new ArrayList();
         
-        allProp.add("a_number");
+        allProp.add("number");
         for(Entry<String, Object> prop : this.properties.entrySet()) {
             allProp.add(prop.getKey());
         }

@@ -79,42 +79,42 @@
             if(memberSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(memberSelected);
-                data['MemberProfile'] = myJsonString;
+                data['memberProfile'] = myJsonString;
             }
             if(aisRatioSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(aisRatioSelected);
-                data['AisRatioProfile'] = myJsonString;
+                data['aisRatioProfile'] = myJsonString;
             }
             if(daytimeNighttimeSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(daytimeNighttimeSelected);
-                data['DaytimeNighttimeProfile'] = myJsonString;
+                data['daytimeNighttimeProfile'] = myJsonString;
             }
             if(weekdayWeekendSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(weekdayWeekendSelected);
-                data['WeekdayWeekendProfile'] = myJsonString;
+                data['weekdayWeekendProfile'] = myJsonString;
             }
             if(callOtherCarrierSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(callOtherCarrierSelected);
-                data['CallOtherCarrierProfile'] = myJsonString;
+                data['callOtherCarrierProfile'] = myJsonString;
             }
             if(averageNoOfCallSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(averageNoOfCallSelected);
-                data['AverageNoOfCallProfile'] = myJsonString;
+                data['averageNoOfCallProfile'] = myJsonString;
             }
             if(averageArpuSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(averageArpuSelected);
-                data['AverageArpuProfile'] = myJsonString;
+                data['averageArpuProfile'] = myJsonString;
             }
             if(averageDurationSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(averageDurationSelected);
-                data['AverageDurationProfile'] = myJsonString;
+                data['averageDurationProfile'] = myJsonString;
             }
 
             if(existValue){

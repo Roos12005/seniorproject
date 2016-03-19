@@ -294,7 +294,7 @@ class Neo4JConnector {
 
     public function queryNodesForCSV($id) {
 
-        $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.CommunityID';
+        $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.communityID';
         $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
         $communities_num = count($results);
 
@@ -303,24 +303,25 @@ class Neo4JConnector {
           $communities_list[$x] = array();
         }
 
-        $r = 'MATCH (n:Processed' . $id . ') RETURN n, n.CommunityID';
+        $r = 'MATCH (n:Processed' . $id . ') RETURN n, n.communityID';
+        LOG::info($r);
         $results = $this->connector->sendCypherQuery($r)->getResult()->getTableFormat();
         foreach($results as $key => $result) {
             $user_info = [
-              'label' => $result['n']['Number'],
-              'Betweenness Centrality' => $result['n']['Betweenness'],
-              'Modularity Class' => $result['n']['CommunityID'],
-              'Eccentricity' => $result['n']['Eccentricity'],
-              'Closeness Centrality' => $result['n']['Closeness'],
-              'Age' => $result['n']['Age'],
-              'Gender' => $result['n']['Gender'],
-              'RnCode' => $result['n']['RnCode'],
-              'Promotion' => $result['n']['Promotion'],
-              'NoOfCall' => $result['n']['NoOfIncoming'],
-              'NoOfReceive' => $result['n']['NoOfOutgoing']
+              'label' => $result['n']['number'],
+              'Betweenness Centrality' => $result['n']['betweenness'],
+              'Modularity Class' => $result['n']['communityID'],
+              'Eccentricity' => $result['n']['eccentricity'],
+              'Closeness Centrality' => $result['n']['closeness'],
+              'Age' => $result['n']['age'],
+              'Gender' => $result['n']['gender'],
+              'RnCode' => $result['n']['carrier'],
+              'Promotion' => $result['n']['promotion'],
+              'NoOfCall' => $result['n']['incoming'],
+              'NoOfReceive' => $result['n']['outgoing']
             ];
-
-          array_push($communities_list[$result['n']['CommunityID']], $user_info);
+            LOG::info($user_info);
+          array_push($communities_list[$result['n']['communityID']], $user_info);
         }
 
         for ($x = 0; $x < count($communities_list); $x++) {
@@ -397,6 +398,7 @@ class Neo4JConnector {
         $q = $q . ' r.callDay =~ "' . UnaryHelper::arrToRegex($filters['callDay']) . '"';
 
         $q = $q . ' RETURN count(r) as edges, count(DISTINCT n) as nodes';
+        LOG::info($q);
         $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
         $ret = [
             "customers" => $results[0],

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use File;
 use Neoxygen\NeoClient\ClientBuilder;
 use Carbon;
+use Log;
 class AnalysisController extends Controller{
 
   public function main($id) {
@@ -68,8 +69,8 @@ class AnalysisController extends Controller{
         'Carrier' => $result['n']['carrier'],
         'Arpu' => $result['n']['arpu'],
         'Promotion' => $result['n']['promotion'],
-        'NoOfOutgoing' => $result['n']['incoming'],
-        'NoOfIncoming' => $result['n']['outgoing']
+        'NoOfOutgoing' => $result['n']['outgoing'],
+        'NoOfIncoming' => $result['n']['incoming']
       ];
       $user_info = [
         'label' => $result['n']['a_number'],
@@ -174,16 +175,16 @@ class AnalysisController extends Controller{
       }
       $queryProfileCondition = substr($queryProfileCondition,0,strlen($queryProfileCondition)-5);
 
-       $s = 'MATCH (n:ProcessedCom' . $id . ') '.(string)$queryProfileCondition.' RETURN n.a_number';
+       $s = 'MATCH (n:ProcessedCom' . $id . ') '.(string)$queryProfileCondition.' RETURN n.communityID';
        $results = $client->sendCypherQuery($s)->getResult()->getTableFormat();
        foreach($results as $key => $result) {
-          $query = $query ." n.communityID = ".$result['n.a_number']." OR ";
+          $query = $query ." n.communityID = '".$result['n.communityID']."' OR ";
        }
     }
 
     if(!is_null($communityCondition)) {
       foreach($communityCondition as $community) {
-        $query = $query ." n.communityID = ".(string)$community." OR ";
+        $query = $query ." n.communityID = '".(string)$community."' OR ";
       }
     }
 

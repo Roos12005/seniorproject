@@ -1,4 +1,4 @@
-@extends('layout.default')
+extends('layout.default')
 
 @section('title', 'AIS - CU : Admin Page')
 

@@ -111,13 +111,13 @@ public class Migrator {
 
     public static void main(String args[]) throws IOException {
 
-        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/default.graphdb");
+        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/default.graphdb");
 
         // TODO : this should loop through all files
-        Map<String, Node> storedNodes = createNodes(gdb, "processed_190568_profile.csv", "Processed377032_t");
-        createRelationships(gdb, "processed_190568_cdr.csv", storedNodes);
-        Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_190568_profile.csv", "ProcessedCom377032_t");
-        createRelationships(gdb, "processed_com_190568_cdr.csv", storedComNodes);
+        Map<String, Node> storedNodes = createNodes(gdb, "processed_1986_profile.csv", "Processed1986");
+        createRelationships(gdb, "processed_1986_cdr.csv", storedNodes);
+        Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_1986_profile.csv", "ProcessedCom1986");
+        createRelationships(gdb, "processed_com_1986_cdr.csv", storedComNodes);
         
         gdb.shutdown();
     }
