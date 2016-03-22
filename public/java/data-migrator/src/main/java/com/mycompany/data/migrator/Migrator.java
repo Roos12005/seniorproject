@@ -9,7 +9,9 @@ import com.opencsv.CSVReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.DynamicLabel;
@@ -115,18 +117,32 @@ public class Migrator {
         GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/default.graphdb");
         
         // TODO : this should loop through all files
-        Map<String, Node> storedNodes = createNodes(gdb, "processed_"+args[0]+"_profile.csv", "Processed" + args[1]);
-        createRelationships(gdb, "processed_"+args[0]+"_cdr.csv", storedNodes);
-        Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_"+args[0]+"_profile.csv", "ProcessedCom" + args[1]);
-        createRelationships(gdb, "processed_com_"+args[0]+"_cdr.csv", storedComNodes);
+        
+        
+        
+        File folder = new File("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/");
+        File[] listOfFiles = folder.listFiles();
+        List<String> done = new ArrayList<>();
+        for (int i = 1; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                String n = listOfFiles[i].getName().replaceAll("\\D+","");
+                if(done.contains(n)) {
+                    continue;
+                }
+                Long time = System.currentTimeMillis() ;
+                Map<String, Node> storedNodes = createNodes(gdb, "processed_"+n+"_profile.csv", "Processed" + n);
+                createRelationships(gdb, "processed_"+n+"_cdr.csv", storedNodes);
+                Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_"+n+"_profile.csv", "ProcessedCom" + n);
+                createRelationships(gdb, "processed_com_"+n+"_cdr.csv", storedComNodes);
+                done.add(n);
+                time = System.currentTimeMillis() - time;
+                System.out.println("Migrating ID: "  + n + " took " + time / 1000 + " seconds.");
+            }
+        }
         
         gdb.shutdown();
         
-//        File folder = new File("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/");
-//        File[] listOfFiles = folder.listFiles();
-//
-//        for (int i = 0; i < listOfFiles.length; i++) {
-//          if (listOfFiles[i].isFile()) {
+
 //            System.out.println("File " + listOfFiles[i].getName());
 //          } else if (listOfFiles[i].isDirectory()) {
 //            System.out.println("Directory " + listOfFiles[i].getName());
