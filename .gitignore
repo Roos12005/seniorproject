@@ -6,3 +6,4 @@ Homestead.json
 .env
 /database/Neo4j
 /public/java/data-migrator/target/
+/storage/*

@@ -661,12 +661,24 @@
         document.getElementById('highlightNode').innerHTML = 'Default';
         document.getElementById('highlightNodeSize').innerHTML = '';
         document.getElementById('highlightNodeColor').innerHTML = '';
-        s.graph.nodes().forEach(function(node) {
-            node.color = '#a5adb0';
-            node.size = node.defaultSize;
-        });
-
-
+        var maxMember = 1;
+        if(flag['compute_com']){
+            s.graph.nodes().forEach(function(node) {
+                if(parseInt(node['attributes']['Member']) > maxMember) {
+                    maxMember = node['attributes']['Member'];
+                }
+                s.graph.nodes().forEach(function(node) {
+                    node.size = 10 * node['attributes']['Member']/maxMember;
+                    console.log(node.size);
+                });
+            });
+        }
+        else {
+            s.graph.nodes().forEach(function(node) {
+                node.color = '#a5adb0';
+                node.size = node.defaultSize;
+            });  
+        }
         currentHighlightNode = 'default';
         s.refresh();
     }
