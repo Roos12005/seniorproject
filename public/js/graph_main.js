@@ -616,8 +616,10 @@
         document.getElementById('cgender').innerHTML = nodeData.attributes['Gender'];
         document.getElementById('cnoOfCall').innerHTML = nodeData.attributes['NoOfOutgoing'];
         document.getElementById('cnoOfReceive').innerHTML = nodeData.attributes['NoOfIncoming'];
-        document.getElementById('cc').innerHTML = cc.indexOf(nodeData.attributes['Closeness Centrality']) + ' (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
-        document.getElementById('bc').innerHTML = bc.indexOf(nodeData.attributes['Betweenness Centrality']) + ' (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
+        var cc_rank = parseInt(cc.indexOf(parseFloat(nodeData.attributes['Closeness Centrality']))) + 1;
+        var bc_rank = parseInt(bc.indexOf(parseFloat(nodeData.attributes['Betweenness Centrality']))) + 1;
+        document.getElementById('cc').innerHTML = cc_rank + ' (' + parseFloat(nodeData.attributes['Closeness Centrality']).toFixed(3) + ')';
+        document.getElementById('bc').innerHTML = bc_rank + ' (' + parseFloat(nodeData.attributes['Betweenness Centrality']).toFixed(3) + ')';
         document.getElementById('comid').innerHTML = nodeData.attributes['Modularity Class'];
         if(flag['compute_com']){
             document.getElementById('comrank').innerHTML = communityRank.indexOf(nodeData.attributes['Member']) + 1;
@@ -664,12 +666,24 @@
         document.getElementById('highlightNode').innerHTML = 'Default';
         document.getElementById('highlightNodeSize').innerHTML = '';
         document.getElementById('highlightNodeColor').innerHTML = '';
-        s.graph.nodes().forEach(function(node) {
-            node.color = '#a5adb0';
-            // node.size = node.defaultSize;
-        });
-
-
+        var maxMember = 1;
+        if(flag['compute_com']){
+            s.graph.nodes().forEach(function(node) {
+                if(parseInt(node['attributes']['Member']) > maxMember) {
+                    maxMember = node['attributes']['Member'];
+                }
+                s.graph.nodes().forEach(function(node) {
+                    node.size = 10 * node['attributes']['Member']/maxMember;
+                    console.log(node.size);
+                });
+            });
+        }
+        else {
+            s.graph.nodes().forEach(function(node) {
+                node.color = '#a5adb0';
+                node.size = node.defaultSize;
+            });  
+        }
         currentHighlightNode = 'default';
         s.refresh();
     }
@@ -708,7 +722,7 @@
                 }
             }
         });
-        
+    
         s.graph.nodes().forEach(function(node) {
             if(node['attributes']['Modularity Class'] == selectedCom || selectedCom == 'null') {
                 var colorScale =  node['attributes']['Betweenness Centrality'] == 0 ? 0 : 255 * (Math.log(node['attributes']['Betweenness Centrality'])/Math.log(maxBC));
@@ -732,7 +746,7 @@
         document.getElementById('highlightNodeColor').innerHTML = 'AIS - Green , TRUE - RED , DTAC - Blue , Other - GREY';
         hilightButton('#h-carrier','Node');
         s.graph.nodes().forEach(function(node) {
-            node.color = node['attributes']['Carrier'] == 'TRUE' ? "#e74c3c" : (node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : (node['attributes']['RnCode'] == 'DTAC' ? "#3498db" : '#000000'));
+            node.color = node['attributes']['Carrier'] == 'TRUE' ? "#e74c3c" : (node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : (node['attributes']['Carrier'] == 'DTAC' ? "#3498db" : '#000000'));
         });
         s.refresh();
         currentHighlightNode = 'carrier';
@@ -746,7 +760,7 @@
         document.getElementById('highlightNodeSize').innerHTML = '';
         document.getElementById('highlightNodeColor').innerHTML = 'Only AIS - Green , Other - GREY';
         s.graph.nodes().forEach(function(node) {
-            node.color = node['attributes']['RnCode'] == 'AIS' ? "#40d47e" : '#bdc3c7';
+            node.color = node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : '#bdc3c7';
         });
         s.refresh();
         currentHighlightNode = 'ais';
@@ -817,13 +831,15 @@
         document.getElementById('highlightNodeColor').innerHTML = 'Color by Number of Receive';
         var maxDegreeIn = 0;
         s.graph.nodes().forEach(function(node) {
-            if(node['attributes']['NoOfIncoming'] > maxDegreeIn) {
+            if(parseInt(node['attributes']['NoOfIncoming']) > maxDegreeIn) {
                 maxDegreeIn = node['attributes']['NoOfIncoming'];
             }
         });
         s.graph.nodes().forEach(function(node) {
-            var colorScale =  255 * Math.pow(1.25,node['attributes']['NoOfIncoming'])/Math.pow(1.25,maxDegreeIn);
-
+            var colorScale =  255 * Math.pow(1.1,node['attributes']['NoOfIncoming'])/Math.pow(1.1,maxDegreeIn);
+            if(node['attributes']['NoOfIncoming'] == 0){
+                colorScale = 0;
+            }
             var hexString = parseInt(colorScale).toString(16);
             hexString = hexString.length == 1? '0' + hexString : hexString;
             node.color = '#' + hexString + "0000";
@@ -841,13 +857,15 @@
         document.getElementById('highlightNodeColor').innerHTML = 'Color by Number of Call';
         var maxDegreeOut = 0;
         s.graph.nodes().forEach(function(node) {
-            if(node['attributes']['NoOfOutgoing'] > maxDegreeOut) {
+            if(parseInt(node['attributes']['NoOfOutgoing']) > maxDegreeOut) {
                 maxDegreeOut = node['attributes']['NoOfOutgoing'];
             }
         });
         s.graph.nodes().forEach(function(node) {
-            var colorScale =  255 * Math.pow(1.25,node['attributes']['NoOfOutgoing'])/Math.pow(1.25,maxDegreeOut);
-
+            var colorScale =  255 * Math.pow(1.02,node['attributes']['NoOfOutgoing'])/Math.pow(1.02,maxDegreeOut);
+            if(node['attributes']['NoOfOutgoing'] == 0){
+                colorScale = 0;
+            }
             var hexString = parseInt(colorScale).toString(16);
             hexString = hexString.length == 1? '0' + hexString : hexString;
             node.color = '#' + hexString + "0000";
@@ -1040,42 +1058,42 @@
             if(memberSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(memberSelected);
-                data['MemberProfile'] = myJsonString;
+                data['memberProfile'] = myJsonString;
             }
             if(aisRatioSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(aisRatioSelected);
-                data['AisRatioProfile'] = myJsonString;
+                data['aisRatioProfile'] = myJsonString;
             }
             if(daytimeNighttimeSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(daytimeNighttimeSelected);
-                data['DaytimeNighttimeProfile'] = myJsonString;
+                data['daytimeNighttimeProfile'] = myJsonString;
             }
             if(weekdayWeekendSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(weekdayWeekendSelected);
-                data['WeekdayWeekendProfile'] = myJsonString;
+                data['weekdayWeekendProfile'] = myJsonString;
             }
             if(callOtherCarrierSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(callOtherCarrierSelected);
-                data['CallOtherCarrierProfile'] = myJsonString;
+                data['callOtherCarrierProfile'] = myJsonString;
             }
             if(averageNoOfCallSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(averageNoOfCallSelected);
-                data['AverageNoOfCallProfile'] = myJsonString;
+                data['averageNoOfCallProfile'] = myJsonString;
             }
             if(averageArpuSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(averageArpuSelected);
-                data['AverageArpuProfile'] = myJsonString;
+                data['averageArpuProfile'] = myJsonString;
             }
             if(averageDurationSelected.length > 0){
                 existValue = true;
                 var myJsonString = JSON.stringify(averageDurationSelected);
-                data['AverageDurationProfile'] = myJsonString;
+                data['averageDurationProfile'] = myJsonString;
             }
 
             if(existValue){

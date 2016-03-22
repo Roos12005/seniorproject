@@ -8,6 +8,7 @@ use Carbon;
 use \App\Http\Helpers\DateHelper as DateHelper;
 use \App\Http\Helpers\ExecHelper as ExecHelper;
 use \App\Http\Helpers\UnaryHelper as UnaryHelper;
+use Log;
 
 use \App\Http\Classes\Neo4JConnector as Neo4JConnector;
 class AdminController extends Controller{

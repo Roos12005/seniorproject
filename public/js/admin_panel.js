@@ -49,6 +49,7 @@
                 'carrier' : tag.attr('data-carrier'),
                 'period' : tag.attr('data-period'),
                 'noOfCall' : tag.attr('data-noOfCall'),
+                'noOfReceive' : tag.attr('data-noOfReceive'),
                 'duration' : tag.attr('data-duration'),
                 'days' : tag.attr('data-days')
             };
@@ -477,6 +478,7 @@
                     var dateCol = '<td>' + f['startDate'] + '</td>';
                     var descCol = '<td>'+d['description']+'</td>';
                     var customerCol = '<td class="text-center">'+others['customers']+'</td>';
+                    console.log(others['customers']);
                     var sizeCol = '<td class="text-center">-</td>';
                     var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '"></span><div class="label label-primary label-mini margin-right-4" id="tf-view-'+e.nid+'"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4" id="tf-download-'+e.nid+'"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
                     var statusCol = '<td><span class="label label-warning label-mini" id="tf-status-'+e.nid+'">Processing</span></td>';

@@ -35,7 +35,7 @@ public class Importer {
     }
 
     public static String toTime(String datetime) {
-        return datetime.substring(11, 13) + datetime.substring(14, 16) + datetime.substring(17, 19);
+        return datetime.substring(11, 13) + '.' + datetime.substring(14, 16) + datetime.substring(17, 19);
     }
     
     public static String toDay(String datetime) {
@@ -88,7 +88,6 @@ public class Importer {
             
             reader.close();
         }
-        
         try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_profile"), ',')) {
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
