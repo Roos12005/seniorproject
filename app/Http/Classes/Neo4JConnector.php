@@ -96,7 +96,6 @@ class Neo4JConnector {
          *  carrier - First, Second, Third, ...
          *  days - First, Second, Third, ...
          *  period - 1. After ##.##  or 2. ##.## - ##.##
-         *  mode - Unary
          *  progress - Number (<= 100)
          *  status - In Progress or Ready
          * *********************************************
@@ -120,7 +119,6 @@ class Neo4JConnector {
                 'days' => UnaryHelper::unaryToDaysReadable($r['n']['callDay']),
                 'period' => $r['n']['endTime'] == -1? 
                                 'After ' . number_format($r['n']['startTime'], 2, '.', '') : number_format($r['n']['startTime'], 2, '.', '') . ' - ' . number_format($r['n']['endTime'], 2, '.', ''),
-                'mode' => $r['n']['mode'],
                 'progress' => $progress['progress'],
                 'speed' => $progress['speed'],
                 'status' => $progress['status'],
@@ -169,7 +167,7 @@ class Neo4JConnector {
         return $result;
     }
 
-    public function estimateResource($type, $filters, $mode) {
+    public function estimateResource($type, $filters) {
         if($type == 'batch') {
             $filters = $this->prepareData($filters);
             $info = $this->getEstimation($filters);
@@ -184,7 +182,7 @@ class Neo4JConnector {
         }
     }
 
-    public function setUpBatchProcess($filters, $mode, $desc, $others) {
+    public function setUpBatchProcess($filters, $desc, $others) {
         // Reject query whenever $this->connector has not been initialized
         $this->checkConnection();
 
@@ -198,8 +196,11 @@ class Neo4JConnector {
                 endTime: " . $filters['startTime'][1] . ",
                 durationMin: " . $filters['duration'][0] . ",
                 durationMax: " . $filters['duration'][1] . ",
+                incomingMin: " . $filters['incoming'][0] . ",
+                incomingMax: " . $filters['incoming'][1] . ",
+                outgoingMin: " . $filters['outgoing'][0] . ",
+                outgoingMax: " . $filters['outgoing'][1] . ",
                 description : '" . $desc . "',
-                mode : " . $mode . ",
                 customers : " . $others['customers'] .",
                 startExecTime: " . Carbon\Carbon::now()->timestamp . ",
                 size: '- ',
@@ -215,17 +216,18 @@ class Neo4JConnector {
         $filters['callDay'] = UnaryHelper::arrToReadable($filters['callDay']);
         $filters['rnCode'] = UnaryHelper::arrToReadable($filters['rnCode']);
         $filters['duration'] = UnaryHelper::rangeToReadable($filters['duration'], '');
+        $filters['incoming'] = UnaryHelper::rangeToReadable($filters['incoming'], '');
+        $filters['outgoing'] = UnaryHelper::rangeToReadable($filters['outgoing'], '');
         $filters['startTime'] = UnaryHelper::rangeToReadable($filters['startTime'], 'time');
 
         return [
             'filters' => $filters,
             'nid' => $result[0]['nid'],
-            'mode' => $mode,
             'speed' => $others['speed']
         ];
     }
 
-    public function setUpPreprocess($filters, $mode, $desc) {
+    public function setUpPreprocess($filters, $desc) {
         // Reject query whenever $this->connector has not been initialized
         $this->checkConnection();
 
@@ -238,8 +240,11 @@ class Neo4JConnector {
                 endTime: '" . $filters['startTime'][1] . "',
                 durationMin: " . $filters['duration'][0] . ",
                 durationMax: " . $filters['duration'][1] . ",
+                incomingMin: " . $filters['incoming'][0] . ",
+                incomingMax: " . $filters['incoming'][1] . ",
+                outgoingMin: " . $filters['outgoing'][0] . ",
+                outgoingMax: " . $filters['outgoging'][1] . ",
                 description : '" . $desc . "',
-                mode : '" . $mode . "',
                 priority : " . $filters['priority'] . "
             }) RETURN ID(n) as nid";
         
@@ -276,6 +281,8 @@ class Neo4JConnector {
                 'callDay' => $r['n']['callDay'],
                 'startTime' => [$r['n']['startTime'], $r['n']['endTime']],
                 'duration' => [$r['n']['durationMin'], $r['n']['durationMax']],
+                'incoming' => [$r['n']['incomingMin'], $r['n']['incomingMax']],
+                'outgoing' => [$r['n']['outgoingMin'], $r['n']['outgoingMax']],
                 'callDay' => $r['n']['callDay'],
                 'rnCode' => $r['n']['rnCode']
             ];
@@ -294,7 +301,7 @@ class Neo4JConnector {
 
     public function queryNodesForCSV($id) {
 
-        $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.CommunityID';
+        $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.communityID';
         $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
         $communities_num = count($results);
 
@@ -303,30 +310,30 @@ class Neo4JConnector {
           $communities_list[$x] = array();
         }
 
-        $r = 'MATCH (n:Processed' . $id . ') RETURN n, n.CommunityID';
+        $r = 'MATCH (n:Processed' . $id . ') RETURN n, n.communityID';
         $results = $this->connector->sendCypherQuery($r)->getResult()->getTableFormat();
         foreach($results as $key => $result) {
             $user_info = [
-              'label' => $result['n']['Number'],
-              'Betweenness Centrality' => $result['n']['Betweenness'],
-              'Modularity Class' => $result['n']['CommunityID'],
-              'Eccentricity' => $result['n']['Eccentricity'],
-              'Closeness Centrality' => $result['n']['Closeness'],
-              'Age' => $result['n']['Age'],
-              'Gender' => $result['n']['Gender'],
-              'RnCode' => $result['n']['RnCode'],
-              'Promotion' => $result['n']['Promotion'],
-              'NoOfCall' => $result['n']['NoOfIncoming'],
-              'NoOfReceive' => $result['n']['NoOfOutgoing']
+              'label' => $result['n']['a_number'],
+              'Betweenness Centrality' => $result['n']['betweenness'],
+              'Modularity Class' => $result['n']['communityID'],
+              'Eccentricity' => $result['n']['eccentricity'],
+              'Closeness Centrality' => $result['n']['closeness'],
+              'Age' => $result['n']['age'],
+              'Gender' => $result['n']['gender'],
+              'RnCode' => $result['n']['carrier'],
+              'Promotion' => $result['n']['promotion'],
+              'NoOfCall' => $result['n']['incoming'],
+              'NoOfReceive' => $result['n']['outgoing']
             ];
 
-          array_push($communities_list[$result['n']['CommunityID']], $user_info);
+          array_push($communities_list[$result['n']['communityID']], $user_info);
         }
 
         for ($x = 0; $x < count($communities_list); $x++) {
           usort($communities_list[$x], function($a,$b){
-            if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
-            return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
+            if ($a['closeness']==$b['closeness']) return 0;
+            return ($a['closeness']>$b['closeness'])?-1:1;
           });
         }
 
@@ -392,6 +399,8 @@ class Neo4JConnector {
         $q = $q . ' r.startDate >= ' . $filters['startDate'][0] . ' AND r.startDate <= ' . $filters['startDate'][1] . ' AND';
         $q = $q . ' r.startTime >= ' . $filters['startTime'][0] . ' AND r.startTime <= ' . $filters['startTime'][1] . ' AND';
         $q = $q . ' r.duration >= ' . $filters['duration'][0] . ' AND r.duration <= ' . $filters['duration'][1] . ' AND';
+        $q = $q . ' n.incoming >= ' . $filters['incoming'][0] . ' AND n.incoming <= ' . $filters['incoming'][1] . ' AND';
+        $q = $q . ' n.outgoing >= ' . $filters['outgoing'][0] . ' AND n.outgoing <= ' . $filters['outgoing'][1] . ' AND';
         $q = $q . ' n.rnCode =~ "' . UnaryHelper::arrToRegex($filters['rnCode']) . '"' . ' AND';
         $q = $q . ' m.rnCode =~ "' . UnaryHelper::arrToRegex($filters['rnCode']) . '"' . ' AND';
         $q = $q . ' r.callDay =~ "' . UnaryHelper::arrToRegex($filters['callDay']) . '"';
@@ -408,6 +417,7 @@ class Neo4JConnector {
 
     private function beginProcess($filters, $id, $db, $isScheduler) {
         putenv('/seniortmp');
+        ignore_user_abort(true);
         $command = "java -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id . ' ' . $db . ' 1';
         foreach ($filters as $key => $value) {
             $len = sizeof($value);

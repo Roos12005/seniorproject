@@ -22,6 +22,7 @@
     var s;
     var currentHighlightNode = 'null';
     var currentHighlightEdge = 'null';
+    var selectedCom = 'null';
     var flag = {
         compute_com : false,
         activateClick : false,
@@ -45,7 +46,7 @@
         s = new sigma({
             renderers: [{
                 container: document.getElementById('container'),
-               // type: 'canvas'
+               type: 'canvas'
             }]
 
             /* 
@@ -56,14 +57,15 @@
         });
         s.settings({
             defaultEdgeType: "curvedArrow",
-            minEdgeSize : 0.2,
-            maxEdgeSize : 0.5,
-            minNodeSize : 2,
-            maxNodeSize : 5,
-            zoomMin : 0.75,
-            zoomMax : 20,
+            minEdgeSize : 0.003,
+            maxEdgeSize : 0.1,
+            minNodeSize : 0.5,
+            maxNodeSize : 1,
+            // zoomMin : 0.25,
+            // zoomMax : 40,
             edgeColor : 'default',
-            defaultEdgeArrow: 'source'
+            defaultEdgeArrow: 'source',
+            mouseWheelEnabled: false,
             // autoResize: false
             // zoomingRatio : 1
         });
@@ -90,10 +92,10 @@
             label: n.label,
             x: n.x,
             y: n.y,
-            size: n.size,
+            size: 0.5,
             color: '#a5adb0',
             communityColor: n.color,
-            defaultSize: n.size,
+            defaultSize: 0.5,
             attributes: n.attributes
         })
     }
@@ -124,7 +126,8 @@
             target: e.target,
             attributes : e.attributes,
             color: '#a5adb0',
-            type: "arrow"
+            type: "curvedArrow",
+            size: 0.005
         })
     }
 
@@ -283,7 +286,7 @@
                 console.log(rs.responseText);
                 alert('Problem occurs during fetch data.');
             },
-            async: false,
+            async: false
         })
 
         $.ajax({
@@ -306,7 +309,7 @@
                 console.log(rs.responseText);
                 alert('Problem occurs during fetch data.');
             },
-            async: false,
+            async: false
         })
         
         createPieChart(com_data,color_data,carrier,node_num);
@@ -373,10 +376,13 @@
 
         // Display Graph using sigma object
         s.startForceAtlas2({});
+
         setTimeout(function () {
             s.killForceAtlas2();
-        }, 1000);
+            console.log('done');
+        }, 3000);
         colorByDefaultNode();
+        // colorByCentrality();
         colorByDefaultEdge();
     }
 
@@ -412,12 +418,12 @@
      function addZoomListener() {
         // Zoom in Button
         document.getElementById("zoomin").addEventListener("click", function(){
-            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 0.9 * s.camera.ratio});
+            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 0.75 * s.camera.ratio});
         });
 
         // Zoom out Button
         document.getElementById("zoomout").addEventListener("click", function(){
-            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 1.1 * s.camera.ratio});
+            s.camera.goTo({x:s.camera.x, y:s.camera.y, ratio: 1.25 * s.camera.ratio});
         });
 
         // Refresh Zoom Button
@@ -448,13 +454,13 @@
                     return;
                 }
 
-                s.camera.goTo({
-                    x: node['read_cam0:x'], 
-                    y: node['read_cam0:y'], 
-                    ratio: 0.1
-                });
-
-                updateInformation(node);
+                // s.camera.goTo({
+                //     x: node['read_cam0:x'], 
+                //     y: node['read_cam0:y'], 
+                //     ratio: 0.1
+                // });
+                doubleClickNodeListener(node);
+                // updateInformation(node);
             }
         });
      }
@@ -490,7 +496,7 @@
                 success: function(e){
                      console.log(e);
                      communityData = e;
-
+                     selectedCom = selectedCommunity;
                      numIDMapper = {};
                     // Add all returned nodes to sigma object
                      communityData.nodes.forEach(function(n) {
@@ -506,11 +512,10 @@
                     setTimeout(function () {
                         s.killForceAtlas2();
                     }, 500);
-
+                    s.camera.goTo({x:0, y:0, ratio: 1});
                     s.refresh();
                     flag['clickListenerComOfCom'] = true;
-                },
-                async: false
+                }
             });        
         } else { 
             var filteredNodes = [];
@@ -661,7 +666,7 @@
         document.getElementById('highlightNodeColor').innerHTML = '';
         s.graph.nodes().forEach(function(node) {
             node.color = '#a5adb0';
-            node.size = node.defaultSize;
+            // node.size = node.defaultSize;
         });
 
 
@@ -694,22 +699,26 @@
         var maxBC = 0.1;
         var maxCC = 0.1;
         s.graph.nodes().forEach(function(node) {
-            if(node['attributes']['Betweenness Centrality'] > maxBC) {
-                maxBC = node['attributes']['Betweenness Centrality'];
-            }
-            if(node['attributes']['Closeness Centrality'] > maxCC) {
-                maxCC = node['attributes']['Closeness Centrality'];
+            if(node['attributes']['Modularity Class'] == selectedCom || selectedCom == 'null') {
+                if(parseFloat(node['attributes']['Betweenness Centrality']) > maxBC) {
+                    maxBC = parseFloat(node['attributes']['Betweenness Centrality']);
+                }
+                if(parseFloat(node['attributes']['Closeness Centrality']) > maxCC) {
+                    maxCC = parseFloat(node['attributes']['Closeness Centrality']);
+                }
             }
         });
-
+        
         s.graph.nodes().forEach(function(node) {
-            var colorScale =  255 * Math.pow(1.008,node['attributes']['Betweenness Centrality'])/Math.pow(1.008,maxBC);
-
-            var hexString = parseInt(colorScale).toString(16);
-            hexString = hexString.length == 1? '0' + hexString : hexString;
-            node.color = '#' + hexString + "0000";
-
-            node.size = 10 * node['attributes']['Closeness Centrality']/maxCC;
+            if(node['attributes']['Modularity Class'] == selectedCom || selectedCom == 'null') {
+                var colorScale =  node['attributes']['Betweenness Centrality'] == 0 ? 0 : 255 * (Math.log(node['attributes']['Betweenness Centrality'])/Math.log(maxBC));
+                
+                var hexString = parseInt(colorScale).toString(16);
+                hexString = hexString.length == 1? '0' + hexString : hexString;
+                node.color = '#' + hexString + "0000";
+                console.log(colorScale + " --> " + node.color);
+                node.size = 10 * parseFloat(node['attributes']['Closeness Centrality'])/maxCC;
+            }
         });
         currentHighlightNode = 'centrality';
         s.refresh();
@@ -856,6 +865,7 @@
             s.graph.edges().forEach(function(edge) {
                 if(edge['source'] == node.id){
                     edge.color = node.communityColor;
+                    node.color = node.communityColor;
                 }
             });
         });

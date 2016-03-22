@@ -6,6 +6,7 @@
 package com.mycompany.data.migrator;
 
 import com.opencsv.CSVReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -112,13 +113,24 @@ public class Migrator {
     public static void main(String args[]) throws IOException {
 
         GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/default.graphdb");
-
+        
         // TODO : this should loop through all files
-        Map<String, Node> storedNodes = createNodes(gdb, "processed_190568_profile.csv", "Processed377032_t");
-        createRelationships(gdb, "processed_190568_cdr.csv", storedNodes);
-        Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_190568_profile.csv", "ProcessedCom377032_t");
-        createRelationships(gdb, "processed_com_190568_cdr.csv", storedComNodes);
+        Map<String, Node> storedNodes = createNodes(gdb, "processed_"+args[0]+"_profile.csv", "Processed" + args[1]);
+        createRelationships(gdb, "processed_"+args[0]+"_cdr.csv", storedNodes);
+        Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_"+args[0]+"_profile.csv", "ProcessedCom" + args[1]);
+        createRelationships(gdb, "processed_com_"+args[0]+"_cdr.csv", storedComNodes);
         
         gdb.shutdown();
+        
+//        File folder = new File("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/");
+//        File[] listOfFiles = folder.listFiles();
+//
+//        for (int i = 0; i < listOfFiles.length; i++) {
+//          if (listOfFiles[i].isFile()) {
+//            System.out.println("File " + listOfFiles[i].getName());
+//          } else if (listOfFiles[i].isDirectory()) {
+//            System.out.println("Directory " + listOfFiles[i].getName());
+//          }
+//        }
     }
 }

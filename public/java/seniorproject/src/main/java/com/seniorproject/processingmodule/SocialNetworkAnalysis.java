@@ -195,8 +195,8 @@ public class SocialNetworkAnalysis {
 
     private static double[][] findBoundary(int num_community, int[] comMember, double[] comArpu, int[] comAis,
             int[] comCallOtherCarrier, int[] comDaytimeCall, int[] comNighttimeCall, int[] comDurationCall) {
-        double[] min = new double[num_community];
-        double[] max = new double[num_community];
+        double[] min = new double[6];
+        double[] max = new double[6];
 
         for (int i = 0; i < 6; i++) {
             min[i] = Integer.MAX_VALUE;

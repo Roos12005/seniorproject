@@ -15,15 +15,6 @@
     var dh = new DateHelper();
     var tmpStorage = {};
 
-    function unaryModetoReadable(m) {
-        var result = "";
-        var mode = ['Centrality', 'Community', 'Customer Profiling', 'Community Profiling'];
-        for (var i = 0, len = m.length; i < len; i++) {
-            result = result + (m[i] == '1'? ', ' + mode[i] : '');
-        }
-        return result.substr(2);
-    }
-
     function addPFilterListener() {
         $(".preprocess-filter").on('click', function() {
             var pid = $(this).attr('data-pid');
@@ -59,8 +50,7 @@
                 'period' : tag.attr('data-period'),
                 'noOfCall' : tag.attr('data-noOfCall'),
                 'duration' : tag.attr('data-duration'),
-                'days' : tag.attr('data-days'),
-                'mode' : tag.attr('data-calculation')
+                'days' : tag.attr('data-days')
             };
             
             $('#tf-date').html(props.date);
@@ -69,7 +59,6 @@
             $('#tf-noOfCall').html(props.noOfCall);
             $('#tf-duration').html(props.duration);
             $('#tf-days').html(props.days);
-            $('#tf-calculation').html(unaryModetoReadable(props.mode));
 
             console.log(props);
             $('#tableModal').modal('show');
@@ -189,18 +178,6 @@
         // hide preprocess form until user clicked on add button
         $('#preprocess-form-wrapper').hide();
         
-        // force community mode checkbox to be checked when community profiling checkbox is checked
-        $('#preprocess-community-profiling-mode').on('change', function(){
-            if(this.checked) {
-                $('#preprocess-community-mode').prop('checked',this.checked);
-            }
-        });
-        // force community profiling mode checkbox to be unchecked when community checkbox is unchecked
-        $('#preprocess-community-mode').on('change', function(){
-            if(!this.checked) {
-                $('#preprocess-community-profiling-mode').prop('checked',this.checked);
-            }
-        });
 
         // add listener to preprocess form
         // submit button
@@ -221,15 +198,6 @@
             carriers = intArrayToUnary(carriers,5);
             if(carriers.indexOf('1') < 0) {
                 alert('Please select at least one carriers.');
-                return;
-            }
-
-            var mode = $('.preprocess-mode:checked').map(function(_, el) {
-                return $(el).val();
-            }).get();
-            mode = intArrayToUnary(mode,4);
-            if(mode.indexOf('1') < 0) {
-                alert('Please select at least one mode.');
                 return;
             }
 
@@ -256,18 +224,31 @@
                 return;
             }
 
+            var incomingMin = validator.validateMinRange($('#preprocess-incomingFrom').val());
+            var incomingMax = validator.validateMaxRange($('#preprocess-incomingTo').val());
+            if(incomingMin > incomingMax && incomingMax !== -1) {
+                alert('Minimum No. of Incoming is exceeded the Maximun value.');
+                return;
+            }   
+
+            var outgoingMin = validator.validateMinRange($('#preprocess-outgoingFrom').val());
+            var outgoingMax = validator.validateMaxRange($('#preprocess-outgoingTo').val());
+            if(outgoingMin > outgoingMax && outgoingMax !== -1) {
+                alert('Minimum No. of Outgoing is exceeded the Maximun value.');
+                return;
+            }           
+
             var submit = {
                 'filters' : {
                     'startDate' : $('#preprocess-date').val(),
                     'callDay' : days,
                     'startTime' : [periodMin, periodMax],
                     'duration' : [durationMin, durationMax],
-                    // 'callsMin' : callsMin,
-                    // 'callsMax' : callsMax,
+                    'incoming' : [incomingMin, incomingMax],
+                    'outgoing' : [outgoingMin, outgoingMax],
                     'rnCode' : carriers,
                     'priority' : $('#preprocess-priority input[name="preprocess-priority"]:checked').val()
                 },
-                'mode' : mode,
                 'description' : $('#preprocess-description').val(),
                 
             }
@@ -333,15 +314,6 @@
                 return;
             }
 
-            var mode = $('.batch-mode:checked').map(function(_, el) {
-                return $(el).val();
-            }).get();
-            mode = intArrayToUnary(mode,4);
-            if(mode.indexOf('1') < 0) {
-                alert('Please select at least one mode.');
-                return;
-            }
-
             var validator = new Validator();
 
             var durationMin = validator.validateMinRange($('#batch-durationFrom').val());
@@ -365,17 +337,30 @@
                 return;
             }
 
+            var incomingMin = validator.validateMinRange($('#batch-incomingFrom').val());
+            var incomingMax = validator.validateMaxRange($('#batch-incomingTo').val());
+            if(incomingMin > incomingMax && incomingMax !== -1) {
+                alert('Minimum No. of Incoming is exceeded the Maximun value.');
+                return;
+            }   
+
+            var outgoingMin = validator.validateMinRange($('#batch-outgoingFrom').val());
+            var outgoingMax = validator.validateMaxRange($('#batch-outgoingTo').val());
+            if(outgoingMin > outgoingMax && outgoingMax !== -1) {
+                alert('Minimum No. of Outgoing is exceeded the Maximun value.');
+                return;
+            } 
+
             var submit = {
                 'filters' : {
                     'startDate' : $('#batch-date').val(),
                     'callDay' : days,
                     'startTime' : [periodMin, periodMax],
                     'duration' : [durationMin, durationMax],
-                    // 'callsMin' : callsMin,
-                    // 'callsMax' : callsMax,
+                    'incoming' : [incomingMin, incomingMax],
+                    'outgoing' : [outgoingMin, outgoingMax],
                     'rnCode' : carriers
                 },
-                'mode' : mode,
                 'database' : $('#batch-database').val(),
                 'description' : $('#batch-description').val()
             }
@@ -449,10 +434,9 @@
         $.ajax({
             type: "POST",
             url: "http://localhost/seniorproject/public/getEstimation",
-            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description']},
+            data : {'filter' : d['filters'], 'type' : type, 'description' : d['description']},
             success: function(e){
                 console.log(e);
-                // TODO : modal ask for confirmation before start Executing
                 $('#exectime').html(dh.toReadable(e.execTime));
                 $('#estimationModal').modal('show');
                 tmpStorage = {
@@ -483,7 +467,7 @@
         $.ajax({
             type: "POST",
             url: "http://localhost/seniorproject/public/processSetup",
-            data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others, 'database' : db},
+            data : {'filter' : d['filters'], 'type' : type, 'description' : d['description'], 'others' : others, 'database' : db},
             success: function(e){
                 console.log(e);
                 if(type == 'batch') {
@@ -494,7 +478,7 @@
                     var descCol = '<td>'+d['description']+'</td>';
                     var customerCol = '<td class="text-center">'+others['customers']+'</td>';
                     var sizeCol = '<td class="text-center">-</td>';
-                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '" data-calculation="'+ e['mode'] +'"></span><div class="label label-primary label-mini margin-right-4" id="tf-view-'+e.nid+'"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4" id="tf-download-'+e.nid+'"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
+                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '"></span><div class="label label-primary label-mini margin-right-4" id="tf-view-'+e.nid+'"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4" id="tf-download-'+e.nid+'"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
                     var statusCol = '<td><span class="label label-warning label-mini" id="tf-status-'+e.nid+'">Processing</span></td>';
                     var progressCol = '<td><div class="progress progress-striped progress-xs"><div style="width: 5%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success" aria-speed="'+e.speed+'" aria-current="0" data-id="'+e.nid+'"></div></div></td>';
                     $('#progress-table-body').append('<tr id="row-b-'+e.nid+'">' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + progressCol + '</tr>');
@@ -506,7 +490,7 @@
                     $.ajax({
                         type: "POST",
                         url: "http://localhost/seniorproject/public/startProcess",
-                        data : {'filter' : d['filters'], 'type' : type, 'mode' : d['mode'], 'description' : d['description'], 'others' : others, 'nid' : e.nid, 'database' : db},
+                        data : {'filter' : d['filters'], 'type' : type, 'description' : d['description'], 'others' : others, 'nid' : e.nid, 'database' : db},
                         success: function(e){},
                         error: function(rs, e){
                             console.log(rs.responseText);
@@ -517,14 +501,10 @@
                     var f = e['filters'];
                     var idCol = '<td><a href="#">New</a></td>';
                     var descCol = '<td>' + d['description'] + '</td>';
-                    var cenModeCol = '<td>' + (d['mode'].substr(0,1) == 1? 'Yes' : 'No') + '</td>';
-                    var comModeCol = '<td>' + (d['mode'].substr(1,1) == 1? 'Yes' : 'No') + '</td>';
-                    var custProModeCol = '<td>' + (d['mode'].substr(2,1) == 1? 'Yes' : 'No') + '</td>';
-                    var comProModeCol = '<td>' + (d['mode'].substr(3,1) == 1? 'Yes' : 'No') + '</td>';
                     var filtersCol = '<td><a href="#" data-toggle="modal" class="preprocess-filter" data-pid="' + e.nid + '"> Click to see filters </a><span id="pf-' + e.nid + '" data-date="" data-noOfCall="" data-days="" data-duration="" data-period="" data-carrier=""></span></td>';
                     var priorityCol = '<td>' + (d['filters']['priority'] == 3? 'High' : d['filters']['priority'] == 2? 'Medium' : 'Low') + '</td>';
                     var actionCol = '<td><span class="label label-danger label-mini margin-right-4"><i class="fa fa-times"></i></span></td>';
-                    $('#preprocess-table-body').append('<tr id="row-p-'+e.nid+'">' + idCol + descCol + cenModeCol + comModeCol + custProModeCol + comProModeCol + filtersCol + priorityCol + actionCol + '</tr>');
+                    $('#preprocess-table-body').append('<tr id="row-p-'+e.nid+'">' + idCol + descCol + filtersCol + priorityCol + actionCol + '</tr>');
                     $('#new-preprocess').show(300);
                     $('#preprocess-form-wrapper').hide();
                     rebindPFilterListener();

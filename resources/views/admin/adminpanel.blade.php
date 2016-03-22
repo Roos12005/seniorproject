@@ -39,11 +39,6 @@
                     <tr>
                         <th> #</th>
                         <th>Description</th>
-
-                        <th>Centrality</th>
-                        <th>Community</th>
-                        <th>Customer <br>Profiling</th>
-                        <th>Community <br>Profiling</th>
                         <th>Filters</th>
 
                         <th>Priority</th>
@@ -60,11 +55,6 @@
                         <td>
                             {{ $p['description'] }}
                         </td>
-
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>No</td>
 
                         <td>
                             <a href="#" data-toggle="modal" class="preprocess-filter" data-pid="{{$p['id']}}">
@@ -188,9 +178,9 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Incoming Calls</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control integer-mask" id="preprocess-incallsFrom" name="from" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-incomingFrom" name="from">
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control integer-mask" id="preprocess-incallsTo" name="to" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-incomingTo" name="to">
                         </div>
                         <p class="help-block">Example: 0 To 10 <i> &nbsp;*Leave blank for not specify</i></p>
                     </div>
@@ -200,9 +190,9 @@
                     <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Outgoing Calls</label>
                     <div class="col-lg-6">
                         <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                            <input type="text" class="form-control integer-mask" id="preprocess-outcallsFrom" name="from" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-outgoingFrom" name="from" >
                             <span class="input-group-addon">To</span>
-                            <input type="text" class="form-control integer-mask" id="preprocess-outcallsTo" name="to" disabled>
+                            <input type="text" class="form-control integer-mask" id="preprocess-outgoingTo" name="to">
                         </div>
                         <p class="help-block">Example: 0 To 10 <i> &nbsp;*Leave blank for not specify</i></p>
                     </div>
@@ -222,24 +212,6 @@
                         </label>
                         <label class="checkbox-inline">
                             <input type="checkbox" class="preprocess-carriers" value="4" checked> Others
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Social Network Statistics</label>
-                    <div class="col-lg-9">
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-mode" value="0"> Centrality
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="preprocess-mode" value="2" checked> Customer Profiling
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="preprocess-community-mode" class="preprocess-mode" value="1" checked> Community
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="preprocess-community-profiling-mode" class="preprocess-mode" value="3" checked> Community Profiling
                         </label>
                     </div>
                 </div>
@@ -383,7 +355,7 @@
                         <td style="white-space: nowrap;" width="150">
                             <div class="label label-default label-mini table-filter" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></div>
                             <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
-                                data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}" data-calculation="{{$row['mode']}}"></span>
+                                data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}"></span>
                             @if($row['progress'] < 100)
                             <div class="label label-default label-mini" id="tf-view-{{ $row['id'] }}"><i class="fa fa-eye"></i></div>
                             <div class="label label-default label-mini" id="tf-download-{{ $row['id'] }}"><i class="fa fa-download"></i></div>
@@ -526,9 +498,9 @@
                         <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Incoming Calls</label>
                         <div class="col-lg-6">
                             <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                                <input type="text" class="form-control" id="batch-incallsFrom" name="from" disabled>
+                                <input type="text" class="form-control" id="batch-incomingFrom" name="from">
                                 <span class="input-group-addon">To</span>
-                                <input type="text" class="form-control" id="batch-incallsTo" name="to" disabled>
+                                <input type="text" class="form-control" id="batch-incomingTo" name="to">
                             </div>
                             <p class="help-block">Example: 0 To 100 <i> &nbsp;*Leave blank for not specify</i></p>
                         </div>
@@ -538,9 +510,9 @@
                         <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">No. of Outgoing Calls</label>
                         <div class="col-lg-6">
                             <div class="input-group input-medium" data-time="05:00" data-time-format="hh:mm">
-                                <input type="text" class="form-control" id="batch-outcallsFrom" name="from" disabled>
+                                <input type="text" class="form-control" id="batch-outgoingFrom" name="from">
                                 <span class="input-group-addon">To</span>
-                                <input type="text" class="form-control" id="batch-outcallsTo" name="to" disabled>
+                                <input type="text" class="form-control" id="batch-outgoingTo" name="to">
                             </div>
                             <p class="help-block">Example: 0 To 100 <i> &nbsp;*Leave blank for not specify</i></p>
                         </div>
@@ -560,24 +532,6 @@
                             </label>
                             <label class="checkbox-inline">
                                 <input type="checkbox" class="batch-carriers" value="4" checked> Others
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label col-lg-3" for="inputSuccess">Social Network Statistics</label>
-                        <div class="col-lg-9">
-                            <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-mode" value="0"> Centrality
-                            </label>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" class="batch-mode" value="2" checked> Customer Profiling
-                            </label>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="batch-community-mode" class="batch-mode" value="1" checked> Community
-                            </label>
-                            <label class="checkbox-inline">
-                                <input type="checkbox" id="batch-community-profiling-mode" class="batch-mode" value="3" checked> Community Profiling
                             </label>
                         </div>
                     </div>
@@ -711,12 +665,6 @@
                         <label class=" col-sm-3 control-label">Carrier</label>
                         <div class="col-lg-6">
                             <p class="form-control-static" id="tf-carrier">-</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class=" col-sm-3 control-label">Calculation</label>
-                        <div class="col-lg-6">
-                            <p class="form-control-static" id="tf-calculation">-</p>
                         </div>
                     </div>
                 </form> 

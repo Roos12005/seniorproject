@@ -70,12 +70,6 @@
                             <p class="form-control-static">{{$noOfIncoming}}</p>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class=" col-sm-2 control-label">Calculation</label>
-                        <div class="col-lg-3">
-                            <p class="form-control-static">{{$calculation}}</p>
-                        </div>
-                    </div>
                 </form> 
             </div>
             </div>

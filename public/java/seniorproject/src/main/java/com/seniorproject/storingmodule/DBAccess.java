@@ -85,10 +85,10 @@ public class DBAccess {
             params.put("endTime", fFilters.get("startTime").get(1));
             params.put("startDate", fFilters.get("startDate").get(0));
             params.put("endDate", fFilters.get("startDate").get(1));
-            params.put("incomingMin", 0);
-            params.put("incomingMax", 10000);
-            params.put("outgoingMin", 0);
-            params.put("outgoingMax", 10000);
+            params.put("incomingMin", fFilters.get("incoming").get(0));
+            params.put("incomingMax", fFilters.get("incoming").get(1));
+            params.put("outgoingMin", fFilters.get("outgoing").get(0));
+            params.put("outgoingMax", fFilters.get("outgoing").get(1));
 
             String cypher = "MATCH (n:" + db + ")-[r:Call]->(m) ";
             cypher = cypher + "WHERE "; //n.carrier =~ {rnCode} AND m.carrier =~ {rnCode} AND ";
