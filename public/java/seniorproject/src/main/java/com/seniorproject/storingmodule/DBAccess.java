@@ -9,14 +9,18 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.Node;
 import com.seniorproject.graphmodule.NodeIterable;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
@@ -25,16 +29,45 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 public class DBAccess {
 
-    public DBAccess() {
+    private String DATABASE_DIR;
+    private String MIGRATE_DIR;
+    private String SOURCE_DATABASE;
 
+    public DBAccess() {
+        readConfigFile();
     }
-    
+
+    private void readConfigFile() {
+        Properties prop = new Properties();
+        InputStream input = null;
+
+        try {
+            File jarPath=new File(DBAccess.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String propertiesPath=jarPath.getParentFile().getAbsolutePath();
+            prop.load(new FileInputStream(propertiesPath+"/config.properties"));
+
+            DATABASE_DIR = prop.getProperty("database_dir");
+            SOURCE_DATABASE = prop.getProperty("source_database");
+            MIGRATE_DIR = prop.getProperty("migrate_dir");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * Convert list of string into regular expression
      *
-     * @param  s  - List of String
+     * @param s - List of String
      * @return regular expression created from list of string
-     * 
+     *
      */
     public static String toRegex(List<String> s) {
         String regex = s.get(0);
@@ -47,12 +80,12 @@ public class DBAccess {
     /**
      * Query nodes and relationships from embedded Neo4J database
      *
-     * @param  sFilters  - Map containing string-type filter name and value
+     * @param sFilters - Map containing string-type filter name and value
      * @param fFilters - Map containing numeric-type filter name and value
      * @param db - database name
-     * 
+     *
      * @return graph object containing filtered nodes and edges
-     * 
+     *
      */
     public com.seniorproject.graphmodule.Graph loadAll(Map<String, List<String>> sFilters,
             Map<String, List<Double>> fFilters, String db) {
@@ -69,12 +102,11 @@ public class DBAccess {
         for (String callDay : sFilters.get("callDay")) {
             callDay_Regex = callDay_Regex + callDay + "|";
         }
-        rnCode_Regex = rnCode_Regex.substring(0, rnCode_Regex.length()-1);
-        callDay_Regex = callDay_Regex.substring(0, callDay_Regex.length()-1);
-        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(Config.DATABASE_DIR + Config.SOURCE_DATABASE);
-        
+        rnCode_Regex = rnCode_Regex.substring(0, rnCode_Regex.length() - 1);
+        callDay_Regex = callDay_Regex.substring(0, callDay_Regex.length() - 1);
+        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(DATABASE_DIR + SOURCE_DATABASE);
+
         try {
-            
 
             Map<String, Object> params = new HashMap<>();
             params.put("rnCode", rnCode_Regex);
@@ -134,22 +166,20 @@ public class DBAccess {
 
                     int aid = Integer.parseInt(a.get("id").toString()),
                             bid = Integer.parseInt(b.get("id").toString());
-                    
-                    
-                    
+
                     Node caller = new Node(aid);
                     Node callee = new Node(bid);
                     caller.setLabel(a.get("number").toString());
                     callee.setLabel(b.get("number").toString());
-                    
+
                     a.remove("id");
                     b.remove("id");
                     a.remove("number");
                     b.remove("number");
-                    
+
                     caller.setProperties(a);
                     callee.setProperties(b);
-                    
+
                     Edge rel = new Edge(
                             aid,
                             bid,
@@ -160,10 +190,7 @@ public class DBAccess {
                             Integer.parseInt(r.get("duration").toString()),
                             callee.getProperty("arpu").toString().equals("unknown") ? "unknown" : "AIS"
                     );
-                    
-                    
 
-                    
                     nodes.add(caller);
                     nodes.add(callee);
                     edges.add(rel);
@@ -180,7 +207,7 @@ public class DBAccess {
         }
         return null;
     }
-    
+
     /**
      * Store nodes and edges as customers in CSV format
      *
@@ -188,17 +215,17 @@ public class DBAccess {
      * @param edges - List of edges to be stored
      * @param tid - Table ID
      * @throws java.io.IOException
-     * 
+     *
      */
     public void store(NodeIterable nodes, List<Edge> edges, String tid) throws IOException {
         Map<Integer, String> numberMapper = new HashMap<>();
-        CSVWriter writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_" + tid + "_profile.csv"), ',');
-        
+        CSVWriter writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_profile.csv"), ',');
+
         boolean isFirst = true;
         String[] line = null;
-        
-        for(Node n : nodes) {
-            if(isFirst) {
+
+        for (Node n : nodes) {
+            if (isFirst) {
                 line = n.getPropertiesName();
                 writer.writeNext(line);
                 isFirst = false;
@@ -208,25 +235,25 @@ public class DBAccess {
             writer.writeNext(line);
         }
         writer.close();
-        
-        writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_" + tid + "_cdr.csv"), ',');
+
+        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_cdr.csv"), ',');
         isFirst = true;
-        for(Edge e : edges) {
-            if(isFirst) {
+        for (Edge e : edges) {
+            if (isFirst) {
                 line = e.getPropertiesName();
                 writer.writeNext(line);
                 isFirst = false;
             }
             line = e.splitPropertiesWithNode();
-            
+
             line[0] = numberMapper.get(Integer.parseInt(line[0]));
             line[1] = numberMapper.get(Integer.parseInt(line[1]));
-            
+
             writer.writeNext(line);
         }
         writer.close();
     }
-    
+
     /**
      * Store nodes and edges as communities in CSV format
      *
@@ -234,17 +261,17 @@ public class DBAccess {
      * @param edges - List of edges to be stored
      * @param tid - Table ID
      * @throws java.io.IOException
-     * 
+     *
      */
     public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) throws IOException {
         Map<Integer, String> numberMapper = new HashMap<>();
-        CSVWriter writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_com_" + tid + "_profile.csv"), ',');
-        
+        CSVWriter writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_profile.csv"), ',');
+
         boolean isFirst = true;
         String[] line = null;
-        
-        for(Node n : nodes) {
-            if(isFirst) {
+
+        for (Node n : nodes) {
+            if (isFirst) {
                 line = n.getPropertiesName();
                 writer.writeNext(line);
                 isFirst = false;
@@ -255,20 +282,20 @@ public class DBAccess {
             writer.writeNext(line);
         }
         writer.close();
-        
-        writer = new CSVWriter(new FileWriter(Config.MIGRATE_DIR + "processed_com_" + tid + "_cdr.csv"), ',');
+
+        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_cdr.csv"), ',');
         isFirst = true;
-        for(Edge e : edges) {
-            if(isFirst) {
+        for (Edge e : edges) {
+            if (isFirst) {
                 line = e.getPropertiesName();
                 writer.writeNext(line);
                 isFirst = false;
             }
             line = e.splitPropertiesWithNode();
-            
+
             line[0] = numberMapper.get(Integer.parseInt(line[0]));
             line[1] = numberMapper.get(Integer.parseInt(line[1]));
-            
+
             writer.writeNext(line);
         }
         writer.close();

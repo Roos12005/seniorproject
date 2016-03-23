@@ -60,15 +60,14 @@
             minEdgeSize : 0.003,
             maxEdgeSize : 0.1,
             minNodeSize : 0.5,
-            maxNodeSize : 1,
-            // zoomMin : 0.25,
-            // zoomMax : 40,
+            maxNodeSize : 5,
             edgeColor : 'default',
             defaultEdgeArrow: 'source',
             mouseWheelEnabled: false,
             // autoResize: false
             // zoomingRatio : 1
         });
+
 
     }
 
@@ -392,10 +391,10 @@
         // Display Graph using sigma object
         s.startForceAtlas2({});
 
-        // setTimeout(function () {
-        //     s.killForceAtlas2();
-        //     console.log('done');
-        // }, 3000);
+        setTimeout(function () {
+            s.killForceAtlas2();
+            console.log('done');
+        }, 2000);
         colorByDefaultNode();
         // colorByCentrality();
         colorByDefaultEdge();
@@ -495,54 +494,60 @@
 
      function doubleClickNodeListener(node) {
         // TODO : Display only selected community
-        var nodeData = updateInformation(node);
-        // Show back button on the top right of the div
-        document.getElementsByClassName('back-section')[0].style.display = 'block';
-        if(flag['compute_com']){
-            var selectedCommunity = nodeData['attributes']['Modularity Class'];
-            clearGraph();
-            console.log("Community");
+        $('#loading-overlay').show();
+        setTimeout(function() {
+            var nodeData = updateInformation(node);
+            // Show back button on the top right of the div
+            document.getElementsByClassName('back-section')[0].style.display = 'block';
+            if(flag['compute_com']){
+                var selectedCommunity = nodeData['attributes']['Modularity Class'];
+                clearGraph();
+                console.log("Community");
 
-            ajaxSetup();
-            $.ajax({
-                type: "GET",
-                url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
-                data : {"senddata":selectedCommunity},
-                success: function(e){
-                     console.log(e);
-                     communityData = e;
-                     selectedCom = selectedCommunity;
-                     numIDMapper = {};
-                    // Add all returned nodes to sigma object
-                     communityData.nodes.forEach(function(n) {
-                        addNode(n);
-                        numIDMapper[n.label] = n.id;
-                     });
-                    // Add all return edges to sigma object
-                    communityData.edges.forEach(function(edge) {
-                        addEdge(edge);
-                    });
+                ajaxSetup();
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
+                    data : {"senddata":selectedCommunity},
+                    success: function(e){
+                         console.log(e);
+                         communityData = e;
+                         selectedCom = selectedCommunity;
+                         numIDMapper = {};
+                        // Add all returned nodes to sigma object
+                         communityData.nodes.forEach(function(n) {
+                            addNode(n);
+                            numIDMapper[n.label] = n.id;
+                         });
+                        // Add all return edges to sigma object
+                        communityData.edges.forEach(function(edge) {
+                            addEdge(edge);
+                        });
 
-                    s.startForceAtlas2({});
-                    setTimeout(function () {
-                        s.killForceAtlas2();
-                    }, 500);
-                    s.camera.goTo({x:0, y:0, ratio: 1});
-                    s.refresh();
-                    flag['clickListenerComOfCom'] = true;
-                }
-            });        
-        } else { 
-            var filteredNodes = [];
-            console.log("Node");
-            graphData.nodes.forEach(function(n) {
-                if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
-                    filteredNodes.push(n);
-                }
-            });
+                        s.startForceAtlas2({});
+                        setTimeout(function () {
+                            s.killForceAtlas2();
+                        }, 500);
+                        s.camera.goTo({x:0, y:0, ratio: 1});
+                        s.refresh();
+                        flag['clickListenerComOfCom'] = true;
+                        $('#loading-overlay').hide();
+                    }
+                });        
+            } else { 
+                var filteredNodes = [];
+                console.log("Node");
+                graphData.nodes.forEach(function(n) {
+                    if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
+                        filteredNodes.push(n);
+                    }
+                });
 
-            plotPartialGraph(filteredNodes);
-        }
+                plotPartialGraph(filteredNodes);
+                $('#loading-overlay').hide();
+            }
+        }, 500);
+        
      }
 
      /**  
@@ -668,14 +673,20 @@
         document.getElementById('back').addEventListener('click', function() {
             document.getElementsByClassName('back-section')[0].style.display = 'none';
             // TODO : Change displayed graph back to the full one
+            $('#loading-overlay').show();
             clearGraph();
             s.stopForceAtlas2();
             plotFullGraph();
             flag['clickListenerComOfCom'] = false;
+            $('#loading-overlay').hide();
         });
      }
 
     function colorByDefaultNode() {
+        s.settings({
+            maxNodeSize: 5
+        });
+
         if(currentHighlightNode == 'default') return;
         hilightButton('#h-defaultNode','Node');
         document.getElementById('highlightNode').innerHTML = 'Default';
@@ -689,7 +700,7 @@
                 }
                 s.graph.nodes().forEach(function(node) {
                     node.size = 10 * node['attributes']['Member']/maxMember;
-                    console.log(node.size);
+                    // console.log(node.size);
                 });
             });
         }
@@ -745,7 +756,7 @@
                 var hexString = parseInt(colorScale).toString(16);
                 hexString = hexString.length == 1? '0' + hexString : hexString;
                 node.color = '#' + hexString + "0000";
-                console.log(colorScale + " --> " + node.color);
+                // console.log(colorScale + " --> " + node.color);
                 node.size = 10 * parseFloat(node['attributes']['Closeness Centrality'])/maxCC;
             }
         });
