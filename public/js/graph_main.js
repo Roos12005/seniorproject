@@ -254,7 +254,7 @@
     }
 
     function fetchCommunityData(){
-        
+        $('#loading-overlay').show();
         var preparedData = [];
         var carrier = [0,0,0,0];
         var com_data = new Array();
@@ -262,11 +262,14 @@
         var communities = new Array();
         var node_num = 0;
         ajaxSetup();
+
         $.ajax({
             type: "GET",
             url: "http://localhost/seniorproject/public/getCommunityOfCommunity/" + did,
             data : {},
             success: function(e){
+
+                $('#loading-overlay').hide();
                 console.log(e);
                 preparedData = e;
 
@@ -280,41 +283,53 @@
                     com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' users : ' + (communities[i]/node_num * 100).toFixed(0) + " %"});
                 }
 
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getCarrier/" + did,
+                    data : {},
+                    success: function(e){
+                        console.log(e);
+                        var user_num = e['all'];
+                        carrier[0] = e['ais'];
+                        carrier[1] = e['true'];
+                        carrier[2] = e['dtac'];
+                        carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
+
+                        document.getElementById('unique_numbers').innerHTML = e['all'];
+                        document.getElementById('transactions').innerHTML = e['calls'];
+                        createPieChart(com_data,color_data,carrier,node_num);
+                    },
+                    error: function(rs, e){
+                        console.log(rs.responseText);
+                        alert('Problem occurs during fetch data.');
+                    }
+                });
+
                 document.getElementById('communities').innerHTML = communities.length;
+                graphData = preparedData;
+                plotFullGraph();
+                addZoomListener();
+                addSearchBoxListener();
+                addBackButtonListener();
+                addHilightListener();
+                graphStatus['community-group'] = 1;
+                $('#community-group').removeClass('btn-default').addClass('btn-success');
+                $('#community-group i').removeClass('fa-times').addClass('fa-check');
+
+                
+                $('#loading-overlay').hide();
             },
             error: function(rs, e){
                 console.log(rs.responseText);
                 alert('Problem occurs during fetch data.');
-            },
-            async: false
+            }
         })
 
-        $.ajax({
-            type: "GET",
-            url: "http://localhost/seniorproject/public/getCarrier/" + did,
-            data : {},
-            success: function(e){
-                console.log(e);
-                var user_num = e['all'];
-
-                carrier[0] = e['ais'];
-                carrier[1] = e['true'];
-                carrier[2] = e['dtac'];
-                carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
-
-                document.getElementById('unique_numbers').innerHTML = e['all'];
-                document.getElementById('transactions').innerHTML = e['calls'];
-            },
-            error: function(rs, e){
-                console.log(rs.responseText);
-                alert('Problem occurs during fetch data.');
-            },
-            async: false
-        })
         
-        createPieChart(com_data,color_data,carrier,node_num);
+        
+        
 
-        return preparedData;
+        // return preparedData;
     }
 
     function createPieChart(com_data, color_data, carrier, node_num){
@@ -377,10 +392,10 @@
         // Display Graph using sigma object
         s.startForceAtlas2({});
 
-        setTimeout(function () {
-            s.killForceAtlas2();
-            console.log('done');
-        }, 3000);
+        // setTimeout(function () {
+        //     s.killForceAtlas2();
+        //     console.log('done');
+        // }, 3000);
         colorByDefaultNode();
         // colorByCentrality();
         colorByDefaultEdge();
@@ -970,6 +985,7 @@
      }
 
      function processData() {
+        $('#loading-overlay').show();
         if(graphStatus['full-graph'] == 0) {
             flag['compute_com'] = false;
             currentHighlightNode = 'null';
@@ -987,33 +1003,35 @@
      }
 
      function processCommunityData() {
-        if(graphStatus['community-group'] == 0) {
-            flag['compute_com'] = true;
-            currentHighlightNode = 'null';
-            currentHighlightEdge = 'null';
-            resetButton('full-graph');
-            resetButton('community-profile');
-            runGraph();
-            graphStatus['community-group'] = 1;
-            $('#community-group').removeClass('btn-default').addClass('btn-success');
-            $('#community-group i').removeClass('fa-times').addClass('fa-check');
-        } else if(graphStatus['community-group'] == 1) {
-            alert('The graph is already been shown.');
-        }
+        $('#loading-overlay').show();
+        setTimeout(function () {
+            if(graphStatus['community-group'] == 0) {
+                flag['compute_com'] = true;
+                currentHighlightNode = 'null';
+                currentHighlightEdge = 'null';
+                resetButton('full-graph');
+                resetButton('community-profile');
+                runGraph();
+                
+            } else if(graphStatus['community-group'] == 1) {
+                alert('The graph is already been shown.');
+            }
+        }, 500);
      }
 
      function runGraph() {
+
         clearGraph();
         if(flag['compute_com']){
             graphData = fetchCommunityData();
         } else {
             graphData = fetchData();
         }
-        plotFullGraph();
-        addZoomListener();
-        addSearchBoxListener();
-        addBackButtonListener();
-        addHilightListener();
+        // plotFullGraph();
+        // addZoomListener();
+        // addSearchBoxListener();
+        // addBackButtonListener();
+        // addHilightListener();
      }
 
     function processCommunityProfile() {

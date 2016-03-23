@@ -28,6 +28,9 @@
         <title>@yield('title')</title>
     </head>
     <body>
+    	<div id="loading-overlay" hidden>
+    		<div class="loader"></div>
+    	</div>
 	    <section id="m-container">
 			<!--header start-->
 			<header class="header fixed-top clearfix">

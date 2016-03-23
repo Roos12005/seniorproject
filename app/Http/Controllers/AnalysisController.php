@@ -71,7 +71,7 @@ class AnalysisController extends Controller{
         'NoOfIncoming' => $result['n']['incoming']
       ];
       $user_info = [
-        'label' => $result['n']['number'],
+        'label' => $result['n']['a_number'],
         'x' => 10*cos(2 * $key * M_PI/$node_count),
         'y' => 10*sin(2 * $key * M_PI/$node_count),
         'id' => $result['n_id'],
@@ -83,7 +83,7 @@ class AnalysisController extends Controller{
     }
 
     $call_list = array();
-    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') RETURN distinct n.number as n_num, m.number as m_num';
+    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') RETURN distinct n.a_number as n_num, m.a_number as m_num';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     foreach($results as $result){
       $call_info = [
@@ -96,7 +96,7 @@ class AnalysisController extends Controller{
     $edge_id = 9945;
     $edge_list = array();
     foreach($call_list as $call){
-      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.number = '".$call['source']."' AND m.number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.a_number = '".$call['source']."' AND m.a_number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
       $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
       $duration = 0;
       $weight = 0;
@@ -141,6 +141,7 @@ class AnalysisController extends Controller{
             ->build();
     
     $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.communityID';
+    Log::info($q);
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $communities_list = array();
     foreach($results as $key => $result) {
@@ -200,7 +201,7 @@ class AnalysisController extends Controller{
     $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
     foreach($results as $key => $result) {
       $user_info = [
-        'label' => $result['n']['number'],
+        'label' => $result['n']['a_number'],
         'Betweenness Centrality' => $result['n']['betweenness'],
         'Modularity Class' => $result['n']['communityID'],
         'Eccentricity' => $result['n']['eccentricity'],
@@ -237,7 +238,7 @@ class AnalysisController extends Controller{
 
     $q = 'MATCH (n:Processed' . $id . ') RETURN count(distinct n.communityID)';
     $community_num = $client->sendCypherQuery($q)->getResult()->get('count(distinct n.communityID)');
-
+    Log::info($q);
     $community_list = array();
 
     $q = 'MATCH (n:ProcessedCom' . $id . ') RETURN n, ID(n) as n_id ORDER BY n.member';
@@ -247,7 +248,7 @@ class AnalysisController extends Controller{
       foreach($results as $key => $result) {
         $community_stat = [
           'Betweenness Centrality' => $result['n']['betweenness'],
-          'Modularity Class' => $result['n']['number'],
+          'Modularity Class' => $result['n']['a_number'],
           'Eccentricity' => $result['n']['eccentricity'],
           'Closeness Centrality' => $result['n']['closeness'],
           'Member' => $result['n']['member'],
@@ -273,7 +274,7 @@ class AnalysisController extends Controller{
       }
 
       $call_list = array();
-      $q = 'MATCH (n:ProcessedCom' . $id . ')-[r:Call]->(m:ProcessedCom' . $id . ') RETURN distinct n.number as n_num, m.number as m_num';
+      $q = 'MATCH (n:ProcessedCom' . $id . ')-[r:Call]->(m:ProcessedCom' . $id . ') RETURN distinct n.a_number as n_num, m.a_number as m_num';
       $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
       foreach($results as $result){
         $call_info = [
@@ -286,7 +287,7 @@ class AnalysisController extends Controller{
       $edge_id = 9945;
       $edge_list = array();
       foreach($call_list as $call){
-        $q = 'MATCH (n:ProcessedCom' . $id . ')-[r:Call]->(m:ProcessedCom' . $id . ') WHERE n.number = "'.$call['source'].'" AND m.number = "'.$call['target'].'" RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r';
+        $q = 'MATCH (n:ProcessedCom' . $id . ')-[r:Call]->(m:ProcessedCom' . $id . ') WHERE n.a_number = "'.$call['source'].'" AND m.a_number = "'.$call['target'].'" RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r';
         $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
         $duration = 0;
         $weight = 0;
@@ -325,10 +326,12 @@ class AnalysisController extends Controller{
 
   //Get numbers of nodes in each carrier
   public function getCarrier($id){
+    set_time_limit(50000);
     putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
+            ->setDefaultTimeout(20000)
             ->build();
     $q = 'MATCH (n:Processed' . $id . ') RETURN count(n)';
     $all_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
@@ -393,7 +396,7 @@ class AnalysisController extends Controller{
     }
 
     $call_list = array();
-    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') WHERE n.communityID = "'.$selectedCommunity.'" AND m.communityID = "'.$selectedCommunity.'" RETURN distinct n.number as n_num, m.number as m_num';
+    $q = 'MATCH (n:Processed' . $id . ')-[r:Call]->(m:Processed' . $id . ') WHERE n.communityID = "'.$selectedCommunity.'" AND m.communityID = "'.$selectedCommunity.'" RETURN distinct n.a_number as n_num, m.a_number as m_num';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     foreach($results as $result){
       $call_info = [
@@ -406,7 +409,7 @@ class AnalysisController extends Controller{
     $edge_id = 9945;
     $edge_list = array();
     foreach($call_list as $call){
-      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.communityID = '".$selectedCommunity."' AND m.communityID = '".$selectedCommunity."' AND n.number = '".$call['source']."' AND m.number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
+      $q = "MATCH (n:Processed" . $id . ")-[r:Call]->(m:Processed" . $id . ") WHERE n.communityID = '".$selectedCommunity."' AND m.communityID = '".$selectedCommunity."' AND n.a_number = '".$call['source']."' AND m.a_number = '".$call['target']."' RETURN ID(n) as n_id, ID(m) as m_id,collect(r) as collect_r";
       $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
       $duration = 0;
       $weight = 0;
