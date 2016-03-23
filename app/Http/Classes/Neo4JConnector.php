@@ -353,6 +353,16 @@ class Neo4JConnector {
         return $this->connector->sendCypherQuery($query)->getResult()->getTableFormat();
     }
 
+    public function deleteDatabase($db_id) {
+        $q = "MATCH (n:Database) WHERE ID(n)=" . $db_id . " DELETE n;";
+        $this->execQuery($q);
+    }
+
+    public function renameDatabase($db_id, $new_name) {
+        $q = "MATCH (n:Database) WHERE ID(n)=" . $db_id . " SET n.name='" . $new_name . "';";
+        $this->execQuery($q);
+    }
+
     // ------------------------------------------------------------------------------------------------------------
 
     // --------------------------------------------- Private Functions --------------------------------------------
@@ -418,7 +428,7 @@ class Neo4JConnector {
     private function beginProcess($filters, $id, $db, $isScheduler) {
         putenv('/seniortmp');
         ignore_user_abort(true);
-        $command = "java -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id . ' ' . $db . ' 1';
+        $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar " . ($isScheduler? "public/" : "") . "java/seniorproject/target/seniorproject-1.0-SNAPSHOT.jar ". $id . ' ' . $db . ' 1';
         foreach ($filters as $key => $value) {
             $len = sizeof($value);
             $command = $command . ' ' . $key . ' ';

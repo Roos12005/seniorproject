@@ -18,8 +18,12 @@ use \App\Http\Classes\Neo4JValidator as Neo4JValidator;
 class DatabaseController extends Controller{
     
     public function index() {
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
         
-        return view('admin.database');
+        // Query All Data needed
+        $database = $neo->getAvailableDatabase();
+
+        return view('admin.database',['database' => $database]);
     }
 
     public function uploadCDR() {
@@ -55,7 +59,7 @@ class DatabaseController extends Controller{
         try {
             $isGranted = $neo->grantLock($db_name);
             if($isGranted) {
-                $command = "java -Xmx4096m -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' 2>&1';
+                $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' 2>&1';
                 $output = shell_exec($command);
                 Log::info($command);
                 Log::info($output);
@@ -78,6 +82,22 @@ class DatabaseController extends Controller{
             }
         }    
         return 'success';
+    }
+
+    public function deleteDatabase() {
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+        $db_id = Request::all()['db_id'];
+        $database = $neo->deleteDatabase($db_id);
+        return "success";
+    }
+
+    public function renameDatabase() {
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+        $rec = Request::all();
+        $db_id = $rec['db_id'];
+        $db_name = $rec['new_name'];
+        $database = $neo->renameDatabase($db_id, $db_name);
+        return "success";
     }
     
 }

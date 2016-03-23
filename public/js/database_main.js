@@ -17,8 +17,76 @@
 
     }
 
+    function init() {
+        bindDeleteButtonListenner();
+        bindRenameButtonListenner();
+    }
+
+    function bindDeleteButtonListenner() {
+        $('.delete-button').on('click', function() {
+            var db_id = $(this).attr('data-id');
+            var db_name = $(this).attr('data-name');
+            $('#dbname').html(db_name);
+            $('#begin-delete').attr('data-id', db_id);
+            $('#confirmationModal').modal('show');
+        });
+
+        $('#begin-delete').on('click', function() {
+            var db_id = $(this).attr('data-id');
+            $('#confirmationModal').modal('hide');
+            ajaxSetup();
+            $.ajax({
+                type: "POST",
+                url: "http://localhost/seniorproject/public/database/delete",
+                data : {db_id: db_id},
+                success: function(e){
+                    console.log(e);
+                },
+                error: function(rs, e){
+                    console.log(rs.responseText);
+                    alert('Problem occurs during deleting data.');
+                }
+            })
+        });
+    }
+
+    function bindRenameButtonListenner() {
+        $('.rename-button').on('click', function() {
+            var db_id = $(this).attr('data-id');
+            var db_name = $(this).attr('data-name');
+            $('#db-current-name').html(db_name);
+            $('#begin-rename').attr('data-id', db_id);
+            $('#renameModal').modal('show');
+        });
+
+        $('#begin-rename').on('click', function() {
+            var db_id = $(this).attr('data-id');
+            var new_name = $("#db-new-name").val();
+            if(new_name.length < 3) {
+                alert("Database name must contain at least 3 characters.")
+            }
+            $('#renameModal').modal('hide');
+
+            ajaxSetup();
+            $.ajax({
+                type: "POST",
+                url: "http://localhost/seniorproject/public/database/rename",
+                data : {db_id: db_id, new_name: new_name},
+                success: function(e){
+                    console.log(e);
+                    $('#db-name-' + db_id).html(new_name);
+                    $('#db-rename-' + db_id).attr("data-name", new_name);
+                },
+                error: function(rs, e){
+                    console.log(rs.responseText);
+                    alert('Problem occurs during deleting data.');
+                }
+            })
+        });
+    }
+
     /**
-     *  @brief  Basic setuo for AJAX call.
+     *  @brief  Basic setup for AJAX call.
      *
      *  This function must be called everytime before using ajax call.
      *  This function contains CSRF generator which will generate
@@ -65,6 +133,7 @@
      *  @return void
      */
      !function(undefined){
+        init();
         uploader_factory = new UploaderFactory('alert-warning', 'alert-success');
 
 
