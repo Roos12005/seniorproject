@@ -20,17 +20,15 @@ class AnalysisController extends Controller{
     $q = 'Match (n:BatchJob) Where ID(n) = '.$id.' Return n';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $week = substr($results[0]['n']['startDate'],6);
-    $database = '-';
-    //$startDate = substr($results[0]['n']['startDate'],0,-1).($week == "0"||"1"?'01':($week == "2"?'08':($week == "3"?'15':($week == "4"?'22':'29')))).' - '.substr($results[0]['n']['startDate'],0,-1).($week == "0"?'30':($week == "1"?'07':($week == "2"?'14':($week == "3"?'21':($week == "4"?'28':'30')))));
     $startDate = 'Year '.substr($results[0]['n']['startDate'],0,-3).' Month '.substr($results[0]['n']['startDate'],4,2)."  ".($week == "0"?'All month':($week == "1"?'Week 1':($week == "2"?'Week 2':($week == "3"?'Week 3':($week == "4"?'Week 4':'Week 5')))));
     $callDay =   (substr($results[0]['n']['callDay'],0,1)=="1"?"Sunday , ":"").(substr($results[0]['n']['callDay'],1,1)=="1"?"Monday , ":"").(substr($results[0]['n']['callDay'],2,1)=="1"?"Tuesday , ":"").(substr($results[0]['n']['callDay'],3,1)=="1"?"Wednesday , ":"").(substr($results[0]['n']['callDay'],4,1)=="1"?"Thursday , ":"").(substr($results[0]['n']['callDay'],5,1)=="1"?"Friday , ":"").(substr($results[0]['n']['callDay'],6,1)=="1"?"Saturday":"");
     $carrier =   (substr($results[0]['n']['rnCode'],0,1)=="1"?"AIS , ":"").(substr($results[0]['n']['rnCode'],1,1)=="1"?"TRUE , ":"").(substr($results[0]['n']['rnCode'],2,1)=="1"?"DTAC , ":"").(substr($results[0]['n']['rnCode'],3,1)=="1"?"JAS , ":"").(substr($results[0]['n']['callDay'],4,1)=="1"?"Others":"");
     $duration = $results[0]['n']['durationMin']." - ".($results[0]['n']['durationMax']=="-1"?'100':$results[0]['n']['durationMax']);
     $period = number_format($results[0]['n']['startTime'], 2, '.', '')." - ".($results[0]['n']['endTime']=="-1"?'24.00':number_format($results[0]['n']['endTime'], 2, '.', ''));
-    $noOfOutgoing = '-';
-    $noOfIncoming = '-';
+    $noOfOutgoing = $results[0]['n']['incomingMin']." - ".($results[0]['n']['incomingMax']=="-1"?'10000':$results[0]['n']['incomingMax']);
+    $noOfIncoming = $results[0]['n']['outgoingMin']." - ".($results[0]['n']['outgoingMax']=="-1"?'10000':$results[0]['n']['outgoingMax']);
     return view('analysis.analysis', ['data_id' => $id])->with([
-      'database' => $database,
+      // 'database' => $database,
       'startDate' => $startDate,
       'callDay' => $callDay,
       'carrier' => $carrier,
@@ -51,14 +49,12 @@ class AnalysisController extends Controller{
     ->setAutoFormatResponse(true)
     ->setDefaultTimeout(200000)
     ->build();
-    Log::info("Step 1 -- passed");
     $q = 'MATCH (n:Processed' . $id . ') RETURN n,ID(n) as n_id';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $querytime = Carbon\Carbon::now()->timestamp;
     $node_list = array();
     $edge_list = array();
     $node_count = sizeof($results);
-    Log::info("Step 2 -- passed");
     foreach($results as $key => $result) {
       $user_stat = [
         'Betweenness Centrality' => $result['n']['betweenness'],
@@ -84,10 +80,8 @@ class AnalysisController extends Controller{
       ];
       array_push($node_list, $user_info);
     }
-    Log::info("Step 3 -- passed");
     $q = 'MATCH (n:Processed' . $id . ')-[r:aCall]->(m) RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-    Log::info("Step 4 -- passed");
     $node_count = sizeof($results);
     foreach($results as $key => $result) {
       $edge_prop = [
@@ -107,7 +101,6 @@ class AnalysisController extends Controller{
       ];
       array_push($edge_list, $edge_info);
     }
-    Log::info("Step 5 -- passed");
     return  response()->json(['nodes' => $node_list, 'edges' => $edge_list]);
   } 
 
@@ -117,6 +110,7 @@ class AnalysisController extends Controller{
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
+    ->setDefaultTimeout(20000)
     ->build();
     
     $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.communityID';
@@ -180,18 +174,18 @@ class AnalysisController extends Controller{
     $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
     foreach($results as $key => $result) {
       $user_info = [
-      'label' => $result['n']['number'],
-      'Betweenness Centrality' => $result['n']['betweenness'],
-      'Modularity Class' => $result['n']['communityID'],
-      'Eccentricity' => $result['n']['eccentricity'],
-      'Closeness Centrality' => $result['n']['closeness'],
-      'Age' => $result['n']['age'],
-      'Gender' => $result['n']['gender'],
-      'Carrier' => $result['n']['carrier'],
-      'Arpu' => $result['n']['arpu'],
-      'Promotion' => $result['n']['promotion'],
-      'NoOfOutgoing' => $result['n']['outgoing'],
-      'NoOfIncoming' => $result['n']['incoming']
+        'label' => $result['n']['number'],
+        'Betweenness Centrality' => $result['n']['betweenness'],
+        'Modularity Class' => $result['n']['communityID'],
+        'Eccentricity' => $result['n']['eccentricity'],
+        'Closeness Centrality' => $result['n']['closeness'],
+        'Age' => $result['n']['age'],
+        'Gender' => $result['n']['gender'],
+        'Carrier' => $result['n']['carrier'],
+        'Arpu' => $result['n']['arpu'],
+        'Promotion' => $result['n']['promotion'],
+        'NoOfOutgoing' => $result['n']['outgoing'],
+        'NoOfIncoming' => $result['n']['incoming']
       ];
       array_push($communities_list[$result['n']['communityID']], $user_info);
     }
@@ -213,6 +207,7 @@ class AnalysisController extends Controller{
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
+    ->setDefaultTimeout(20000)
     ->build();
 
     $q = 'MATCH (n:Processed' . $id . ') RETURN count(distinct n.communityID)';
@@ -311,6 +306,7 @@ class AnalysisController extends Controller{
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
+    ->setDefaultTimeout(20000)
     ->build();
 
     $selectedCommunity  = Input::get('senddata');
@@ -350,7 +346,6 @@ class AnalysisController extends Controller{
 
     $q = 'MATCH (n:Processed' . $id . ')-[r:aCall]->(m:Processed' . $id . ') WHERE n.communityID = "'.$selectedCommunity.'" AND m.communityID = "'.$selectedCommunity.'" RETURN ID(n) as n_id, r, ID(r) as r_id, ID(m) as m_id';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
-
     foreach ($results as $result) {
       $edge_prop = [
         'duration' => $result['r']['duration'],

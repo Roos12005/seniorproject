@@ -452,6 +452,7 @@ private function connectDatabase($db_name, $protocol, $host_name, $port, $userna
     $this->connector = ClientBuilder::create()
     ->addConnection($db_name, $protocol, $host_name, $port, true, $username, $password)
     ->setAutoFormatResponse(true)
+    ->setDefaultTimeout(20000)
     ->build();
 }
 

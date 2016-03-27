@@ -12,12 +12,13 @@
  *
  */
 
-!function(){
+ !function(){
     'use strict';
     var did = $('meta[name="data-id"]').attr('content');
     var graphData = [];
     var communityData = [];
     var colors = [];
+    var category = {};
     var numIDMapper = {};
     var s;
     var currentHighlightNode = 'null';
@@ -26,7 +27,8 @@
     var flag = {
         compute_com : false,
         activateClick : false,
-        clickListenerComOfCom : false
+        clickListenerComOfCom : false,
+        canImport : false
     }
 
     var graphStatus = {
@@ -46,25 +48,27 @@
      *
      *  @return instantiated Sigma object
      */    
-    function initSigma() {
+     function initSigma() {
         s = new sigma({
             renderers: [{
                 container: document.getElementById('container'),
-               type: 'canvas'
+                type: 'canvas'
             }]
 
             /* 
              *  TODO : May add some other setting here... 
              *  Visit https://github.com/jacomyal/sigma.js/wiki/Settings for more setting available
              *
-            */
-        });
+             */
+         });
         s.settings({
             defaultEdgeType: "curvedArrow",
             minEdgeSize : 0.003,
             maxEdgeSize : 0.1,
             minNodeSize : 0.5,
             maxNodeSize : 5,
+            // zoomMin : 0.25,
+            // zoomMax : 40,
             edgeColor : 'default',
             defaultEdgeArrow: 'source',
             mouseWheelEnabled: false,
@@ -84,7 +88,7 @@
      *  @param  n  Input node
      *  @return void
      */
-    function addNode(n) {
+     function addNode(n) {
         /* TODO : May add some conditional check or calculation here... */
         if(s.graph.nodes(n.id) !== undefined) {
             throw 'Node#' + n.id + '(' + n.label + ')' + ' is duplicated.';
@@ -112,7 +116,7 @@
      *  @param  e  Input edge
      *  @return void
      */
-    function addEdge(e) {
+     function addEdge(e) {
         /* TODO : May add some conditional check or calculation here... */
 
         // Throw an exception if source or target node does not exist.
@@ -155,7 +159,7 @@
      *
      *  @return void
      */
-    function ajaxSetup(){
+     function ajaxSetup(){
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -172,8 +176,8 @@
      *  @param  ???
      *  @return JSON object - contains graph data
      */
-    function fetchData(){
-        
+     function fetchData(){
+
         var preparedData = [];
         var carrier = [0,0,0,0];
         var com_data = new Array();
@@ -186,40 +190,51 @@
             url: "http://localhost/seniorproject/public/getCDR/" + did,
             data : {},
             success: function(e){
+                $('#loading-overlay').hide();
                 console.log(e);
+
                 preparedData = e;
-
                 user_num = e['nodes'].length;
-
                 $.each(e.nodes, function(index, user_info) {
-                    if(user_info['attributes']['Carrier'] == "AIS"){
-                        carrier[0] += 1;
-                    }
-                    else if(user_info['attributes']['Carrier'] == "DTAC"){
-                        carrier[1] += 1;
-                    }
-                    else if(user_info['attributes']['Carrier'] == "TRUE"){
-                        carrier[2] += 1;
-                    }
-                    else {
-                        carrier[3] += 1;
-                    }
                     if (!communities[user_info['attributes']['Modularity Class']]) {
                         communities[user_info['attributes']['Modularity Class']] = 1;
-                        color_data[user_info['attributes']['Modularity Class']] = user_info['color'];
-                    }
-                    else {
-                        communities[user_info['attributes']['Modularity Class']] += 1;
                     }
                 });
 
-                for (var i in communities) {
-                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' users : ' + (communities[i]/user_num * 100).toFixed(0) + " %"});
-                }
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getCarrier/" + did,
+                    data : {},
+                    success: function(e){
+                        console.log(e);
 
+                        carrier[0] = e['ais'];
+                        carrier[1] = e['true'];
+                        carrier[2] = e['dtac'];
+                        carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
+                        createPieChart(carrier,user_num);
+                    },
+                    error: function(rs, e){
+                        console.log(rs.responseText);
+                        alert('Problem occurs during fetch data.');
+                    }
+                });
                 document.getElementById('unique_numbers').innerHTML = numberWithCommas(user_num);
                 document.getElementById('communities').innerHTML = numberWithCommas(communities.length);
                 document.getElementById('transactions').innerHTML = numberWithCommas(e['edges'].length);
+
+                graphData = preparedData;
+                plotFullGraph();
+                addZoomListener();
+                addSearchBoxListener();
+                addBackButtonListener();
+                addHilightListener();
+                flag['canImport'] = true;
+                graphStatus['full-graph'] = 1;
+                $('#full-graph').removeClass('btn-default').addClass('btn-success');
+                $('#full-graph i').removeClass('fa-times').addClass('fa-check');
+
+                $('#loading-overlay').hide();
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -227,33 +242,6 @@
             },
             async: false,
         })
-
-        $.ajax({
-            type: "GET",
-            url: "http://localhost/seniorproject/public/getCarrier/" + did,
-            data : {},
-            success: function(e){
-                console.log(e);
-                var user_num = e['all'];
-
-                carrier[0] = e['ais'];
-                carrier[1] = e['true'];
-                carrier[2] = e['dtac'];
-                carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
-
-                document.getElementById('unique_numbers').innerHTML = e['all'];
-                document.getElementById('transactions').innerHTML = e['calls'];
-            },
-            error: function(rs, e){
-                console.log(rs.responseText);
-                alert('Problem occurs during fetch data.');
-            },
-            async: false,
-        })
-        
-        createPieChart(com_data,color_data,carrier,user_num);
-
-        return preparedData;
     }
 
     function fetchCommunityData(){
@@ -272,19 +260,9 @@
             data : {},
             success: function(e){
 
-                
+
                 console.log(e);
                 preparedData = e;
-
-                $.each(e.nodes, function(index, community_info) {
-                     communities[community_info['attributes']['Modularity Class']] = community_info['attributes']['Member'];
-                     color_data[community_info['attributes']['Modularity Class']] = community_info['color'];
-                     node_num += community_info['attributes']['Member'];
-                });
-
-                for (var i in communities) {
-                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' users : ' + (communities[i]/node_num * 100).toFixed(0) + " %"});
-                }
 
                 $.ajax({
                     type: "GET",
@@ -292,7 +270,7 @@
                     data : {},
                     success: function(e){
                         console.log(e);
-                        var user_num = e['all'];
+                        node_num = e['all'];
                         carrier[0] = e['ais'];
                         carrier[1] = e['true'];
                         carrier[2] = e['dtac'];
@@ -300,7 +278,7 @@
 
                         document.getElementById('unique_numbers').innerHTML = numberWithCommas(e['all']);
                         document.getElementById('transactions').innerHTML = numberWithCommas(e['calls']);
-                        createPieChart(com_data,color_data,carrier,node_num);
+                        createPieChart(carrier,node_num);
                     },
                     error: function(rs, e){
                         console.log(rs.responseText);
@@ -319,44 +297,29 @@
                 $('#community-group').removeClass('btn-default').addClass('btn-success');
                 $('#community-group i').removeClass('fa-times').addClass('fa-check');
 
-                
-                
+
+
             },
             error: function(rs, e){
                 console.log(rs.responseText);
                 alert('Problem occurs during fetch data.');
             }
         })
-
-        
-        
-        
-
-        // return preparedData;
     }
 
-    function createPieChart(com_data, color_data, carrier, node_num){
-        Morris.Donut({
-            element: 'graph-donut',
-            data: com_data,
-            backgroundColor: '#fff',
-            labelColor: '#1fb5ac',
-            colors: color_data,
-            formatter: function (x, data) { return data.formatted; }
-        });
-        
+    function createPieChart(carrier, node_num){        
         Morris.Donut({
             element: 'graph-donut2',
             data: [
-                {value: carrier[0], label: 'AIS', formatted: carrier[0] + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[1], label: 'DTAC', formatted: carrier[1] + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[2], label: 'TRUE', formatted: carrier[2] + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[3], label: 'OTHER', formatted: carrier[3] + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" }
+            {value: carrier[0], label: 'AIS', formatted: carrier[0] + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
+            {value: carrier[1], label: 'DTAC', formatted: carrier[1] + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
+            {value: carrier[2], label: 'TRUE', formatted: carrier[2] + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
+            {value: carrier[3], label: 'OTHER', formatted: carrier[3] + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" }
             ],
             backgroundColor: '#fff',
             labelColor: '#1fb5ac',
             colors: [
-                '#66CC66','#FF0000','#00CCFF','#DDDDDD'
+            '#66CC66','#FF0000','#00CCFF','#DDDDDD'
             ],
             formatter: function (x, data) { return data.formatted; }
         });
@@ -365,10 +328,10 @@
     function replotGraph(gdata) {
         numIDMapper = {};
         // Add all returned nodes to sigma object
-         gdata.nodes.forEach(function(n) {
+        gdata.nodes.forEach(function(n) {
             addNode(n);
             numIDMapper[n.label] = n.id;
-         });
+        });
         // Add all return edges to sigma object
         gdata.edges.forEach(function(edge) {
             addEdge(edge);
@@ -397,7 +360,7 @@
      *
      *  @return void
      */
-    function plotFullGraph(){
+     function plotFullGraph(){
         numIDMapper = {};
         // Add all returned nodes to sigma object
         graphData.nodes.forEach(function(node) {
@@ -419,6 +382,8 @@
 
         // Display Graph using sigma object
         s.startForceAtlas2({adjustSizes: true, linLogMode:  true});
+        currentHighlightNode = 'null';
+        currentHighlightEdge = 'null';
 
         setTimeout(function () {
             s.killForceAtlas2();
@@ -437,7 +402,7 @@
      *  @param  nodes   array of selected nodes
      *  @return void
      */
-    function plotPartialGraph(nodes){
+     function plotPartialGraph(nodes){
         nodes.forEach(function(node) {
             removeNode(node);
         });
@@ -447,6 +412,9 @@
             s.killForceAtlas2();
         }, 500);
         s.refresh();
+
+        // colorByDefaultNode();
+        // colorByDefaultEdge();
     }
 
     /**  
@@ -473,7 +441,7 @@
         document.getElementById("nozoom").addEventListener("click", function(){
             s.camera.goTo({x:0, y:0, ratio: 1});
         });
-     }
+    }
 
      /**  
      *  @brief  Scripting Search Box
@@ -506,7 +474,7 @@
                 // updateInformation(node);
             }
         });
-     }
+    }
 
      /**  
      *  @brief  Listener on clicking node
@@ -519,19 +487,20 @@
      function clickNodeListener(node) {
         console.log(node.data.node.label);
         var nodeData = updateInformation(node);
-     }
+    }
 
-     function doubleClickNodeListener(node) {
+    function doubleClickNodeListener(node) {
         // TODO : Display only selected community
         $('#loading-overlay').show();
         setTimeout(function() {
             var nodeData = updateInformation(node);
+            currentHighlightNode = 'null';
+            currentHighlightEdge = 'null';
             // Show back button on the top right of the div
             document.getElementsByClassName('back-section')[0].style.display = 'block';
             if(flag['compute_com']){
                 var selectedCommunity = nodeData['attributes']['Modularity Class'];
                 clearGraph();
-                console.log("Community");
 
                 ajaxSetup();
                 $.ajax({
@@ -539,15 +508,15 @@
                     url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
                     data : {"senddata":selectedCommunity},
                     success: function(e){
-                         console.log(e);
-                         communityData = e;
-                         selectedCom = selectedCommunity;
-                         numIDMapper = {};
+                       console.log(e);
+                       communityData = e;
+                       selectedCom = selectedCommunity;
+                       numIDMapper = {};
                         // Add all returned nodes to sigma object
-                         communityData.nodes.forEach(function(n) {
+                        communityData.nodes.forEach(function(n) {
                             addNode(n);
                             numIDMapper[n.label] = n.id;
-                         });
+                        });
                         // Add all return edges to sigma object
                         communityData.edges.forEach(function(edge) {
                             addEdge(edge);
@@ -563,6 +532,7 @@
                         s.camera.goTo({x:0, y:0, ratio: 1});
                         s.refresh();
                         flag['clickListenerComOfCom'] = true;
+                        flag['canImport'] = true;
                         flag['compute_com'] = false;
                     },
                     error: function(rs, e){
@@ -580,15 +550,15 @@
                     url: "http://localhost/seniorproject/public/getNeighbors/" + did,
                     data : {"node" : node.data.node.label},
                     success: function(e){
-                         console.log(e);
-                         var neighborsData = e;
-                         
-                         numIDMapper = {};
+                       console.log(e);
+                       var neighborsData = e;
+
+                       numIDMapper = {};
                         // Add all returned nodes to sigma object
-                         neighborsData.nodes.forEach(function(n) {
+                        neighborsData.nodes.forEach(function(n) {
                             addNode(n);
                             numIDMapper[n.label] = n.id;
-                         });
+                        });
                         // Add all return edges to sigma object
                         neighborsData.edges.forEach(function(edge) {
                             addEdge(edge);
@@ -611,7 +581,7 @@
             }
         }, 500);
         
-     }
+    }
 
      /**  
      *  @brief  Update Right column information
@@ -642,15 +612,15 @@
                     communityRank[n.attributes['Modularity Class']] = n.attributes['Member'];
                 } else {
                     if (!communities[n.attributes['Modularity Class']]) {
-                       communities[n.attributes['Modularity Class']] = 1;
-                       communityRank[n.attributes['Modularity Class']] = 1;
-                    }
-                    else {
-                        communities[n.attributes['Modularity Class']] += 1;
-                        communityRank[n.attributes['Modularity Class']] += 1;
-                    }
+                     communities[n.attributes['Modularity Class']] = 1;
+                     communityRank[n.attributes['Modularity Class']] = 1;
+                 }
+                 else {
+                    communities[n.attributes['Modularity Class']] += 1;
+                    communityRank[n.attributes['Modularity Class']] += 1;
                 }
-            });
+            }
+        });
         } else {
             communityData.nodes.forEach(function(n) {
                 if(n.id == nodeID) {
@@ -662,28 +632,28 @@
                     communityRank[n.attributes['Modularity Class']] = n.attributes['Member'];
                 } else {
                     if (!communities[n.attributes['Modularity Class']]) {
-                       communities[n.attributes['Modularity Class']] = 1;
-                       communityRank[n.attributes['Modularity Class']] = 1;
-                    }
-                    else {
-                        communities[n.attributes['Modularity Class']] += 1;
-                        communityRank[n.attributes['Modularity Class']] += 1;
-                    }
+                     communities[n.attributes['Modularity Class']] = 1;
+                     communityRank[n.attributes['Modularity Class']] = 1;
+                 }
+                 else {
+                    communities[n.attributes['Modularity Class']] += 1;
+                    communityRank[n.attributes['Modularity Class']] += 1;
                 }
-            });
+            }
+        });
         }
 
         bc.sort(function(a, b) {
           return b - a;
-        });
+      });
 
         cc.sort(function(a, b) {
           return b - a;
-        });
+      });
 
         communityRank.sort(function(a, b) {
           return b - a;
-        });
+      });
 
         if(nodeData == undefined) {
             alert('Can\'t get node data');
@@ -720,9 +690,9 @@
             document.getElementById('comrank').innerHTML = communityRank.indexOf(communities[nodeData.attributes['Modularity Class']]) + 1;
             document.getElementById('comsize').innerHTML = communities[nodeData.attributes['Modularity Class']];
             document.getElementById('comnum').innerHTML = communities[nodeData.attributes['Modularity Class']];
-       }
+        }
         return nodeData;
-     }
+    }
 
      /**  
      *  @brief  Listener on clicking back button
@@ -734,8 +704,6 @@
      */
      function addBackButtonListener() {
         document.getElementById('back').addEventListener('click', function() {
-            
-
             $('#loading-overlay').show();
             if(flag['drilldown']) {
                 flag['drilldown'] = false;
@@ -744,6 +712,7 @@
             } else {
                 document.getElementsByClassName('back-section')[0].style.display = 'none';
                 flag['compute_com'] = true;
+                flag['canImport'] = false;
                 graphStatus['community-group'] = 1;
                 flag['clickListenerComOfCom'] = false;
                 clearGraph();
@@ -752,10 +721,10 @@
                 s.camera.goTo({x:0, y:0, ratio: 1});    
             }
         });
-     }
+    }
 
     function colorByDefaultNode() {
-        
+
 
         if(currentHighlightNode == 'default') return;
         hilightButton('#h-defaultNode','Node');
@@ -768,28 +737,31 @@
                 maxNodeSize: 7
             });
             console.log("rendering community");
-            s.graph.nodes().forEach(function(node) {
-                if(parseInt(node['attributes']['Member']) > maxMember) {
-                    maxMember = node['attributes']['Member'];
-                }
+            if(flag['compute_com'] && !flag['clickListenerComOfCom']){
                 s.graph.nodes().forEach(function(node) {
-                    node.size = 10 * node['attributes']['Member']/maxMember;
-                    node.color = node.communityColor;
+                    if(parseInt(node['attributes']['Member']) > maxMember) {
+                        maxMember = node['attributes']['Member'];
+                    }
+                    s.graph.nodes().forEach(function(node) {
+                        node.color = node.communityColor;
+                        node.size = 10 * node['attributes']['Member']/maxMember;
+                        node.color = node.communityColor;
                     // console.log(node.size);
                 });
-            });
+                });
+            }
+            else {
+                s.settings({
+                    maxNodeSize: 1
+                });
+                s.graph.nodes().forEach(function(node) {
+                    node.color = '#a5adb0';
+                    node.size = node.defaultSize;
+                });  
+            }
+            currentHighlightNode = 'default';
+            s.refresh();
         }
-        else {
-            s.settings({
-                maxNodeSize: 1
-            });
-            s.graph.nodes().forEach(function(node) {
-                node.color = '#a5adb0';
-                node.size = node.defaultSize;
-            });  
-        }
-        currentHighlightNode = 'default';
-        s.refresh();
     }
 
     function colorByCommunity() {
@@ -831,7 +803,7 @@
                 }
             }
         });
-    
+
         s.graph.nodes().forEach(function(node) {
             if(node['attributes']['Modularity Class'] == selectedCom || selectedCom == 'null') {
                 var colorScale =  node['attributes']['Betweenness Centrality'] == 0 ? 0 : 255 * (Math.log(node['attributes']['Betweenness Centrality'])/Math.log(maxBC));
@@ -858,6 +830,7 @@
         document.getElementById('highlightNodeColor').innerHTML = 'AIS - Green , TRUE - RED , DTAC - Blue , Other - GREY';
         hilightButton('#h-carrier','Node');
         s.graph.nodes().forEach(function(node) {
+            console.log("work");
             node.color = node['attributes']['Carrier'] == 'TRUE' ? "#e74c3c" : (node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : (node['attributes']['Carrier'] == 'DTAC' ? "#3498db" : '#000000'));
         });
         s.refresh();
@@ -930,7 +903,7 @@
         });
         s.graph.nodes().forEach(function(node) {
             if(node['attributes']['Modularity Class'] == selectedCom || selectedCom == 'null') {
-                
+
                 node.size = 5 * Math.log(parseInt(node['attributes']['NoOfIncoming']) + parseInt(node['attributes']['NoOfOutgoing']))/Math.log(maxDegree);
                 node.color = '#000000';
                 console.log(node.size);
@@ -1015,7 +988,6 @@
             s.graph.edges().forEach(function(edge) {
                 if(edge['source'] == node.id){
                     edge.color = node.communityColor;
-                    node.color = node.communityColor;
                 }
             });
         });
@@ -1092,21 +1064,21 @@
         document.getElementById('h-defaultEdge').addEventListener('click', colorByDefaultEdge);
         document.getElementById('h-daynight').addEventListener('click', colorByDayNight);
         document.getElementById('h-duration').addEventListener('click', colorByDuration);
-     }
+    }
 
-     function resetButton(button) {
+    function resetButton(button) {
         graphStatus[button] = 0;
 
         $('#' + button).removeClass('btn-warning').removeClass('btn-success').addClass('btn-default');
         $('#' + button +' i').removeClass('fa-refresh').removeClass('fa-check').addClass('fa-times');
-     }
+    }
 
-     function processData() {
+    function processData() {
         $('#loading-overlay').show();
         if(graphStatus['full-graph'] == 0) {
             flag['compute_com'] = false;
-            currentHighlightNode = 'null';
-            currentHighlightEdge = 'null';
+            // currentHighlightNode = 'null';
+            // currentHighlightEdge = 'null';
             resetButton('community-group');
             resetButton('community-profile');
             runGraph();
@@ -1117,15 +1089,13 @@
             alert('The graph is already been shown.');
         }
         
-     }
+    }
 
-     function processCommunityData() {
+    function processCommunityData() {
         $('#loading-overlay').show();
         setTimeout(function () {
             if(graphStatus['community-group'] == 0) {
                 flag['compute_com'] = true;
-                currentHighlightNode = 'null';
-                currentHighlightEdge = 'null';
                 resetButton('full-graph');
                 resetButton('community-profile');
                 runGraph();
@@ -1134,10 +1104,9 @@
                 alert('The graph is already been shown.');
             }
         }, 500);
-     }
+    }
 
-     function runGraph() {
-
+    function runGraph() {
         clearGraph();
         if(flag['compute_com']){
             graphData = fetchCommunityData();
@@ -1149,7 +1118,7 @@
         // addSearchBoxListener();
         // addBackButtonListener();
         // addHilightListener();
-     }
+    }
 
     function processCommunityProfile() {
         if(graphStatus['community-profile'] == 0 && graphStatus['community-group'] == 1) {
@@ -1245,7 +1214,7 @@
                         console.log(e);
                         $('#community-profile').removeClass('btn-warning').addClass('btn-success');
                         $('#community-profile i').removeClass('fa-refresh').addClass('fa-check');
-                    
+
                         var filteredNodes = [];
                         graphData.nodes.forEach(function(n) {
                             for (var i = 0; i < e.length; i++) {
@@ -1291,19 +1260,124 @@
         }   
     }
 
+    function isAPIAvailable() {
+      // Check for the various File API support.
+      if (window.File && window.FileReader && window.FileList && window.Blob) {
+        // Great success! All the File APIs are supported.
+        return true;
+    } else {
+        // source: File API availability - http://caniuse.com/#feat=fileapi
+        // source: <output> availability - http://html5doctor.com/the-output-element/
+        document.writeln('The HTML5 APIs used in this form are only available in the following browsers:<br />');
+        // 6.0 File API & 13.0 <output>
+        document.writeln(' - Google Chrome: 13.0 or later<br />');
+        // 3.6 File API & 6.0 <output>
+        document.writeln(' - Mozilla Firefox: 6.0 or later<br />');
+        // 10.0 File API & 10.0 <output>
+        document.writeln(' - Internet Explorer: Not supported (partial support expected in 10.0)<br />');
+        // ? File API & 5.1 <output>
+        document.writeln(' - Safari: Not supported<br />');
+        // ? File API & 9.2 <output>
+        document.writeln(' - Opera: Not supported');
+        return false;
+    }
+}
+
+function colorByAttribute() {
+    if(currentHighlightNode == 'attribute') return;
+    document.getElementById('highlightNode').innerHTML = 'Attribute by File';
+    document.getElementById('highlightNodeSize').innerHTML = '';
+    document.getElementById('highlightNodeColor').innerHTML = 'Category';
+
+    s.graph.nodes().forEach(function(node) {
+        for (var value in category){
+            if(category[value]['number'].indexOf(node['label']) >= 0){
+                node.color = category[value]["color"];
+                break;
+            }
+        }
+    });
+    currentHighlightNode = 'attribute';
+    s.refresh();
+} 
+
+function checkColorCode(value) {
+    if(value < 16){
+        return "0" + value.toString(16).substr(-4);
+    } else {
+        return value.toString(16).substr(-4);
+    }
+}
+
+function randomColor() {
+
+    var r = Math.floor((Math.random() * 255 + Math.random() * 255) / 2);
+    var g = Math.floor((Math.random() * 255 + Math.random() * 255) / 2);
+    var b = Math.floor((Math.random() * 255 + Math.random() * 255) / 2);
+
+    var hex = "#" + checkColorCode(r) + checkColorCode(g) + checkColorCode(b);
+    return hex;
+}
+
+function handleFileSelect(evt) {
+        var files = evt.target.files; // FileList object
+        var file = files[0];
+
+        var reader = new FileReader();
+        //var category = {};
+        reader.readAsText(file);
+        reader.onload = function(event){
+            var csv = event.target.result;
+            var data = $.csv.toArrays(csv);
+
+            var firstRow = true;
+            var html = '';
+            if(!flag['canImport']){
+             alert('Show calling graph first !') 
+         } else {
+            for(var row in data) {
+                if(firstRow){
+                    firstRow = false;
+                    $('#dynamic-table thead').html('<tr><th>'+ data[row][1] +'</th><th>Color</th></tr>');
+                    continue;
+                }
+                if( category[data[row][1]] === undefined ) {
+                    var color = randomColor();
+                    var colorBox = '<div style="width: 100%; height: 10px; background-color:'+color+';"></div>'
+
+                    html += '<tr>\r\n<td>' + data[row][1] + '</td>\r\n';
+                    html += '<td>' + colorBox + '</td>\r\n</tr>\r\n';
+                    category[data[row][1]] = {"color" : color,"number":new Array()};
+                }
+                category[data[row][1]]["number"].push(data[row][0]);
+            }
+            $('#dynamic-table tbody').html(html);
+            tableInit();
+            colorByAttribute();
+        }
+    };
+    reader.onerror = function(){ alert('Unable to read ' + file.fileName); };
+}
+
     /**
      *  @brief Main function of this file
      *
      *  @param undefined
      *  @return void
      */
-    !function(undefined){
+     !function(undefined){
         initSigma();
 
         document.getElementById('community-group').addEventListener('click', processCommunityData);
         document.getElementById('full-graph').addEventListener('click', processData);
         document.getElementById('communityProfile-filter').addEventListener('click', processCommunityProfile);
-    }();
 
+        $(document).ready(function() {
+            if(isAPIAvailable()) {
+                $('#files').bind('change', handleFileSelect);
+            }
+        });
+        document.getElementById('highlightByFile').addEventListener('click',colorByAttribute);
+    }();
 }();
 

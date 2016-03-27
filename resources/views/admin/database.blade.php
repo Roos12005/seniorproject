@@ -45,50 +45,49 @@
                     <p id="cdr-list">
                         Empty
                     </p>
+                    </br>
+
+                    <div>
+                        <div class="col-sm-6">
+                            <div class="progress progress-striped active progress-sm" style="margin-top: 12px;">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" current="0" style="width: 0%" id="cdr-progress-bar">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="select-button-wrapper text-right col-sm-6">
+                            <button class="btn btn-default" id="browse-cdr">
+                                <i class="fa fa-phone"></i> Select CDR
+                            </button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="alert alert-warning fade in" id="profile-uploader-wrapper">
+                    <h4>Choose Profiles to Upload</h4>
+                    <p id="profile-list">
+                        Empty
+                    </p>
 
                 </br>
-
                 <div>
                     <div class="col-sm-6">
                         <div class="progress progress-striped active progress-sm" style="margin-top: 12px;">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" current="0" style="width: 0%" id="cdr-progress-bar">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" current="0" style="width: 0%" id="profile-progress-bar">
                             </div>
                         </div>
                     </div>
                     <div class="select-button-wrapper text-right col-sm-6">
-                        <button class="btn btn-default" id="browse-cdr">
-                            <i class="fa fa-phone"></i> Select CDR
+                        <button class="btn btn-default" id="browse-profile">
+                            <i class="fa fa-users"></i> Select Profiles
                         </button>
                     </div>
                 </div>
                 <div class="clearfix"></div>
             </div>
         </div>
-
-        <div class="col-md-6">
-            <div class="alert alert-warning fade in" id="profile-uploader-wrapper">
-                <h4>Choose Profiles to Upload</h4>
-                <p id="profile-list">
-                    Empty
-                </p>
-
-            </br>
-            <div>
-                <div class="col-sm-6">
-                    <div class="progress progress-striped active progress-sm" style="margin-top: 12px;">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" current="0" style="width: 0%" id="profile-progress-bar">
-                        </div>
-                    </div>
-                </div>
-                <div class="select-button-wrapper text-right col-sm-6">
-                    <button class="btn btn-default" id="browse-profile">
-                        <i class="fa fa-users"></i> Select Profiles
-                    </button>
-                </div>
-            </div>
-            <div class="clearfix"></div>
-        </div>
-    </div>
 
 
     <form action="#" class="form-horizontal bucket-form" id="preprocess-form" onsubmit="return false;">
