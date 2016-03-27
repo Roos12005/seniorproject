@@ -138,6 +138,7 @@ class AnalysisController extends Controller{
             ->build();
     
     $q = 'MATCH (n:Processed' . $id . ') RETURN distinct n.communityID';
+    Log::info($q);
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $communities_list = array();
     foreach($results as $key => $result) {
@@ -234,7 +235,7 @@ class AnalysisController extends Controller{
 
     $q = 'MATCH (n:Processed' . $id . ') RETURN count(distinct n.communityID)';
     $community_num = $client->sendCypherQuery($q)->getResult()->get('count(distinct n.communityID)');
-
+    Log::info($q);
     $community_list = array();
 
     $q = 'MATCH (n:ProcessedCom' . $id . ') RETURN n, ID(n) as n_id ORDER BY n.member';
@@ -322,10 +323,12 @@ class AnalysisController extends Controller{
 
   //Get numbers of nodes in each carrier
   public function getCarrier($id){
+    set_time_limit(50000);
     putenv("TMPDIR=/seniortmp");
     $client = ClientBuilder::create()
             ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
             ->setAutoFormatResponse(true)
+            ->setDefaultTimeout(20000)
             ->build();
     $q = 'MATCH (n:Processed' . $id . ') RETURN count(n)';
     $all_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');

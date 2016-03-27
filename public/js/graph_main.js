@@ -72,6 +72,7 @@
             // zoomingRatio : 1
         });
 
+
     }
 
     /**
@@ -185,24 +186,52 @@
             url: "http://localhost/seniorproject/public/getCDR/" + did,
             data : {},
             success: function(e){
+                $('#loading-overlay').hide();
                 console.log(e);
+
                 preparedData = e;
-
                 user_num = e['nodes'].length;
-
                 $.each(e.nodes, function(index, user_info) {
                     if (!communities[user_info['attributes']['Modularity Class']]) {
                         communities[user_info['attributes']['Modularity Class']] = 1;
-                        color_data[user_info['attributes']['Modularity Class']] = user_info['color'];
                     }
-                    else {
-                        communities[user_info['attributes']['Modularity Class']] += 1;
+                });
+
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getCarrier/" + did,
+                    data : {},
+                    success: function(e){
+                        console.log(e);
+
+                        carrier[0] = e['ais'];
+                        carrier[1] = e['true'];
+                        carrier[2] = e['dtac'];
+                        carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
+                        createPieChart(carrier,user_num);
+                    },
+                    error: function(rs, e){
+                        console.log(rs.responseText);
+                        alert('Problem occurs during fetch data.');
                     }
                 });
 
                 document.getElementById('unique_numbers').innerHTML = user_num;
                 document.getElementById('communities').innerHTML = communities.length;
                 document.getElementById('transactions').innerHTML = e['edges'].length;
+
+                graphData = preparedData;
+                plotFullGraph();
+                addZoomListener();
+                addSearchBoxListener();
+                addBackButtonListener();
+                addHilightListener();
+                flag['canImport'] = true;
+                graphStatus['full-graph'] = 1;
+                $('#full-graph').removeClass('btn-default').addClass('btn-success');
+                $('#full-graph i').removeClass('fa-times').addClass('fa-check');
+
+                $('#loading-overlay').hide();
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -210,36 +239,10 @@
             },
             async: false,
         })
-
-        $.ajax({
-            type: "GET",
-            url: "http://localhost/seniorproject/public/getCarrier/" + did,
-            data : {},
-            success: function(e){
-                console.log(e);
-
-                carrier[0] = e['ais'];
-                carrier[1] = e['true'];
-                carrier[2] = e['dtac'];
-                carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
-
-                document.getElementById('unique_numbers').innerHTML = e['all'];
-                document.getElementById('transactions').innerHTML = e['calls'];
-            },
-            error: function(rs, e){
-                console.log(rs.responseText);
-                alert('Problem occurs during fetch data.');
-            },
-            async: false,
-        })
-        flag['canImport'] = true;
-        createPieChart(carrier,user_num);
-
-        return preparedData;
     }
 
     function fetchCommunityData(){
-        
+        $('#loading-overlay').show();
         var preparedData = [];
         var carrier = [0,0,0,0];
         var com_data = new Array();
@@ -247,48 +250,58 @@
         var communities = new Array();
         var node_num = 0;
         ajaxSetup();
+
         $.ajax({
             type: "GET",
             url: "http://localhost/seniorproject/public/getCommunityOfCommunity/" + did,
             data : {},
             success: function(e){
+
+                $('#loading-overlay').hide();
                 console.log(e);
                 preparedData = e;
-                document.getElementById('communities').innerHTML = e['nodes'].length;
+
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getCarrier/" + did,
+                    data : {},
+                    success: function(e){
+                        console.log(e);
+                        node_num = e['all'];
+                        carrier[0] = e['ais'];
+                        carrier[1] = e['true'];
+                        carrier[2] = e['dtac'];
+                        carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
+
+                        document.getElementById('unique_numbers').innerHTML = e['all'];
+                        document.getElementById('transactions').innerHTML = e['calls'];
+                        createPieChart(carrier,node_num);
+                    },
+                    error: function(rs, e){
+                        console.log(rs.responseText);
+                        alert('Problem occurs during fetch data.');
+                    }
+                });
+
+                document.getElementById('communities').innerHTML = e['nodes'].length;;
+                graphData = preparedData;
+                plotFullGraph();
+                addZoomListener();
+                addSearchBoxListener();
+                addBackButtonListener();
+                addHilightListener();
+                graphStatus['community-group'] = 1;
+                $('#community-group').removeClass('btn-default').addClass('btn-success');
+                $('#community-group i').removeClass('fa-times').addClass('fa-check');
+
+                
+                $('#loading-overlay').hide();
             },
             error: function(rs, e){
                 console.log(rs.responseText);
                 alert('Problem occurs during fetch data.');
-            },
-            async: false
+            }
         })
-
-        $.ajax({
-            type: "GET",
-            url: "http://localhost/seniorproject/public/getCarrier/" + did,
-            data : {},
-            success: function(e){
-                console.log(e);
-                node_num = e['all'];
-
-                carrier[0] = e['ais'];
-                carrier[1] = e['true'];
-                carrier[2] = e['dtac'];
-                carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
-
-                document.getElementById('unique_numbers').innerHTML = e['all'];
-                document.getElementById('transactions').innerHTML = e['calls'];
-            },
-            error: function(rs, e){
-                console.log(rs.responseText);
-                alert('Problem occurs during fetch data.');
-            },
-            async: false
-        })
-        
-        createPieChart(carrier,node_num);
-
-        return preparedData;
     }
 
     function createPieChart(carrier, node_num){        
@@ -347,8 +360,7 @@
         setTimeout(function () {
             s.killForceAtlas2();
             console.log('done');
-        }, 1000);
-
+        }, 2000);
         colorByDefaultNode();
         colorByDefaultEdge();
     }
@@ -450,57 +462,61 @@
 
      function doubleClickNodeListener(node) {
         // TODO : Display only selected community
-        var nodeData = updateInformation(node);
-        currentHighlightNode = 'null';
-        currentHighlightEdge = 'null';
-        // Show back button on the top right of the div
-        document.getElementsByClassName('back-section')[0].style.display = 'block';
-        if(flag['compute_com']){
-            var selectedCommunity = nodeData['attributes']['Modularity Class'];
-            clearGraph();
-            console.log("Community");
+        $('#loading-overlay').show();
+        setTimeout(function() {
+            var nodeData = updateInformation(node);
+            currentHighlightNode = 'null';
+            currentHighlightEdge = 'null';
+            // Show back button on the top right of the div
+            document.getElementsByClassName('back-section')[0].style.display = 'block';
+            if(flag['compute_com']){
+                var selectedCommunity = nodeData['attributes']['Modularity Class'];
+                clearGraph();
 
-            ajaxSetup();
-            $.ajax({
-                type: "GET",
-                url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
-                data : {"senddata":selectedCommunity},
-                success: function(e){
-                     console.log(e);
-                     communityData = e;
-                     selectedCom = selectedCommunity;
-                     numIDMapper = {};
-                    // Add all returned nodes to sigma object
-                     communityData.nodes.forEach(function(n) {
-                        addNode(n);
-                        numIDMapper[n.label] = n.id;
-                     });
-                    // Add all return edges to sigma object
-                    communityData.edges.forEach(function(edge) {
-                        addEdge(edge);
-                    });
+                ajaxSetup();
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
+                    data : {"senddata":selectedCommunity},
+                    success: function(e){
+                         console.log(e);
+                         communityData = e;
+                         selectedCom = selectedCommunity;
+                         numIDMapper = {};
+                        // Add all returned nodes to sigma object
+                         communityData.nodes.forEach(function(n) {
+                            addNode(n);
+                            numIDMapper[n.label] = n.id;
+                         });
+                        // Add all return edges to sigma object
+                        communityData.edges.forEach(function(edge) {
+                            addEdge(edge);
+                        });
 
-                    s.startForceAtlas2({});
-                    setTimeout(function () {
-                        s.killForceAtlas2();
-                    }, 500);
-                    s.camera.goTo({x:0, y:0, ratio: 1});
-                    s.refresh();
-                    flag['clickListenerComOfCom'] = true;
-                    flag['canImport'] = true;
-                }
-            });        
-        } else { 
-            var filteredNodes = [];
-            console.log("Node");
-            graphData.nodes.forEach(function(n) {
-                if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
-                    filteredNodes.push(n);
-                }
-            });
+                        s.startForceAtlas2({});
+                        setTimeout(function () {
+                            s.killForceAtlas2();
+                        }, 500);
+                        s.camera.goTo({x:0, y:0, ratio: 1});
+                        s.refresh();
+                        flag['clickListenerComOfCom'] = true;
+                        flag['canImport'] = true;
+                        $('#loading-overlay').hide();
+                    }
+                });        
+            } else { 
+                var filteredNodes = [];
+                graphData.nodes.forEach(function(n) {
+                    if(nodeData['attributes']['Modularity Class'] !== n['attributes']['Modularity Class']) {
+                        filteredNodes.push(n);
+                    }
+                });
 
-            plotPartialGraph(filteredNodes);
-        }
+                plotPartialGraph(filteredNodes);
+                $('#loading-overlay').hide();
+            }
+        }, 500);
+        
      }
 
      /**  
@@ -626,15 +642,21 @@
         document.getElementById('back').addEventListener('click', function() {
             document.getElementsByClassName('back-section')[0].style.display = 'none';
             // TODO : Change displayed graph back to the full one
+            $('#loading-overlay').show();
             flag['canImport'] = false;
             flag['clickListenerComOfCom'] = false;
             clearGraph();
             s.stopForceAtlas2();
             plotFullGraph();
+            $('#loading-overlay').hide();
         });
      }
 
     function colorByDefaultNode() {
+        s.settings({
+            maxNodeSize: 5
+        });
+
         if(currentHighlightNode == 'default') return;
         hilightButton('#h-defaultNode','Node');
         document.getElementById('highlightNode').innerHTML = 'Default';
@@ -942,6 +964,7 @@
      }
 
      function processData() {
+        $('#loading-overlay').show();
         if(graphStatus['full-graph'] == 0) {
             flag['compute_com'] = false;
             // currentHighlightNode = 'null';
@@ -959,19 +982,18 @@
      }
 
      function processCommunityData() {
-        if(graphStatus['community-group'] == 0) {
-            flag['compute_com'] = true;
-            // currentHighlightNode = 'null';
-            // currentHighlightEdge = 'null';
-            resetButton('full-graph');
-            resetButton('community-profile');
-            runGraph();
-            graphStatus['community-group'] = 1;
-            $('#community-group').removeClass('btn-default').addClass('btn-success');
-            $('#community-group i').removeClass('fa-times').addClass('fa-check');
-        } else if(graphStatus['community-group'] == 1) {
-            alert('The graph is already been shown.');
-        }
+        $('#loading-overlay').show();
+        setTimeout(function () {
+            if(graphStatus['community-group'] == 0) {
+                flag['compute_com'] = true;
+                resetButton('full-graph');
+                resetButton('community-profile');
+                runGraph();
+                
+            } else if(graphStatus['community-group'] == 1) {
+                alert('The graph is already been shown.');
+            }
+        }, 500);
      }
 
      function runGraph() {
@@ -981,11 +1003,11 @@
         } else {
             graphData = fetchData();
         }
-        plotFullGraph();
-        addZoomListener();
-        addSearchBoxListener();
-        addBackButtonListener();
-        addHilightListener();
+        // plotFullGraph();
+        // addZoomListener();
+        // addSearchBoxListener();
+        // addBackButtonListener();
+        // addHilightListener();
      }
 
     function processCommunityProfile() {
