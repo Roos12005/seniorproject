@@ -7,7 +7,10 @@
     {!! Html::style('js/bootstrap-datepicker/css/datepicker.css') !!}
     {!! Html::style('js/select2/select2.css') !!}
     {!! Html::style('js/iCheck/skins/flat/_all.css') !!}
-    
+
+    {!! Html::style('js/advanced-datatable/css/demo_page.css') !!}
+    {!! Html::style('js/advanced-datatable/css/demo_table.css') !!}
+    {!! Html::style('js/data-tables/DT_bootstrap.css') !!}
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}" />
@@ -31,41 +34,37 @@
                 <div class="modal-body">
                 <form action="#" class="form-horizontal ">
                     <div class="form-group">
-                        <label class=" col-sm-2 control-label">Database </label>
-                        <div class="col-lg-3">
-                            <p class="form-control-static">{{$database}}</p>
-                        </div>
-                        <label class=" col-sm-2 control-label">Date </label>
+                        <label class=" col-sm-3 control-label">Date </label>
                         <div class="col-lg-3">
                             <p class="form-control-static">{{$startDate}}</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class=" col-sm-2 control-label">Duration</label>
-                        <div class="col-lg-3">
-                            <p class="form-control-static">{{$duration}}</p>
-                        </div>
-                        <label class=" col-sm-2 control-label">Period</label>
+                        <label class=" col-sm-3 control-label">Period</label>
                         <div class="col-lg-3">
                             <p class="form-control-static">{{$period}}</p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class=" col-sm-2 control-label">Day</label>
+                        <label class=" col-sm-3 control-label">Duration</label>
                         <div class="col-lg-3">
-                            <p class="form-control-static">{{$callDay}}</p>
+                            <p class="form-control-static">{{$duration}}</p>
                         </div>
-                        <label class=" col-sm-2 control-label">Carrier</label>
+                        <label class=" col-sm-3 control-label">Carrier</label>
                         <div class="col-lg-3">
                             <p class="form-control-static">{{$carrier}}</p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class=" col-sm-2 control-label">No. of Outgoing Calls</label>
+                        <label class=" col-sm-3 control-label">Day</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{$callDay}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class=" col-sm-3 control-label">No. of Outgoing Calls</label>
                         <div class="col-lg-3">
                             <p class="form-control-static">{{$noOfOutgoing}}</p>
                         </div>
-                        <label class=" col-sm-2 control-label">No. of Incoming Calls</label>
+                        <label class=" col-sm-3 control-label">No. of Incoming Calls</label>
                         <div class="col-lg-3">
                             <p class="form-control-static">{{$noOfIncoming}}</p>
                         </div>
@@ -529,7 +528,7 @@
     <div class="col-sm-6">
         <section class="panel">
             <header class="panel-heading">
-                COMMUNITIES CHART
+                IMPORT ATTRIBUTE DATA
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                     <a href="javascript:;" class="fa fa-cog"></a>
@@ -537,7 +536,32 @@
                 </span>
             </header>
             <div class="panel-body">
-                <div id="graph-donut"></div>
+                <div class="alert alert-warning fade in" id="attribute-uploader-wrapper">
+                    <h4>Choose Attribute File to Import</h4>
+                    </br>
+
+                    <div>
+                        <div class="select-button-wrapper text-left col-sm-6">
+                            <input type="file" id="files" name="files[]" multiple />
+                        </div>
+                        <div class="select-button-wrapper text-right col-sm-6">
+                            <button class="btn btn-default" id="highlightByFile">
+                                <i class="fa fa-tint"></i> Highlight
+                            </button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body" id="attribute-table">
+                    <div class="adv-table">
+                        <table  class="display table table-bordered table-striped" id="dynamic-table">
+                            <thead>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -811,6 +835,8 @@
 {!! Html::script('js/jquery.maskedinput.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/sigmajs/plugins/sigma.layout.forceAtlas2.min.js'); !!}
+
+{!! Html::script('js/jquery-csv/jquery.csv.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
 {!! Html::script('js/exportCSV.js'); !!}
 
@@ -819,6 +845,11 @@
 {!! Html::script('js/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
 {!! Html::script('js/bootstrap-switch.js'); !!}
 {!! Html::script('js/main.js'); !!}
+
+<!-- Dynamic Table-->
+{!! Html::script('js/advanced-datatable/js/jquery.dataTables.js'); !!}
+{!! Html::script('js/data-tables/DT_bootstrap.js'); !!}
+{!! Html::script('js/dynamic_table_init.js'); !!}
 
 <!-- Date Range (Dropdown) -->
 {!! Html::script('js/select2/select2.js'); !!}

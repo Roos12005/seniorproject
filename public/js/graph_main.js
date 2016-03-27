@@ -18,6 +18,7 @@
     var graphData = [];
     var communityData = [];
     var colors = [];
+    var category = {};
     var numIDMapper = {};
     var s;
     var currentHighlightNode = 'null';
@@ -26,7 +27,8 @@
     var flag = {
         compute_com : false,
         activateClick : false,
-        clickListenerComOfCom : false
+        clickListenerComOfCom : false,
+        canImport : false
     }
 
     var graphStatus = {
@@ -60,7 +62,7 @@
             minEdgeSize : 0.003,
             maxEdgeSize : 0.1,
             minNodeSize : 0.5,
-            maxNodeSize : 1,
+            maxNodeSize : 5,
             // zoomMin : 0.25,
             // zoomMax : 40,
             edgeColor : 'default',
@@ -189,18 +191,6 @@
                 user_num = e['nodes'].length;
 
                 $.each(e.nodes, function(index, user_info) {
-                    if(user_info['attributes']['Carrier'] == "AIS"){
-                        carrier[0] += 1;
-                    }
-                    else if(user_info['attributes']['Carrier'] == "DTAC"){
-                        carrier[1] += 1;
-                    }
-                    else if(user_info['attributes']['Carrier'] == "TRUE"){
-                        carrier[2] += 1;
-                    }
-                    else {
-                        carrier[3] += 1;
-                    }
                     if (!communities[user_info['attributes']['Modularity Class']]) {
                         communities[user_info['attributes']['Modularity Class']] = 1;
                         color_data[user_info['attributes']['Modularity Class']] = user_info['color'];
@@ -209,10 +199,6 @@
                         communities[user_info['attributes']['Modularity Class']] += 1;
                     }
                 });
-
-                for (var i in communities) {
-                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' users : ' + (communities[i]/user_num * 100).toFixed(0) + " %"});
-                }
 
                 document.getElementById('unique_numbers').innerHTML = user_num;
                 document.getElementById('communities').innerHTML = communities.length;
@@ -231,7 +217,6 @@
             data : {},
             success: function(e){
                 console.log(e);
-                var user_num = e['all'];
 
                 carrier[0] = e['ais'];
                 carrier[1] = e['true'];
@@ -247,8 +232,8 @@
             },
             async: false,
         })
-        
-        createPieChart(com_data,color_data,carrier,user_num);
+        flag['canImport'] = true;
+        createPieChart(carrier,user_num);
 
         return preparedData;
     }
@@ -269,18 +254,7 @@
             success: function(e){
                 console.log(e);
                 preparedData = e;
-
-                $.each(e.nodes, function(index, community_info) {
-                     communities[community_info['attributes']['Modularity Class']] = community_info['attributes']['Member'];
-                     color_data[community_info['attributes']['Modularity Class']] = community_info['color'];
-                     node_num += community_info['attributes']['Member'];
-                });
-
-                for (var i in communities) {
-                    com_data.push({value: communities[i], label: 'Community ID ' + i, formatted: communities[i] + ' users : ' + (communities[i]/node_num * 100).toFixed(0) + " %"});
-                }
-
-                document.getElementById('communities').innerHTML = communities.length;
+                document.getElementById('communities').innerHTML = e['nodes'].length;
             },
             error: function(rs, e){
                 console.log(rs.responseText);
@@ -295,7 +269,7 @@
             data : {},
             success: function(e){
                 console.log(e);
-                var user_num = e['all'];
+                node_num = e['all'];
 
                 carrier[0] = e['ais'];
                 carrier[1] = e['true'];
@@ -312,21 +286,12 @@
             async: false
         })
         
-        createPieChart(com_data,color_data,carrier,node_num);
+        createPieChart(carrier,node_num);
 
         return preparedData;
     }
 
-    function createPieChart(com_data, color_data, carrier, node_num){
-        Morris.Donut({
-            element: 'graph-donut',
-            data: com_data,
-            backgroundColor: '#fff',
-            labelColor: '#1fb5ac',
-            colors: color_data,
-            formatter: function (x, data) { return data.formatted; }
-        });
-        
+    function createPieChart(carrier, node_num){        
         Morris.Donut({
             element: 'graph-donut2',
             data: [
@@ -376,13 +341,15 @@
 
         // Display Graph using sigma object
         s.startForceAtlas2({});
+        currentHighlightNode = 'null';
+        currentHighlightEdge = 'null';
 
         setTimeout(function () {
             s.killForceAtlas2();
             console.log('done');
-        }, 3000);
+        }, 1000);
+
         colorByDefaultNode();
-        // colorByCentrality();
         colorByDefaultEdge();
     }
 
@@ -404,6 +371,9 @@
             s.killForceAtlas2();
         }, 500);
         s.refresh();
+
+        // colorByDefaultNode();
+        // colorByDefaultEdge();
     }
 
     /**  
@@ -481,6 +451,8 @@
      function doubleClickNodeListener(node) {
         // TODO : Display only selected community
         var nodeData = updateInformation(node);
+        currentHighlightNode = 'null';
+        currentHighlightEdge = 'null';
         // Show back button on the top right of the div
         document.getElementsByClassName('back-section')[0].style.display = 'block';
         if(flag['compute_com']){
@@ -515,6 +487,7 @@
                     s.camera.goTo({x:0, y:0, ratio: 1});
                     s.refresh();
                     flag['clickListenerComOfCom'] = true;
+                    flag['canImport'] = true;
                 }
             });        
         } else { 
@@ -653,10 +626,11 @@
         document.getElementById('back').addEventListener('click', function() {
             document.getElementsByClassName('back-section')[0].style.display = 'none';
             // TODO : Change displayed graph back to the full one
+            flag['canImport'] = false;
+            flag['clickListenerComOfCom'] = false;
             clearGraph();
             s.stopForceAtlas2();
             plotFullGraph();
-            flag['clickListenerComOfCom'] = false;
         });
      }
 
@@ -667,14 +641,14 @@
         document.getElementById('highlightNodeSize').innerHTML = '';
         document.getElementById('highlightNodeColor').innerHTML = '';
         var maxMember = 1;
-        if(flag['compute_com']){
+        if(flag['compute_com'] && !flag['clickListenerComOfCom']){
             s.graph.nodes().forEach(function(node) {
                 if(parseInt(node['attributes']['Member']) > maxMember) {
                     maxMember = node['attributes']['Member'];
                 }
                 s.graph.nodes().forEach(function(node) {
+                    node.color = node.communityColor;
                     node.size = 10 * node['attributes']['Member']/maxMember;
-                    console.log(node.size);
                 });
             });
         }
@@ -703,7 +677,6 @@
     }
 
     function colorByCentrality() {
-
         if(currentHighlightNode == 'centrality') return;
         colorByDefaultNode();
         document.getElementById('highlightNode').innerHTML = 'Centrality';
@@ -730,7 +703,6 @@
                 var hexString = parseInt(colorScale).toString(16);
                 hexString = hexString.length == 1? '0' + hexString : hexString;
                 node.color = '#' + hexString + "0000";
-                console.log(colorScale + " --> " + node.color);
                 node.size = 10 * parseFloat(node['attributes']['Closeness Centrality'])/maxCC;
             }
         });
@@ -746,6 +718,7 @@
         document.getElementById('highlightNodeColor').innerHTML = 'AIS - Green , TRUE - RED , DTAC - Blue , Other - GREY';
         hilightButton('#h-carrier','Node');
         s.graph.nodes().forEach(function(node) {
+            console.log("work");
             node.color = node['attributes']['Carrier'] == 'TRUE' ? "#e74c3c" : (node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : (node['attributes']['Carrier'] == 'DTAC' ? "#3498db" : '#000000'));
         });
         s.refresh();
@@ -883,7 +856,6 @@
             s.graph.edges().forEach(function(edge) {
                 if(edge['source'] == node.id){
                     edge.color = node.communityColor;
-                    node.color = node.communityColor;
                 }
             });
         });
@@ -972,8 +944,8 @@
      function processData() {
         if(graphStatus['full-graph'] == 0) {
             flag['compute_com'] = false;
-            currentHighlightNode = 'null';
-            currentHighlightEdge = 'null';
+            // currentHighlightNode = 'null';
+            // currentHighlightEdge = 'null';
             resetButton('community-group');
             resetButton('community-profile');
             runGraph();
@@ -989,8 +961,8 @@
      function processCommunityData() {
         if(graphStatus['community-group'] == 0) {
             flag['compute_com'] = true;
-            currentHighlightNode = 'null';
-            currentHighlightEdge = 'null';
+            // currentHighlightNode = 'null';
+            // currentHighlightEdge = 'null';
             resetButton('full-graph');
             resetButton('community-profile');
             runGraph();
@@ -1156,6 +1128,105 @@
         }   
     }
 
+    function isAPIAvailable() {
+      // Check for the various File API support.
+      if (window.File && window.FileReader && window.FileList && window.Blob) {
+        // Great success! All the File APIs are supported.
+        return true;
+      } else {
+        // source: File API availability - http://caniuse.com/#feat=fileapi
+        // source: <output> availability - http://html5doctor.com/the-output-element/
+        document.writeln('The HTML5 APIs used in this form are only available in the following browsers:<br />');
+        // 6.0 File API & 13.0 <output>
+        document.writeln(' - Google Chrome: 13.0 or later<br />');
+        // 3.6 File API & 6.0 <output>
+        document.writeln(' - Mozilla Firefox: 6.0 or later<br />');
+        // 10.0 File API & 10.0 <output>
+        document.writeln(' - Internet Explorer: Not supported (partial support expected in 10.0)<br />');
+        // ? File API & 5.1 <output>
+        document.writeln(' - Safari: Not supported<br />');
+        // ? File API & 9.2 <output>
+        document.writeln(' - Opera: Not supported');
+        return false;
+      }
+    }
+
+    function colorByAttribute() {
+        if(currentHighlightNode == 'attribute') return;
+        document.getElementById('highlightNode').innerHTML = 'Attribute by File';
+        document.getElementById('highlightNodeSize').innerHTML = '';
+        document.getElementById('highlightNodeColor').innerHTML = 'Category';
+
+        s.graph.nodes().forEach(function(node) {
+            for (var value in category){
+                if(category[value]['number'].indexOf(node['label']) >= 0){
+                    node.color = category[value]["color"];
+                    break;
+                }
+            }
+        });
+        currentHighlightNode = 'attribute';
+        s.refresh();
+    } 
+
+    function checkColorCode(value) {
+        if(value < 16){
+            return "0" + value.toString(16).substr(-4);
+        } else {
+            return value.toString(16).substr(-4);
+        }
+    }
+
+    function randomColor() {
+
+        var r = Math.floor((Math.random() * 255 + Math.random() * 255) / 2);
+        var g = Math.floor((Math.random() * 255 + Math.random() * 255) / 2);
+        var b = Math.floor((Math.random() * 255 + Math.random() * 255) / 2);
+
+        var hex = "#" + checkColorCode(r) + checkColorCode(g) + checkColorCode(b);
+        return hex;
+    }
+
+    function handleFileSelect(evt) {
+        var files = evt.target.files; // FileList object
+        var file = files[0];
+
+        var reader = new FileReader();
+        //var category = {};
+        reader.readAsText(file);
+        reader.onload = function(event){
+            var csv = event.target.result;
+            var data = $.csv.toArrays(csv);
+
+            var firstRow = true;
+            var html = '';
+            if(!flag['canImport']){
+               alert('Show calling graph first !') 
+            } else {
+                for(var row in data) {
+                    if(firstRow){
+                        firstRow = false;
+                        $('#dynamic-table thead').html('<tr><th>'+ data[row][1] +'</th><th>Color</th></tr>');
+                        continue;
+                    }
+                    if( category[data[row][1]] === undefined ) {
+                        var color = randomColor();
+                        var colorBox = '<div style="width: 100%; height: 10px; background-color:'+color+';"></div>'
+
+                        html += '<tr>\r\n<td>' + data[row][1] + '</td>\r\n';
+                        html += '<td>' + colorBox + '</td>\r\n</tr>\r\n';
+                        category[data[row][1]] = {"color" : color,"number":new Array()};
+                    }
+                    category[data[row][1]]["number"].push(data[row][0]);
+                }
+                $('#dynamic-table tbody').html(html);
+                tableInit();
+                colorByAttribute();
+            }
+        };
+        reader.onerror = function(){ alert('Unable to read ' + file.fileName); };
+    }
+
     /**
      *  @brief Main function of this file
      *
@@ -1168,7 +1239,14 @@
         document.getElementById('community-group').addEventListener('click', processCommunityData);
         document.getElementById('full-graph').addEventListener('click', processData);
         document.getElementById('communityProfile-filter').addEventListener('click', processCommunityProfile);
-    }();
 
+        $(document).ready(function() {
+          if(isAPIAvailable()) {
+            $('#files').bind('change', handleFileSelect);
+          }
+        });
+
+        document.getElementById('highlightByFile').addEventListener('click',colorByAttribute);
+    }();
 }();
 

@@ -94,7 +94,6 @@ UploaderFactory.prototype.onUploadCompleted = function(uploader, target, doFunct
         
         
     });
-
     return uploader;
 }
 

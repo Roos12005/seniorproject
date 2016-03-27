@@ -10,8 +10,8 @@ function fnFormatDetails ( oTable, nTr )
     return sOut;
 }
 
-$(document).ready(function() {
 
+function tableInit(){
     $('#dynamic-table').dataTable( {
         "aaSorting": [[ 4, "desc" ]]
     } );
@@ -61,4 +61,4 @@ $(document).ready(function() {
             oTable.fnOpen( nTr, fnFormatDetails(oTable, nTr), 'details' );
         }
     } );
-} );
+}

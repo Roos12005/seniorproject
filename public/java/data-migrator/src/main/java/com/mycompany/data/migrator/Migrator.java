@@ -114,7 +114,7 @@ public class Migrator {
 
     public static void main(String args[]) throws IOException {
 
-        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Users/pperfectionist/Documents/Neo4j/default.graphdb");
+        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/default.graphdb");
         
         // TODO : this should loop through all files
         

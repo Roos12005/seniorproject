@@ -19,17 +19,14 @@ class AnalysisController extends Controller{
     $q = 'Match (n:BatchJob) Where ID(n) = '.$id.' Return n';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
     $week = substr($results[0]['n']['startDate'],6);
-    $database = '-';
-    //$startDate = substr($results[0]['n']['startDate'],0,-1).($week == "0"||"1"?'01':($week == "2"?'08':($week == "3"?'15':($week == "4"?'22':'29')))).' - '.substr($results[0]['n']['startDate'],0,-1).($week == "0"?'30':($week == "1"?'07':($week == "2"?'14':($week == "3"?'21':($week == "4"?'28':'30')))));
     $startDate = 'Year '.substr($results[0]['n']['startDate'],0,-3).' Month '.substr($results[0]['n']['startDate'],4,2)."  ".($week == "0"?'All month':($week == "1"?'Week 1':($week == "2"?'Week 2':($week == "3"?'Week 3':($week == "4"?'Week 4':'Week 5')))));
     $callDay =   (substr($results[0]['n']['callDay'],0,1)=="1"?"Sunday , ":"").(substr($results[0]['n']['callDay'],1,1)=="1"?"Monday , ":"").(substr($results[0]['n']['callDay'],2,1)=="1"?"Tuesday , ":"").(substr($results[0]['n']['callDay'],3,1)=="1"?"Wednesday , ":"").(substr($results[0]['n']['callDay'],4,1)=="1"?"Thursday , ":"").(substr($results[0]['n']['callDay'],5,1)=="1"?"Friday , ":"").(substr($results[0]['n']['callDay'],6,1)=="1"?"Saturday":"");
     $carrier =   (substr($results[0]['n']['rnCode'],0,1)=="1"?"AIS , ":"").(substr($results[0]['n']['rnCode'],1,1)=="1"?"TRUE , ":"").(substr($results[0]['n']['rnCode'],2,1)=="1"?"DTAC , ":"").(substr($results[0]['n']['rnCode'],3,1)=="1"?"JAS , ":"").(substr($results[0]['n']['callDay'],4,1)=="1"?"Others":"");
     $duration = $results[0]['n']['durationMin']." - ".($results[0]['n']['durationMax']=="-1"?'100':$results[0]['n']['durationMax']);
     $period = number_format($results[0]['n']['startTime'], 2, '.', '')." - ".($results[0]['n']['endTime']=="-1"?'24.00':number_format($results[0]['n']['endTime'], 2, '.', ''));
-    $noOfOutgoing = '-';
-    $noOfIncoming = '-';
+    $noOfOutgoing = $results[0]['n']['incomingMin']." - ".($results[0]['n']['incomingMax']=="-1"?'10000':$results[0]['n']['incomingMax']);
+    $noOfIncoming = $results[0]['n']['outgoingMin']." - ".($results[0]['n']['outgoingMax']=="-1"?'10000':$results[0]['n']['outgoingMax']);
     return view('analysis.analysis', ['data_id' => $id])->with([
-                  'database' => $database,
                   'startDate' => $startDate,
                   'callDay' => $callDay,
                   'carrier' => $carrier,
@@ -261,7 +258,7 @@ class AnalysisController extends Controller{
           'Average Duration Profile' => $result['n']['averageDurationProfile'],
         ];
         $community_info = [
-          'label' => "Community".$result['n']['a_number'],
+          'label' => "Community".$result['n']['number'],
           'x' => 5 * cos(2 * $key * M_PI/$community_num),
           'y' => 5 * sin(2 * $key * M_PI/$community_num),
           'id' => $result['n_id'],
@@ -381,7 +378,7 @@ class AnalysisController extends Controller{
             'NoOfIncoming' => $result['n']['incoming']
         ];
         $user_info = [
-          'label' => $result['n']['a_number'],
+          'label' => $result['n']['number'],
           'x' => 2*$key*cos(2 * $key * M_PI / $community_num),
           'y' => 2*$key*sin(2 * $key * M_PI / $community_num),
           'id' => $result['n_id'],
