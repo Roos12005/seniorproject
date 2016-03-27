@@ -77,7 +77,8 @@ public class Migrator {
         return nodes;
     }
     
-    private static void createRelationships(GraphDatabaseService gdb, String file, Map<String, Node> nodes) throws IOException {
+    private static void createRelationships(GraphDatabaseService gdb, String file, Map<String, Node> nodes, String label) throws IOException {
+        DynamicRelationshipType lab = DynamicRelationshipType.withName(label);
         Transaction tx;
         try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/" + file), ',')) {
             String[] nextLine;
@@ -94,7 +95,7 @@ public class Migrator {
                 Node a = nodes.get(nextLine[0]);
                 Node b = nodes.get(nextLine[1]);
                 
-                Relationship r = a.createRelationshipTo(b, LINK);
+                Relationship r = a.createRelationshipTo(b, lab);
                 for(int idx=0;idx<nextLine.length;idx++) {
                     r.setProperty(columns[idx], nextLine[idx]);
                 }
@@ -131,9 +132,11 @@ public class Migrator {
                 }
                 Long time = System.currentTimeMillis() ;
                 Map<String, Node> storedNodes = createNodes(gdb, "processed_"+n+"_profile.csv", "Processed" + n);
-                createRelationships(gdb, "processed_"+n+"_cdr.csv", storedNodes);
+                createRelationships(gdb, "processed_"+n+"_full_cdr.csv", storedNodes, "Call");
+                createRelationships(gdb, "processed_"+n+"_aggregated_cdr.csv", storedNodes, "aCall");
                 Map<String, Node> storedComNodes = createNodes(gdb, "processed_com_"+n+"_profile.csv", "ProcessedCom" + n);
-                createRelationships(gdb, "processed_com_"+n+"_cdr.csv", storedComNodes);
+                createRelationships(gdb, "processed_com_"+n+"_full_cdr.csv", storedComNodes, "Call");
+                createRelationships(gdb, "processed_com_"+n+"_aggregated_cdr.csv", storedComNodes, "aCall");
                 done.add(n);
                 time = System.currentTimeMillis() - time;
                 System.out.println("Migrating ID: "  + n + " took " + time / 1000 + " seconds.");

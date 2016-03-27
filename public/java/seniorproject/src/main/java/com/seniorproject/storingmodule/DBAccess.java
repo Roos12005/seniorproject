@@ -7,6 +7,7 @@ package com.seniorproject.storingmodule;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import com.seniorproject.graphmodule.Edge;
+import com.seniorproject.graphmodule.EdgeIterable;
 import com.seniorproject.graphmodule.Node;
 import com.seniorproject.graphmodule.NodeIterable;
 import java.io.File;
@@ -212,12 +213,13 @@ public class DBAccess {
      * Store nodes and edges as customers in CSV format
      *
      * @param nodes - NodeIterable containing all nodes to be stored
+     * @param aggregatedEdges - List of aggregated edges to be stored (no more than one edge between each pair of nodes)
      * @param edges - List of edges to be stored
      * @param tid - Table ID
      * @throws java.io.IOException
      *
      */
-    public void store(NodeIterable nodes, List<Edge> edges, String tid) throws IOException {
+    public void store(NodeIterable nodes, EdgeIterable aggregatedEdges, List<Edge> edges, String tid) throws IOException {
         Map<Integer, String> numberMapper = new HashMap<>();
         CSVWriter writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_profile.csv"), ',');
 
@@ -236,9 +238,26 @@ public class DBAccess {
         }
         writer.close();
 
-        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_cdr.csv"), ',');
+        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_full_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : edges) {
+            if (isFirst) {
+                line = e.getPropertiesName();
+                writer.writeNext(line);
+                isFirst = false;
+            }
+            line = e.splitPropertiesWithNode();
+
+            line[0] = numberMapper.get(Integer.parseInt(line[0]));
+            line[1] = numberMapper.get(Integer.parseInt(line[1]));
+
+            writer.writeNext(line);
+        }
+        writer.close();
+        
+        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_aggregated_cdr.csv"), ',');
+        isFirst = true;
+        for (Edge e : aggregatedEdges) {
             if (isFirst) {
                 line = e.getPropertiesName();
                 writer.writeNext(line);
@@ -258,12 +277,13 @@ public class DBAccess {
      * Store nodes and edges as communities in CSV format
      *
      * @param nodes - NodeIterable containing all nodes to be stored
+     * @param aggregatedEdges
      * @param edges - List of edges to be stored
      * @param tid - Table ID
      * @throws java.io.IOException
      *
      */
-    public void storeCommunity(NodeIterable nodes, List<Edge> edges, String tid) throws IOException {
+    public void storeCommunity(NodeIterable nodes, EdgeIterable aggregatedEdges, List<Edge> edges, String tid) throws IOException {
         Map<Integer, String> numberMapper = new HashMap<>();
         CSVWriter writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_profile.csv"), ',');
 
@@ -283,9 +303,26 @@ public class DBAccess {
         }
         writer.close();
 
-        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_cdr.csv"), ',');
+        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_full_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : edges) {
+            if (isFirst) {
+                line = e.getPropertiesName();
+                writer.writeNext(line);
+                isFirst = false;
+            }
+            line = e.splitPropertiesWithNode();
+
+            line[0] = numberMapper.get(Integer.parseInt(line[0]));
+            line[1] = numberMapper.get(Integer.parseInt(line[1]));
+
+            writer.writeNext(line);
+        }
+        writer.close();
+        
+        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_aggregated_cdr.csv"), ',');
+        isFirst = true;
+        for (Edge e : aggregatedEdges) {
             if (isFirst) {
                 line = e.getPropertiesName();
                 writer.writeNext(line);

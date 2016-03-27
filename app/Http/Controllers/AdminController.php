@@ -14,6 +14,7 @@ use \App\Http\Classes\Neo4JConnector as Neo4JConnector;
 class AdminController extends Controller{
 
     public function index() {
+        set_time_limit(50000);
         // Instantiate Neo4JConnector 
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
         
@@ -32,6 +33,7 @@ class AdminController extends Controller{
    }
 
    public function getEstimation() {
+        set_time_limit(50000);
         // Get all Input send via AJAX to $rec
         $rec = Request::all();
 
@@ -50,7 +52,7 @@ class AdminController extends Controller{
    }
 
    public function processSetup() {
-
+        set_time_limit(50000);
         // Get all Input send via AJAX to $rec
         $rec = Request::all();
 
@@ -78,6 +80,7 @@ class AdminController extends Controller{
    }
 
    public function startProcess() {
+        set_time_limit(50000);
         // Get all Input send via AJAX to $rec
         $rec = Request::all();
 
@@ -95,6 +98,7 @@ class AdminController extends Controller{
    }
 
    public function deleteData() {
+        set_time_limit(50000);
         // Get all Input send via AJAX to $rec
         $rec = Request::all();
 
@@ -113,6 +117,7 @@ class AdminController extends Controller{
    }
 
    public function exportCSV() {
+        set_time_limit(50000);
         // Get all Input send via AJAX to $rec
         $rec = Request::all();
         $pid = $rec['pid'];

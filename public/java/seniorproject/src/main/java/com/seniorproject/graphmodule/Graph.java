@@ -1,5 +1,6 @@
 package com.seniorproject.graphmodule;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -12,17 +13,17 @@ public class Graph {
     private NodeIterable nodes;
     private List<Edge> fullEdges;
     private Map<Integer, NodeIterable> neighbors;
-    
     private Map<Integer, EdgeIterable> outEdges;
     private Map<Integer, EdgeIterable> allEdges;
 
     public Graph(Set<Node> nodes, List<Edge> edges){
         this.nodes = new NodeIterable();
         this.edges = new EdgeIterable();
-        this.fullEdges = edges;
+        this.fullEdges = new ArrayList<>();
         this.neighbors = new HashMap<>();
         this.outEdges = new HashMap<>();
         this.allEdges = new HashMap<>();
+        
         for(Node n : nodes) {
             this.nodes.add(n);
             neighbors.put(n.getID(), new NodeIterable());
@@ -30,7 +31,7 @@ public class Graph {
             allEdges.put(n.getID(), new EdgeIterable());
         }
         for(Edge e : edges) {
-            
+            this.fullEdges.add(new Edge(e));
             this.edges.add(e);
             this.outEdges.get(e.getSource()).add(e);
             this.allEdges.get(e.getSource()).add(e);

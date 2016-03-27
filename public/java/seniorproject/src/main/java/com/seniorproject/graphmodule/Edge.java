@@ -31,11 +31,51 @@ public class Edge {
         this.properties = new HashMap<>();
         this.properties.put("weight", w);
     }
+    
+    public Edge(Edge e) {
+        this.source = e.getSource();
+        this.target = e.getTarget();
+        this.properties = new HashMap<>();
+        
+        this.properties.put("duration", e.getProperty("duration"));
+        this.properties.put("weight", e.getProperty("weight"));
+        this.properties.put("startDate", e.getProperty("startDate"));
+        this.properties.put("startTime", e.getProperty("startTime"));
+        this.properties.put("callDay", e.getProperty("callDay"));
+        this.properties.put("calleeCarrier", e.getProperty("calleeCarrier"));
+    }
 
     public void increaseWeight(double f) {
         double prevWeight = Double.parseDouble(this.properties.get("weight").toString());
         double newWeight = prevWeight + f;
         this.properties.put("weight", newWeight);
+    }
+    
+    public void increaseDuration(int duration) {
+        int prevDuration = Integer.parseInt(this.properties.get("duration").toString());
+        int newDuration = duration + prevDuration;
+        this.properties.put("duration", newDuration);
+    }
+    
+    public void calculateDayNightCall(String st) {
+        double startTime = Double.parseDouble(st);
+        if(startTime > 5 && startTime < 17) {
+            if(this.properties.containsKey("noDayTime")) {
+                int prev = Integer.parseInt(this.properties.get("noDayTime").toString());
+                int current = prev + 1;
+                this.properties.put("noDayTime", current);
+            } else {
+                this.properties.put("noDayTime", 1);
+            }
+        } else {
+            if(this.properties.containsKey("noNightTime")) {
+                int prev = Integer.parseInt(this.properties.get("noNightTime").toString());
+                int current = prev + 1;
+                this.properties.put("noNightTime", current);
+            } else {
+                this.properties.put("noNightTime", 1);
+            }
+        }
     }
 
     //getter & setter Source

@@ -26,6 +26,7 @@ Route::get('getCommunityOfCommunity/{id}','AnalysisController@getCommunityOfComm
 Route::get('getCarrier/{id}','AnalysisController@getCarrier');
 Route::get('getNodeInSelectedCommunity/{id}','AnalysisController@getNodeInSelectedCommunity');
 Route::get('getNodeCommunityProfile/{id}','AnalysisController@getNodeCommunityProfile');
+Route::get('getNeighbors/{id}','AnalysisController@getNeighbors');
 
 //Admin 
 Route::get('/','AdminController@index');
