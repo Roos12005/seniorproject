@@ -336,13 +336,13 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:Processed' . $id . ') -[r:Call]-> (m:Processed' . $id . ') RETURN count(r)';
     $all_call = $client->sendCypherQuery($q)->getResult()->get('count(r)');
 
-    $q = 'MATCH (n:Processed' . $id . '{carrier:"AIS"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["AIS","3GPre-paid","3GPost-paid","3GHybrid-Post","GSM","AWN"] RETURN count(n)';
     $ais_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{carrier:"TRUE"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["TRUE","RFT"] RETURN count(n)';
     $true_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{carrier:"DTAC"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["DTAC","DTN"] RETURN count(n)';
     $dtac_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
     return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'calls' => $all_call]);

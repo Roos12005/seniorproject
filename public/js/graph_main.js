@@ -173,7 +173,7 @@
      *  @return JSON object - contains graph data
      */
     function fetchData(){
-        
+        $('#loading-overlay').show();
         var preparedData = [];
         var carrier = [0,0,0,0];
         var com_data = new Array();
@@ -309,8 +309,8 @@
             element: 'graph-donut2',
             data: [
                 {value: carrier[0], label: 'AIS', formatted: carrier[0] + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[1], label: 'DTAC', formatted: carrier[1] + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[2], label: 'TRUE', formatted: carrier[2] + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[1], label: 'TRUE', formatted: carrier[1] + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[2], label: 'DTAC', formatted: carrier[2] + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
                 {value: carrier[3], label: 'OTHER', formatted: carrier[3] + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" }
             ],
             backgroundColor: '#fff',
@@ -645,6 +645,12 @@
             $('#loading-overlay').show();
             flag['canImport'] = false;
             flag['clickListenerComOfCom'] = false;
+            if(graphStatus['community-profile'] == 2){
+                resetButton('community-profile');
+                graphStatus['community-group'] = 1;
+                $('#community-group').removeClass('btn-default').addClass('btn-success');
+                $('#community-group i').removeClass('fa-times').addClass('fa-check');
+            }
             clearGraph();
             s.stopForceAtlas2();
             plotFullGraph();
@@ -1105,34 +1111,22 @@
                         $('#community-profile').removeClass('btn-warning').addClass('btn-success');
                         $('#community-profile i').removeClass('fa-refresh').addClass('fa-check');
                     
-                        var filteredNodes = [];
+                        var filteredNodes = [];    
+                        var match = false;
                         graphData.nodes.forEach(function(n) {
-                            for (var i = 0; i < e.length; i++) {
-                                if(n['attributes']['Modularity Class'] !== e[i]){
-                                    if(filteredNodes.indexOf(n) < 0 && i == e.length-1){
-                                        delete graphData.nodes[n['attributes']['Modularity Class']];
-                                        for (var j = 0; j < graphData.edges.length; j++){
-                                            if(graphData.edges[j] === undefined) {
-                                                continue;
-                                            }
-                                            if(graphData.edges[j]['source'] == n['id']){
-                                                delete graphData.edges[j];
-                                                break;
-                                            }
-                                            else if(graphData.edges[j]['target'] == n['id']){
-                                                delete graphData.edges[j];
-                                                break;
-                                            }
-                                        }
-                                        filteredNodes.push(n); 
-                                    }
-                                    continue;
-                                } else if(n['attributes']['Modularity Class'] == e[i]){
+                            for(var i = 0; i < e.length; i++){
+                                if(n['attributes']['Modularity Class'] == e[i]){
+                                    match = true;
                                     break;
                                 }
+                                match = false;
+                            }
+                            if(!match && filteredNodes.indexOf(n) < 0){
+                                filteredNodes.push(n); 
                             }
                         });
-                        $('#communityProfileModal').modal('hide');  
+                        $('#communityProfileModal').modal('hide'); 
+                        console.log(filteredNodes); 
                         plotPartialGraph(filteredNodes);
                         resetButton('community-group');
                         graphStatus['community-profile'] = 2;
