@@ -6,12 +6,16 @@
 package com.mycompany.data.importer;
 
 import com.opencsv.CSVReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -28,7 +32,9 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 public class Importer {
 
     public static final DynamicRelationshipType LINK = DynamicRelationshipType.withName("Call");
-
+    public static String TMP_STORAGE_PATH = "";
+    public static String SOURCE_DATABASE = "";
+    
     public static String toDate(String datetime) {
 
         return datetime.substring(0, 4) + datetime.substring(5, 7) + datetime.substring(8, 10);
@@ -36,6 +42,30 @@ public class Importer {
 
     public static String toTime(String datetime) {
         return datetime.substring(11, 13) + '.' + datetime.substring(14, 16) + datetime.substring(17, 19);
+    }
+    
+    private void readConfigFile() {
+        Properties prop = new Properties();
+        InputStream input = null;
+
+        try {
+            File jarPath=new File(Importer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String propertiesPath=jarPath.getParentFile().getAbsolutePath();
+            prop.load(new FileInputStream(propertiesPath+"/config.properties"));
+
+            TMP_STORAGE_PATH = prop.getProperty("tmp_storage_path");
+            SOURCE_DATABASE = prop.getProperty("source_database");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
     
     public static String toDay(String datetime) {
@@ -69,7 +99,7 @@ public class Importer {
         Map<String, String> arpu = new HashMap<>();
         Map<String, String> promotion = new HashMap<>();
         
-        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_cdr"), '|')) {
+        try (CSVReader reader = new CSVReader(new FileReader(TMP_STORAGE_PATH + args[0] + "_cdr"), '|')) {
             String[] nextLine;
             
             while ((nextLine = reader.readNext()) != null) {
@@ -88,7 +118,7 @@ public class Importer {
             
             reader.close();
         }
-        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_profile"), ',')) {
+        try (CSVReader reader = new CSVReader(new FileReader(TMP_STORAGE_PATH + args[0] + "_profile"), ',')) {
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
                 age.put(nextLine[0],nextLine[1]);
@@ -99,13 +129,13 @@ public class Importer {
             reader.close();
         } 
         
-        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/store.graphdb");
+        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase(SOURCE_DATABASE);
 
         Label nl = DynamicLabel.label(args[0]);
         int i;
         long time;
         Transaction tx;
-        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_db_store/" + args[0] + "_cdr"), '|')) {
+        try (CSVReader reader = new CSVReader(new FileReader(TMP_STORAGE_PATH + args[0] + "_cdr"), '|')) {
             String[] nextLine;
             i = 0;
             time = System.currentTimeMillis();

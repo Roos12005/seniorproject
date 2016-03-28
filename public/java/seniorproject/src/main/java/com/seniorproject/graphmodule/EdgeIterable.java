@@ -19,7 +19,12 @@ public class EdgeIterable implements Iterable<Edge>, Iterator<Edge> {
     public boolean add(Edge e){
         if(edges.containsKey(toID(e))) {
             edges.get(toID(e)).increaseWeight(roundDuration(Integer.parseInt(e.getProperty("duration").toString())));
+            edges.get(toID(e)).increaseDuration(Integer.parseInt(e.getProperty("duration").toString()));
+            edges.get(toID(e)).calculateDayNightCall(e.getProperty("startTime").toString());
         } else {
+            e.setProperty("noDayTime", 0);
+            e.setProperty("noNightTime", 0);
+            e.calculateDayNightCall(e.getProperty("startTime").toString());
             edges.put(toID(e), e);
             ids.add(toID(e));
         }
