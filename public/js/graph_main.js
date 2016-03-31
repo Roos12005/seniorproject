@@ -72,6 +72,10 @@
             edgeColor : 'default',
             defaultEdgeArrow: 'source',
             mouseWheelEnabled: false,
+            edgeLabelThreshold: 10,
+            enableEdgeHovering: true,
+            edgeHoverPrecision: 5,
+            edgeHoverExtremities: true,
             // autoResize: false
             // zoomingRatio : 1
         });
@@ -131,6 +135,7 @@
             id: e.id,
             source: e.source,
             target: e.target,
+            label: e.label,
             attributes : e.attributes,
             color: '#a5adb0',
             type: "curvedArrow",
@@ -211,9 +216,8 @@
                         carrier[0] = e['ais'];
                         carrier[1] = e['true'];
                         carrier[2] = e['dtac'];
-                        carrier[3] = e['cat'];
-                        carrier[4] = e['tot'];
-                        carrier[5] = e['all']-e['ais']-e['true']-e['dtac']-e['cat']-e['tot'];
+                        carrier[3] = e['tot'];
+                        carrier[4] = e['all']-e['ais']-e['true']-e['dtac']-e['tot'];
                         createPieChart(carrier,user_num);
                     },
                     error: function(rs, e){
@@ -228,6 +232,7 @@
                 graphData = preparedData;
                 plotFullGraph();
                 addZoomListener();
+                addLabelListener();
                 addSearchBoxListener();
                 addBackButtonListener();
                 addHilightListener();
@@ -276,9 +281,8 @@
                         carrier[0] = e['ais'];
                         carrier[1] = e['true'];
                         carrier[2] = e['dtac'];
-                        carrier[3] = e['cat'];
-                        carrier[4] = e['tot'];
-                        carrier[5] = e['all']-e['ais']-e['true']-e['dtac']-e['cat']-e['tot'];
+                        carrier[3] = e['tot'];
+                        carrier[4] = e['all']-e['ais']-e['true']-e['dtac']-e['tot'];
 
                         document.getElementById('unique_numbers').innerHTML = numberWithCommas(e['all']);
                         document.getElementById('transactions').innerHTML = numberWithCommas(e['calls']);
@@ -290,10 +294,11 @@
                     }
                 });
 
-                document.getElementById('communities').innerHTML = e['nodes'].length;
+                document.getElementById('communities').innerHTML = numberWithCommas(e['nodes'].length);
                 graphData = preparedData;
                 plotFullGraph();
                 addZoomListener();
+                addLabelListener();
                 addSearchBoxListener();
                 addBackButtonListener();
                 addHilightListener();
@@ -315,17 +320,16 @@
         Morris.Donut({
             element: 'graph-donut2',
             data: [
-                {value: carrier[0], label: 'AIS', formatted: carrier[0] + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[1], label: 'TRUE', formatted: carrier[1] + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[2], label: 'DTAC', formatted: carrier[2] + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[3], label: 'CAT', formatted: carrier[3] + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[4], label: 'TOT', formatted: carrier[4] + ' users : ' + (carrier[4]/node_num * 100).toFixed(0) + "%" },
-                {value: carrier[5], label: 'OTHER', formatted: carrier[5] + ' users : ' + (carrier[5]/node_num * 100).toFixed(0) + "%" }
+                {value: carrier[0], label: 'AIS', formatted: numberWithCommas(carrier[0]) + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[1], label: 'TRUE', formatted: numberWithCommas(carrier[1]) + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[2], label: 'DTAC', formatted: numberWithCommas(carrier[2]) + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[3], label: 'TOT', formatted: numberWithCommas(carrier[3]) + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[4], label: 'OTHER', formatted: numberWithCommas(carrier[4]) + ' users : ' + (carrier[4]/node_num * 100).toFixed(0) + "%" }
             ],
             backgroundColor: '#fff',
             labelColor: '#1fb5ac',
             colors: [
-            '#66CC66','#FF0000','#00CCFF','#FFCC4F','#ABDEEA','#DDDDDD'
+            '#66CC66','#FF0000','#00CCFF','#ABDEEA','#DDDDDD'
             ],
             formatter: function (x, data) { return data.formatted; }
         });
@@ -376,7 +380,9 @@
 
         // Add all return edges to sigma object
         graphData.edges.forEach(function(edge) {
-            addEdge(edge);
+            if(edge['attributes']['noDayTime'] + edge['attributes']['noNightTime'] > parseInt($("#weight_filter").val())){
+                addEdge(edge); 
+            }
         });
 
         // Add Click Listener to all Nodes
@@ -446,6 +452,42 @@
         // Refresh Zoom Button
         document.getElementById("nozoom").addEventListener("click", function(){
             s.camera.goTo({x:0, y:0, ratio: 1});
+        });
+    }
+
+    function addLabelListener() {
+        // Show Node Label Button
+        document.getElementById("node_label").addEventListener("click", function(){
+            if($('#node_label').attr("class") == "btn btn-danger"){
+                $('#node_label').removeClass('btn-danger').addClass('btn-success');
+                s.settings({
+                    labelThreshold: 0.1,
+                });
+                s.refresh();
+            } else {
+                $('#node_label').removeClass('btn-success').addClass('btn-danger');
+                s.settings({
+                    labelThreshold: 8,
+                });
+                s.refresh();
+            }  
+        });
+
+        // Show Edge Label Button
+       document.getElementById("edge_label").addEventListener("click", function(){
+            if($('#edge_label').attr("class") == "btn btn-danger"){
+                $('#edge_label').removeClass('btn-danger').addClass('btn-success');
+                s.settings({
+                    edgeLabelThreshold: 0.01,
+                });
+                s.refresh();
+            } else {
+                $('#edge_label').removeClass('btn-success').addClass('btn-danger');
+                s.settings({
+                    edgeLabelThreshold: 10,
+                });
+                s.refresh();
+            }  
         });
     }
 
@@ -834,9 +876,8 @@
 
     function colorByCarrier() {
         var ais = ["AIS","3GPre-paid","3GPost-paid","3GHybrid-Post","GSM","AWN"];
-        var trueh = ["TRUE","RFT"];
+        var trueh = ["TRUE","RFT","CATCDA"];
         var dtac = ["DTAC","DTN"]; 
-        var cat = ["CATCDA"];
         var tot = ["TOT","TOT3G"];
         s.settings({
             maxNodeSize: 1
@@ -848,7 +889,7 @@
         document.getElementById('highlightNodeColor').innerHTML = 'AIS - Green , TRUE - RED , DTAC - Blue , Other - GREY';
         hilightButton('#h-carrier','Node');
         s.graph.nodes().forEach(function(node) {
-            node.color = trueh.indexOf(node['attributes']['Carrier']) >= 0 ? "#e74c3c" : (ais.indexOf(node['attributes']['Carrier']) >= 0 ? "#40d47e" : (dtac.indexOf(node['attributes']['Carrier']) >= 0 ? "#3498db" : (cat.indexOf(node['attributes']['Carrier']) >= 0 ? '#ffcc4f' : (tot.indexOf(node['attributes']['Carrier']) >= 0 ? '#abdeea': '#000000'))));
+            node.color = trueh.indexOf(node['attributes']['Carrier']) >= 0 ? "#e74c3c" : (ais.indexOf(node['attributes']['Carrier']) >= 0 ? "#40d47e" : (dtac.indexOf(node['attributes']['Carrier']) >= 0 ? "#3498db" : (tot.indexOf(node['attributes']['Carrier']) >= 0 ? '#abdeea': '#000000')));
         });
         s.refresh();
         currentHighlightNode = 'carrier';
@@ -1019,9 +1060,10 @@
         document.getElementById('highlightEdge').innerHTML = 'Day / Night';
         document.getElementById('highlightEdgeColor').innerHTML = 'Color by Number of Day & Night Call';
         s.graph.edges().forEach(function(edge) {
-            var red = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 252;
-            var green = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 212;
-            var blue = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 64;
+            console.log(edge['attributes']['noDayTime'] + "   " + edge['attributes']['noNightTime']);
+            var red = (Math.log(edge['attributes']['noDayTime'])/Math.log((edge['attributes']['noDayTime']+edge['attributes']['noNightTime']))) * 252;
+            var green = (Math.log(edge['attributes']['noDayTime'])/Math.log((edge['attributes']['noDayTime']+edge['attributes']['noNightTime']))) * 212;
+            var blue = (Math.log(edge['attributes']['noDayTime'])/Math.log((edge['attributes']['noDayTime']+edge['attributes']['noNightTime']))) * 64;
             edge.color = '#'+ parseInt(red).toString(16)+ parseInt(green).toString(16)+parseInt(blue).toString(16);
         });
         s.refresh();
@@ -1041,7 +1083,8 @@
         });
 
         s.graph.edges().forEach(function(edge) {
-            var colorScale =  255 * edge['attributes']['duration']/maxDuration;
+            console.log(edge['attributes']['duration']);
+            var colorScale =  255 * Math.log(edge['attributes']['duration'])/Math.log(maxDuration);
             var hexString = parseInt(colorScale).toString(16);
             hexString = hexString.length == 1? '0' + hexString : hexString;
             edge.color = '#00' + hexString + '00';

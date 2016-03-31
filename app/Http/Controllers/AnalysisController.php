@@ -92,7 +92,7 @@ class AnalysisController extends Controller{
       $edge_info = [
       'target' => $result['m_id'],
       'color' => '',
-      'label' => '',
+      'label' => 'Daytime : '.$result['r']['noDayTime'].', Nighttime : '.$result['r']['noNightTime'].', Duration : '.$result['r']['duration'],
       'source' => $result['n_id'],
       'attributes' => $edge_prop,
       'id' => $result['r_id'],
@@ -260,7 +260,7 @@ class AnalysisController extends Controller{
       $edge_info = [
       'target' => $result['m_id'],
       'color' => '',
-      'label' => '',
+      'label' => 'Daytime : '.$result['r']['noDayTime'].', Nighttime : '.$result['r']['noNightTime'].', Duration : '.$result['r']['duration'],
       'source' => $result['n_id'],
       'attributes' => $edge_prop,
       'id' => $result['r_id'],
@@ -289,19 +289,16 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["AIS","3GPre-paid","3GPost-paid","3GHybrid-Post","GSM","AWN"] RETURN count(n)';
     $ais_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["TRUE","RFT"] RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["TRUE","RFT","CATCDA"] RETURN count(n)';
     $true_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
     $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["DTAC","DTN"] RETURN count(n)';
     $dtac_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["CATCDA"] RETURN count(n)';
-    $cat_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
-
     $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["TOT","TOT3G"] RETURN count(n)';
     $tot_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'cat' => $cat_num,'tot' => $tot_num,'calls' => $all_call]);
+    return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'tot' => $tot_num,'calls' => $all_call]);
   }
 
   //Get nodes in selected community for double click listener
@@ -361,7 +358,7 @@ class AnalysisController extends Controller{
         $edge_info = [
         'target' => $result['m_id'],
         'color' => '',
-        'label' => '',
+        'label' => 'Daytime : '.$result['r']['noDayTime'].', Nighttime : '.$result['r']['noNightTime'].', Duration : '.$result['r']['duration'],
         'source' => $result['n_id'],
         'attributes' => $edge_prop,
         'id' => $result['r_id'],

@@ -5818,6 +5818,16 @@ right: -1px;
     margin-right: 5px;
 }
 
+.label-section {
+    position: absolute;
+    bottom: 535;
+    left: 0;
+    z-index: 100;
+}
+.label-section button {
+    margin-right: 5px;
+}
+
 .back-section {
     position: absolute;
     top: 0;
