@@ -28,7 +28,6 @@ class AnalysisController extends Controller{
     $noOfOutgoing = $results[0]['n']['incomingMin']." - ".($results[0]['n']['incomingMax']=="-1"?'10000':$results[0]['n']['incomingMax']);
     $noOfIncoming = $results[0]['n']['outgoingMin']." - ".($results[0]['n']['outgoingMax']=="-1"?'10000':$results[0]['n']['outgoingMax']);
     return view('analysis.analysis', ['data_id' => $id])->with([
-      // 'database' => $database,
       'startDate' => $startDate,
       'callDay' => $callDay,
       'carrier' => $carrier,
@@ -93,7 +92,7 @@ class AnalysisController extends Controller{
       $edge_info = [
       'target' => $result['m_id'],
       'color' => '',
-      'label' => '',
+      'label' => 'Daytime : '.$result['r']['noDayTime'].', Nighttime : '.$result['r']['noNightTime'].', Duration : '.$result['r']['duration'],
       'source' => $result['n_id'],
       'attributes' => $edge_prop,
       'id' => $result['r_id'],
@@ -261,7 +260,7 @@ class AnalysisController extends Controller{
       $edge_info = [
       'target' => $result['m_id'],
       'color' => '',
-      'label' => '',
+      'label' => 'Daytime : '.$result['r']['noDayTime'].', Nighttime : '.$result['r']['noNightTime'].', Duration : '.$result['r']['duration'],
       'source' => $result['n_id'],
       'attributes' => $edge_prop,
       'id' => $result['r_id'],
@@ -287,16 +286,19 @@ class AnalysisController extends Controller{
     $q = 'MATCH (n:Processed' . $id . ') -[r:Call]-> (m:Processed' . $id . ') RETURN count(r)';
     $all_call = $client->sendCypherQuery($q)->getResult()->get('count(r)');
 
-    $q = 'MATCH (n:Processed' . $id . '{carrier:"AIS"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["AIS","3GPre-paid","3GPost-paid","3GHybrid-Post","GSM","AWN"] RETURN count(n)';
     $ais_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{carrier:"TRUE"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["TRUE","RFT","CATCDA"] RETURN count(n)';
     $true_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    $q = 'MATCH (n:Processed' . $id . '{carrier:"DTAC"}) RETURN count(n)';
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["DTAC","DTN"] RETURN count(n)';
     $dtac_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
 
-    return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'calls' => $all_call]);
+    $q = 'MATCH (n:Processed' . $id . ') Where n.carrier In ["TOT","TOT3G"] RETURN count(n)';
+    $tot_num = $client->sendCypherQuery($q)->getResult()->get('count(n)');
+
+    return response()->json(['all' => $all_num,'ais' => $ais_num,'true' => $true_num,'dtac' => $dtac_num,'tot' => $tot_num,'calls' => $all_call]);
   }
 
   //Get nodes in selected community for double click listener
@@ -356,7 +358,7 @@ class AnalysisController extends Controller{
         $edge_info = [
         'target' => $result['m_id'],
         'color' => '',
-        'label' => '',
+        'label' => 'Daytime : '.$result['r']['noDayTime'].', Nighttime : '.$result['r']['noNightTime'].', Duration : '.$result['r']['duration'],
         'source' => $result['n_id'],
         'attributes' => $edge_prop,
         'id' => $result['r_id'],

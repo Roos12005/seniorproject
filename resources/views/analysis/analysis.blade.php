@@ -11,6 +11,8 @@
     {!! Html::style('js/advanced-datatable/css/demo_page.css') !!}
     {!! Html::style('js/advanced-datatable/css/demo_table.css') !!}
     {!! Html::style('js/data-tables/DT_bootstrap.css') !!}
+    {!! Html::style('js/ion.rangeSlider-1.8.2/css/ion.rangeSlider.css') !!}
+    {!! Html::style('js/ion.rangeSlider-1.8.2/css/ion.rangeSlider.skinFlat.css') !!}
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}" />
@@ -145,10 +147,30 @@
                         <h5>Node Highlight : <span id="highlightNode">Default</span></h5>
                         <li>Node size : <span id="highlightNodeSize"></span></li>
                         <li>Node color : <span id="highlightNodeColor"></span></li>
-                        <br>
                         <h5>Edge Highlight : <span id="highlightEdge">Default</span></h5>
                         <li>Edge color : <span id="highlightEdgeColor"></span></li>
+                        <br>
                     </div>  
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-6">Weight Filter</label>
+                            <div class="col-md-6">
+                                <div id="spinner1">
+                                    <div class="input-group input-small">
+                                        <input type="text" class="spinner-input form-control" id="weight_filter" >
+                                        <div class="spinner-buttons input-group-btn btn-group-vertical">
+                                            <button type="button" class="btn spinner-up btn-xs btn-default">
+                                                <i class="fa fa-angle-up"></i>
+                                            </button>
+                                            <button type="button" class="btn spinner-down btn-xs btn-default">
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-md-3">
@@ -261,6 +283,17 @@
                                 <button class="btn btn-primary" id="nozoom">
                                     <i class="fa fa-refresh"></i>
                                 </button>
+                            </div>
+                            <div class="label-section">
+                                <button class="btn btn-danger" id="node_label">
+                                    <i class="fa fa-circle-o"></i>
+                                </button>
+                                <button class="btn btn-danger" id="edge_label">
+                                    <i class="fa  fa-long-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="slider-section">
+                                <input id="size-slider" type="text" name="size-slider" value="" />
                             </div>
                         </div>
                     </div>
@@ -835,10 +868,18 @@
 {!! Html::script('js/jquery.maskedinput.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/sigmajs/plugins/sigma.layout.forceAtlas2.min.js'); !!}
+{!! Html::script('js/sigmajs/plugins/sigma.renderers.edgeLabels.min.js'); !!}
+
+<!-- Slider -->
+{!! Html::script('js/ion.rangeSlider-1.8.2/js/ion-rangeSlider/ion.rangeSlider.min.js'); !!}
 
 {!! Html::script('js/jquery-csv/jquery.csv.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
 {!! Html::script('js/exportCSV.js'); !!}
+
+
+<!-- Spinner -->
+{!! Html::script('js/fuelux/js/spinner.min.js'); !!}
 
 <!-- Date Range (Date Picker) -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}

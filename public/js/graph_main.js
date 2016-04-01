@@ -30,6 +30,12 @@
         clickListenerComOfCom : false,
         canImport : false
     }
+    var currentMaxNodeSize = 5;
+    var currentMaxEdgeSize = 0.1;
+    var zoomScale = {
+        prev: 1,
+        current: 1
+    };
 
     var graphStatus = {
         'full-graph' : 0,
@@ -64,14 +70,18 @@
         s.settings({
             defaultEdgeType: "curvedArrow",
             minEdgeSize : 0.003,
-            maxEdgeSize : 0.1,
+            maxEdgeSize : currentMaxEdgeSize,
             minNodeSize : 0.5,
-            maxNodeSize : 5,
+            maxNodeSize : currentMaxNodeSize,
             // zoomMin : 0.25,
             // zoomMax : 40,
             edgeColor : 'default',
             defaultEdgeArrow: 'source',
             mouseWheelEnabled: false,
+            edgeLabelThreshold: 10,
+            enableEdgeHovering: true,
+            edgeHoverPrecision: 5,
+            edgeHoverExtremities: true,
             // autoResize: false
             // zoomingRatio : 1
         });
@@ -131,6 +141,7 @@
             id: e.id,
             source: e.source,
             target: e.target,
+            label: e.label,
             attributes : e.attributes,
             color: '#a5adb0',
             type: "curvedArrow",
@@ -176,8 +187,8 @@
      *  @param  ???
      *  @return JSON object - contains graph data
      */
-     function fetchData(){
-
+    function fetchData(){
+        $('#loading-overlay').show();
         var preparedData = [];
         var carrier = [0,0,0,0];
         var com_data = new Array();
@@ -211,7 +222,8 @@
                         carrier[0] = e['ais'];
                         carrier[1] = e['true'];
                         carrier[2] = e['dtac'];
-                        carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
+                        carrier[3] = e['tot'];
+                        carrier[4] = e['all']-e['ais']-e['true']-e['dtac']-e['tot'];
                         createPieChart(carrier,user_num);
                     },
                     error: function(rs, e){
@@ -226,6 +238,7 @@
                 graphData = preparedData;
                 plotFullGraph();
                 addZoomListener();
+                addLabelListener();
                 addSearchBoxListener();
                 addBackButtonListener();
                 addHilightListener();
@@ -274,7 +287,8 @@
                         carrier[0] = e['ais'];
                         carrier[1] = e['true'];
                         carrier[2] = e['dtac'];
-                        carrier[3] = e['all']-e['ais']-e['true']-e['dtac'];
+                        carrier[3] = e['tot'];
+                        carrier[4] = e['all']-e['ais']-e['true']-e['dtac']-e['tot'];
 
                         document.getElementById('unique_numbers').innerHTML = numberWithCommas(e['all']);
                         document.getElementById('transactions').innerHTML = numberWithCommas(e['calls']);
@@ -290,6 +304,7 @@
                 graphData = preparedData;
                 plotFullGraph();
                 addZoomListener();
+                addLabelListener();
                 addSearchBoxListener();
                 addBackButtonListener();
                 addHilightListener();
@@ -311,15 +326,16 @@
         Morris.Donut({
             element: 'graph-donut2',
             data: [
-            {value: carrier[0], label: 'AIS', formatted: carrier[0] + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
-            {value: carrier[1], label: 'DTAC', formatted: carrier[1] + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
-            {value: carrier[2], label: 'TRUE', formatted: carrier[2] + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
-            {value: carrier[3], label: 'OTHER', formatted: carrier[3] + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" }
+                {value: carrier[0], label: 'AIS', formatted: numberWithCommas(carrier[0]) + ' users : ' + (carrier[0]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[1], label: 'TRUE', formatted: numberWithCommas(carrier[1]) + ' users : ' + (carrier[1]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[2], label: 'DTAC', formatted: numberWithCommas(carrier[2]) + ' users : ' + (carrier[2]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[3], label: 'TOT', formatted: numberWithCommas(carrier[3]) + ' users : ' + (carrier[3]/node_num * 100).toFixed(0) + "%" },
+                {value: carrier[4], label: 'OTHER', formatted: numberWithCommas(carrier[4]) + ' users : ' + (carrier[4]/node_num * 100).toFixed(0) + "%" }
             ],
             backgroundColor: '#fff',
             labelColor: '#1fb5ac',
             colors: [
-            '#66CC66','#FF0000','#00CCFF','#DDDDDD'
+            '#66CC66','#FF0000','#00CCFF','#ABDEEA','#DDDDDD'
             ],
             formatter: function (x, data) { return data.formatted; }
         });
@@ -370,7 +386,9 @@
 
         // Add all return edges to sigma object
         graphData.edges.forEach(function(edge) {
-            addEdge(edge);
+            if(edge['attributes']['noDayTime'] + edge['attributes']['noNightTime'] > parseInt($("#weight_filter").val())){
+                addEdge(edge); 
+            }
         });
 
         // Add Click Listener to all Nodes
@@ -443,6 +461,7 @@
         });
     }
 
+
     function findCommunityID(num) {
         ajaxSetup();
         $.ajax({
@@ -464,6 +483,43 @@
                 alert('Problem occurs during fetch data.');
             }
         })
+    }
+
+    function addLabelListener() {
+        // Show Node Label Button
+        document.getElementById("node_label").addEventListener("click", function(){
+            if($('#node_label').attr("class") == "btn btn-danger"){
+                $('#node_label').removeClass('btn-danger').addClass('btn-success');
+                s.settings({
+                    labelThreshold: 0.1,
+                });
+                s.refresh();
+            } else {
+                $('#node_label').removeClass('btn-success').addClass('btn-danger');
+                s.settings({
+                    labelThreshold: 8,
+                });
+                s.refresh();
+            }  
+        });
+
+        // Show Edge Label Button
+       document.getElementById("edge_label").addEventListener("click", function(){
+            if($('#edge_label').attr("class") == "btn btn-danger"){
+                $('#edge_label').removeClass('btn-danger').addClass('btn-success');
+                s.settings({
+                    edgeLabelThreshold: 0.01,
+                });
+                s.refresh();
+            } else {
+                $('#edge_label').removeClass('btn-success').addClass('btn-danger');
+                s.settings({
+                    edgeLabelThreshold: 10,
+                });
+                s.refresh();
+            }  
+        });
+
     }
 
      /**  
@@ -820,6 +876,13 @@
      function addBackButtonListener() {
         document.getElementById('back').addEventListener('click', function() {
             $('#loading-overlay').show();
+
+            if(graphStatus['community-profile'] == 2){
+                resetButton('community-profile');
+                graphStatus['community-group'] = 1;
+                $('#community-group').removeClass('btn-default').addClass('btn-success');
+                $('#community-group i').removeClass('fa-times').addClass('fa-check');
+            }
             if(flag['drilldown']) {
                 flag['drilldown'] = false;
                 clearGraph();
@@ -848,9 +911,7 @@
         document.getElementById('highlightNodeColor').innerHTML = '';
         var maxMember = 1;
         if(flag['compute_com']){
-            s.settings({
-                maxNodeSize: 7
-            });
+            setMaxNodeSize(7 * zoomScale['current']);
             console.log("rendering community");
             if(flag['compute_com'] && !flag['clickListenerComOfCom']){
                 s.graph.nodes().forEach(function(node) {
@@ -859,19 +920,17 @@
                     }
                     s.graph.nodes().forEach(function(node) {
                         node.color = node.communityColor;
-                        node.size = 10 * node['attributes']['Member']/maxMember;
+                        node.size = 10  * zoomScale['current'] * node['attributes']['Member']/maxMember;
                         node.color = node.communityColor;
                     // console.log(node.size);
                 });
                 });
             }
             else {
-                s.settings({
-                    maxNodeSize: 1
-                });
+                setMaxNodeSize(1 * zoomScale['current']);
                 s.graph.nodes().forEach(function(node) {
                     node.color = '#a5adb0';
-                    node.size = node.defaultSize;
+                    node.size = node.defaultSize * zoomScale['current'];
                 });  
             }
             currentHighlightNode = 'default';
@@ -880,9 +939,7 @@
     }
 
     function colorByCommunity() {
-        s.settings({
-            maxNodeSize: 1
-        });
+        setMaxNodeSize(1 * zoomScale['current']);
         if(currentHighlightNode == 'community') return;
         colorByDefaultNode();
         hilightButton('#h-community','Node');
@@ -897,9 +954,7 @@
     }
 
     function colorByCentrality() {
-        s.settings({
-            maxNodeSize: 3
-        });
+        setMaxNodeSize(3 * zoomScale['current']);
         if(currentHighlightNode == 'centrality') return;
         // colorByDefaultNode();
         document.getElementById('highlightNode').innerHTML = 'Centrality';
@@ -927,7 +982,7 @@
                 hexString = hexString.length == 1? '0' + hexString : hexString;
                 node.color = '#' + hexString + "0000";
                 // console.log(colorScale + " --> " + node.color);
-                node.size = 3 * parseFloat(node['attributes']['Closeness Centrality'])/maxCC;
+                node.size = 3 * zoomScale['current'] * parseFloat(node['attributes']['Closeness Centrality'])/maxCC;
             }
         });
         currentHighlightNode = 'centrality';
@@ -935,9 +990,11 @@
     }
 
     function colorByCarrier() {
-        s.settings({
-            maxNodeSize: 1
-        });
+        var ais = ["AIS","3GPre-paid","3GPost-paid","3GHybrid-Post","GSM","AWN"];
+        var trueh = ["TRUE","RFT","CATCDA"];
+        var dtac = ["DTAC","DTN"]; 
+        var tot = ["TOT","TOT3G"];
+        setMaxNodeSize(1 * zoomScale['current']);
         if(currentHighlightNode == 'carrier') return;
         colorByDefaultNode();
         document.getElementById('highlightNode').innerHTML = 'Carrier';
@@ -945,17 +1002,15 @@
         document.getElementById('highlightNodeColor').innerHTML = 'AIS - Green , TRUE - RED , DTAC - Blue , Other - GREY';
         hilightButton('#h-carrier','Node');
         s.graph.nodes().forEach(function(node) {
-            console.log("work");
-            node.color = node['attributes']['Carrier'] == 'TRUE' ? "#e74c3c" : (node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : (node['attributes']['Carrier'] == 'DTAC' ? "#3498db" : '#000000'));
+            node.color = trueh.indexOf(node['attributes']['Carrier']) >= 0 ? "#e74c3c" : (ais.indexOf(node['attributes']['Carrier']) >= 0 ? "#40d47e" : (dtac.indexOf(node['attributes']['Carrier']) >= 0 ? "#3498db" : (tot.indexOf(node['attributes']['Carrier']) >= 0 ? '#abdeea': '#000000')));
         });
         s.refresh();
         currentHighlightNode = 'carrier';
     }
 
     function colorByAIS() {
-        s.settings({
-            maxNodeSize: 1
-        });
+        var ais = ["AIS","3GPre-paid","3GPost-paid","3GHybrid-Post","GSM","AWN"];
+        setMaxNodeSize(1 * zoomScale['current']);
         if(currentHighlightNode == 'ais') return;
         colorByDefaultNode();
         hilightButton('#h-ais','Node');
@@ -963,16 +1018,14 @@
         document.getElementById('highlightNodeSize').innerHTML = '';
         document.getElementById('highlightNodeColor').innerHTML = 'Only AIS - Green , Other - GREY';
         s.graph.nodes().forEach(function(node) {
-            node.color = node['attributes']['Carrier'] == 'AIS' ? "#40d47e" : '#bdc3c7';
+            node.color = ais.indexOf(node['attributes']['Carrier']) >= 0 ? "#40d47e" : '#bdc3c7';
         });
         s.refresh();
         currentHighlightNode = 'ais';
     }
 
     function colorByArpu() {
-        s.settings({
-            maxNodeSize: 1.5
-        });
+        setMaxNodeSize(1.5 * zoomScale['current']);
         if(currentHighlightNode == 'arpu') return;
         colorByDefaultNode();
         hilightButton('#h-arpu','Node');
@@ -999,9 +1052,7 @@
     }
 
     function colorByDegree() {
-        s.settings({
-            maxNodeSize: 5
-        });
+        setMaxNodeSize(5 * zoomScale['current']);
         if(currentHighlightNode == 'degree') return;
         colorByDefaultNode();
         hilightButton('#h-degree','Node');
@@ -1019,9 +1070,8 @@
         s.graph.nodes().forEach(function(node) {
             if(node['attributes']['Modularity Class'] == selectedCom || selectedCom == 'null') {
 
-                node.size = 5 * Math.log(parseInt(node['attributes']['NoOfIncoming']) + parseInt(node['attributes']['NoOfOutgoing']))/Math.log(maxDegree);
+                node.size = 5 * zoomScale['current'] * Math.log(parseInt(node['attributes']['NoOfIncoming']) + parseInt(node['attributes']['NoOfOutgoing']))/Math.log(maxDegree);
                 node.color = '#000000';
-                console.log(node.size);
             }
         });
         currentHighlightNode = 'degree';
@@ -1029,9 +1079,7 @@
     }
 
     function colorByDegreeIn() {
-        s.settings({
-            maxNodeSize: 1.5
-        });
+        setMaxNodeSize(1.5 * zoomScale['current']);
         if(currentHighlightNode == 'degreeIn') return;
         colorByDefaultNode();
         hilightButton('#h-degreeIn','Node');
@@ -1062,9 +1110,7 @@
     }
 
     function colorByDegreeOut() {
-        s.settings({
-            maxNodeSize: 1.5
-        });
+        setMaxNodeSize(1.5 * zoomScale['current']);
         if(currentHighlightNode == 'degreeOut') return;
         colorByDefaultNode();
         hilightButton('#h-degreeOut','Node');
@@ -1117,9 +1163,10 @@
         document.getElementById('highlightEdge').innerHTML = 'Day / Night';
         document.getElementById('highlightEdgeColor').innerHTML = 'Color by Number of Day & Night Call';
         s.graph.edges().forEach(function(edge) {
-            var red = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 252;
-            var green = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 212;
-            var blue = (edge['attributes']['noDayTime']/(edge['attributes']['noDayTime']+edge['attributes']['noNightTime'])) * 64;
+            console.log(edge['attributes']['noDayTime'] + "   " + edge['attributes']['noNightTime']);
+            var red = (Math.log(edge['attributes']['noDayTime'])/Math.log((edge['attributes']['noDayTime']+edge['attributes']['noNightTime']))) * 252;
+            var green = (Math.log(edge['attributes']['noDayTime'])/Math.log((edge['attributes']['noDayTime']+edge['attributes']['noNightTime']))) * 212;
+            var blue = (Math.log(edge['attributes']['noDayTime'])/Math.log((edge['attributes']['noDayTime']+edge['attributes']['noNightTime']))) * 64;
             edge.color = '#'+ parseInt(red).toString(16)+ parseInt(green).toString(16)+parseInt(blue).toString(16);
         });
         s.refresh();
@@ -1139,7 +1186,8 @@
         });
 
         s.graph.edges().forEach(function(edge) {
-            var colorScale =  255 * edge['attributes']['duration']/maxDuration;
+            console.log(edge['attributes']['duration']);
+            var colorScale =  255 * Math.log(edge['attributes']['duration'])/Math.log(maxDuration);
             var hexString = parseInt(colorScale).toString(16);
             hexString = hexString.length == 1? '0' + hexString : hexString;
             edge.color = '#00' + hexString + '00';
@@ -1228,11 +1276,6 @@
         } else {
             graphData = fetchData();
         }
-        // plotFullGraph();
-        // addZoomListener();
-        // addSearchBoxListener();
-        // addBackButtonListener();
-        // addHilightListener();
     }
 
     function processCommunityProfile() {
@@ -1326,35 +1369,22 @@
                     url: "http://localhost/seniorproject/public/getNodeCommunityProfile/" + did,
                     data : {"sendprofile":data},
                     success: function(e){
-                        console.log(e);
                         $('#community-profile').removeClass('btn-warning').addClass('btn-success');
                         $('#community-profile i').removeClass('fa-refresh').addClass('fa-check');
+                    
+                        var filteredNodes = [];    
+                        var match = false;
 
-                        var filteredNodes = [];
                         graphData.nodes.forEach(function(n) {
-                            for (var i = 0; i < e.length; i++) {
-                                if(n['attributes']['Modularity Class'] !== e[i]){
-                                    if(filteredNodes.indexOf(n) < 0 && i == e.length-1){
-                                        delete graphData.nodes[n['attributes']['Modularity Class']];
-                                        for (var j = 0; j < graphData.edges.length; j++){
-                                            if(graphData.edges[j] === undefined) {
-                                                continue;
-                                            }
-                                            if(graphData.edges[j]['source'] == n['id']){
-                                                delete graphData.edges[j];
-                                                break;
-                                            }
-                                            else if(graphData.edges[j]['target'] == n['id']){
-                                                delete graphData.edges[j];
-                                                break;
-                                            }
-                                        }
-                                        filteredNodes.push(n); 
-                                    }
-                                    continue;
-                                } else if(n['attributes']['Modularity Class'] == e[i]){
+                            for(var i = 0; i < e.length; i++){
+                                if(n['attributes']['Modularity Class'] == e[i]){
+                                    match = true;
                                     break;
                                 }
+                                match = false;
+                            }
+                            if(!match && filteredNodes.indexOf(n) < 0){
+                                filteredNodes.push(n); 
                             }
                         });
                         $('#communityProfileModal').modal('hide');  
@@ -1473,7 +1503,54 @@ function handleFileSelect(evt) {
     };
     reader.onerror = function(){ alert('Unable to read ' + file.fileName); };
 }
+    
+    function setMaxNodeSize(n) {
+        s.settings({
+            maxNodeSize: n
+        });
+        currentMaxNodeSize = n;
+    }
 
+    function setMaxEdgeSize(n) {
+        s.settings({
+            maxEdgeSize: n
+        });
+        currentMaxEdgeSize = n;
+    }
+
+    function enlargeGraph() {
+        $('#loading-overlay').show();
+        setTimeout(function(){
+            setMaxNodeSize(zoomScale['current']*(currentMaxNodeSize/zoomScale['prev']));
+            setMaxEdgeSize(zoomScale['current']*(currentMaxEdgeSize/zoomScale['prev']));
+            s.graph.nodes().forEach(function(n) {
+                n.size = (n.size/zoomScale['prev']) * zoomScale['current'];
+            });
+            s.graph.edges().forEach(function(e) {
+                e.size = (e.size/zoomScale['prev']) * zoomScale['current'];
+            });
+            s.refresh();
+            $('#loading-overlay').hide();
+        },100);
+    }
+
+    function initSlider() {
+        $("#size-slider").ionRangeSlider({
+            min: 0.1,
+            max: 4,
+            from: 1,
+            type: 'single',
+            postfix: " x",
+            step: 0.1,
+            hasGrid: true,
+            grid_num: 1,
+            onFinish: function(data) {
+                zoomScale['prev'] = zoomScale['current'];
+                zoomScale['current'] = data.fromNumber;
+                enlargeGraph();
+            }
+        });
+    }
     /**
      *  @brief Main function of this file
      *
@@ -1486,7 +1563,7 @@ function handleFileSelect(evt) {
         document.getElementById('community-group').addEventListener('click', processCommunityData);
         document.getElementById('full-graph').addEventListener('click', processData);
         document.getElementById('communityProfile-filter').addEventListener('click', processCommunityProfile);
-
+        initSlider();
         $(document).ready(function() {
             if(isAPIAvailable()) {
                 $('#files').bind('change', handleFileSelect);

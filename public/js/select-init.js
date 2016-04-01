@@ -25,5 +25,7 @@ $(document).ready(function() {
     $("#averageNoOfCallProfileExport").select2({placeholder: "All Level"});
     $("#averageArpuProfileExport").select2({placeholder: "All Level"});
     $("#averageDurationProfileExport").select2({placeholder: "All Level"});
+
+    $('#spinner1').spinner({value:0, min: 0, max: 9999});
 });
 
