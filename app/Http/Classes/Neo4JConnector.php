@@ -363,6 +363,11 @@ public function renameDatabase($db_id, $new_name) {
     $this->execQuery($q);
 }
 
+public function findCommunity($id, $number) {
+    $q = "MATCH (n:Processed" . $id .") WHERE n.number='" . $number . "' RETURN n.communityID;";
+    return $this->execQuery($q)[0]['n.communityID'];
+}
+
 public function getNeighbors($id, $selectedNode) {
     $node_list = array();
     $edge_list = array();

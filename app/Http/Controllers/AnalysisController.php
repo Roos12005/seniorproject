@@ -212,7 +212,7 @@ class AnalysisController extends Controller{
 
     $q = 'MATCH (n:Processed' . $id . ') RETURN count(distinct n.communityID)';
     $community_num = $client->sendCypherQuery($q)->getResult()->get('count(distinct n.communityID)');
-    Log::info($q);
+    
     $community_list = array();
     $edge_list = array();
     $q = 'MATCH (n:ProcessedCom' . $id . ') RETURN n, ID(n) as n_id ORDER BY n.member';
@@ -397,6 +397,13 @@ class AnalysisController extends Controller{
     $selectedNode  = Input::get('node');
 
     return response()->json($neo->getNeighbors($id, $selectedNode));
+  }
+
+  public function findCommunity($id) {
+    $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+    $selectedNode  = Input::get('number');
+    $communityID = $neo->findCommunity($id, $selectedNode);
+    return response()->json(["communityID" => $communityID]);
   }
 }
 ?>

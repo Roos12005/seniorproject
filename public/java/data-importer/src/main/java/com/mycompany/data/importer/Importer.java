@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class Importer {
         return datetime.substring(11, 13) + '.' + datetime.substring(14, 16) + datetime.substring(17, 19);
     }
     
-    private void readConfigFile() {
+    private static void readConfigFile() {
         Properties prop = new Properties();
         InputStream input = null;
 
@@ -70,21 +71,21 @@ public class Importer {
     
     public static String toDay(String datetime) {
         Calendar cal = Calendar.getInstance();
-        cal.set(Integer.parseInt(datetime.substring(0,4)), Integer.parseInt(datetime.substring(5,7)), Integer.parseInt(datetime.substring(8,10)));
+        cal.set(Integer.parseInt(datetime.substring(0,4)), Integer.parseInt(datetime.substring(5,7))-1, Integer.parseInt(datetime.substring(8,10)));
         switch(cal.get(Calendar.DAY_OF_WEEK)) {
-            case 0:
+            case Calendar.SUNDAY:
                 return "Sunday";
-            case 1:
+            case Calendar.MONDAY:
                 return "Monday";
-            case 2:
+            case Calendar.TUESDAY:
                 return "Tuesday";
-            case 3:
+            case Calendar.WEDNESDAY:
                 return "Wednesday";
-            case 4:
+            case Calendar.THURSDAY:
                 return "Thursday";
-            case 5:
+            case Calendar.FRIDAY:
                 return "Friday";
-            case 6:
+            case Calendar.SATURDAY:
                 return "Saturday";
             default:
                 return "Invalid";
@@ -98,7 +99,7 @@ public class Importer {
         Map<String, String> gender = new HashMap<>();
         Map<String, String> arpu = new HashMap<>();
         Map<String, String> promotion = new HashMap<>();
-        
+        readConfigFile();
         try (CSVReader reader = new CSVReader(new FileReader(TMP_STORAGE_PATH + args[0] + "_cdr"), '|')) {
             String[] nextLine;
             
@@ -173,12 +174,13 @@ public class Importer {
                     b.setProperty("promotion", promotion.get(nextLine[3]) == null? "unknown" : promotion.get(nextLine[3]));
                     nodes.put(nextLine[3], b);
                 }
-
-                Relationship r = a.createRelationshipTo(b, LINK);
-                r.setProperty("startDate", Integer.parseInt(toDate(nextLine[1])));
-                r.setProperty("startTime", Double.parseDouble(toTime(nextLine[1])));
-                r.setProperty("callDay", toDay(nextLine[1]));
-                r.setProperty("duration", Integer.parseInt(nextLine[5]));
+                if(nextLine[2].equals("Call")) {
+                    Relationship r = a.createRelationshipTo(b, LINK);
+                    r.setProperty("startDate", Integer.parseInt(toDate(nextLine[1])));
+                    r.setProperty("startTime", Double.parseDouble(toTime(nextLine[1])));
+                    r.setProperty("callDay", toDay(nextLine[1]));
+                    r.setProperty("duration", Integer.parseInt(nextLine[5]));
+                }
                 if (i % 50000 == 0) {
                     tx.success();
                     tx.finish();
