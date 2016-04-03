@@ -295,6 +295,7 @@
                             <div class="slider-section">
                                 <input id="size-slider" type="text" name="size-slider" value="" />
                             </div>
+
                         </div>
                     </div>
                 </div>

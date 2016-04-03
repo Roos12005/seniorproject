@@ -712,7 +712,7 @@
 
 <!-- Date Range (Dropdown) -->
 {!! Html::script('js/select2/select2.js'); !!}
-{!! Html::script('js/select-init.js'); !!}
+<!-- {!! Html::script('js/select-init.js'); !!} -->
 
 <!--Check Box -->
 {!! Html::script('js/iCheck/jquery.icheck.js'); !!}

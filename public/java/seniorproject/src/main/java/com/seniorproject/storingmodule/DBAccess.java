@@ -134,6 +134,8 @@ public class DBAccess {
             try (Transaction tx = graphDb.beginTx();
                     Result result = graphDb.execute(cypher, params)) {
                 tx.success();
+                Map<Integer, Integer> incoming = new HashMap<>();
+                Map<Integer, Integer> outgoing = new HashMap<>();
                 while (result.hasNext()) {
                     Map<String, Object> row = result.next();
 
@@ -172,7 +174,19 @@ public class DBAccess {
                     Node callee = new Node(bid);
                     caller.setLabel(a.get("number").toString());
                     callee.setLabel(b.get("number").toString());
-
+                    
+                    if(incoming.containsKey(bid)) {
+                        incoming.put(bid, incoming.get(bid) + 1);
+                    } else {
+                        incoming.put(bid, 1);
+                    }
+                    
+                    if(outgoing.containsKey(aid)) {
+                        outgoing.put(aid, outgoing.get(aid) + 1);
+                    } else {
+                        outgoing.put(aid, 1);
+                    }
+                    
                     a.remove("id");
                     b.remove("id");
                     a.remove("number");
@@ -196,6 +210,24 @@ public class DBAccess {
                     nodes.add(callee);
                     edges.add(rel);
                 }
+                
+                for(Node tmp : nodes) {
+                    
+                    if(incoming.containsKey(tmp.getID())) {
+                        tmp.setProperty("incoming", incoming.get(tmp.getID()));
+                    } else {
+                        tmp.setProperty("incoming", 0);
+                    }
+                    
+                    if(outgoing.containsKey(tmp.getID())) {
+                        tmp.setProperty("outgoing", outgoing.get(tmp.getID()));
+                    } else {
+                        tmp.setProperty("outgoing", 0);
+                    }
+                    
+                    nodes.add(tmp);
+                }
+                
                 return new com.seniorproject.graphmodule.Graph(nodes, edges);
             } catch (Exception e) {
                 System.out.println("======== Error occured in LoadAll function ========");
