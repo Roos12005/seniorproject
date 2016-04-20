@@ -79,9 +79,9 @@
             defaultEdgeArrow: 'source',
             mouseWheelEnabled: false,
             edgeLabelThreshold: 10,
-            enableEdgeHovering: true,
-            edgeHoverPrecision: 5,
-            edgeHoverExtremities: true,
+            //enableEdgeHovering: true,
+            //edgeHoverPrecision: 5,
+            //edgeHoverExtremities: true,
             // autoResize: false
             // zoomingRatio : 1
         });
@@ -603,7 +603,7 @@
                             s.refresh();
                             $('#loading-overlay').hide();
                         }, 10000 + Math.pow(1.00025,e.nodes.length)*e.nodes.length);
-
+                        addLabelListener();
                         flag['clickListenerComOfCom'] = true;
                         flag['canImport'] = true;
                         flag['compute_com'] = false;
@@ -644,6 +644,7 @@
                             $('#loading-overlay').hide();
                         }, 5000 + Math.pow(1.00025,e.nodes.length)*e.nodes.length);
                         s.camera.goTo({x:0, y:0, ratio: 1});
+                        addLabelListener();
                         s.refresh();
                     },
                     error: function(rs, e){
@@ -701,7 +702,7 @@
                             s.refresh();
                             $('#loading-overlay').hide();
                         }, 10000 + Math.pow(1.00025,e.nodes.length)*e.nodes.length);
-
+                        addLabelListener();
                         flag['clickListenerComOfCom'] = true;
                         flag['canImport'] = true;
                         flag['compute_com'] = false;
@@ -742,6 +743,7 @@
                             $('#loading-overlay').hide();
                         }, 5000 + Math.pow(1.00025,e.nodes.length)*e.nodes.length);
                         s.camera.goTo({x:0, y:0, ratio: 1});
+                        addLabelListener();
                         s.refresh();
                     },
                     error: function(rs, e){

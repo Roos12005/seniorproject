@@ -384,7 +384,7 @@ public function getNeighbors($id, $selectedNode) {
         $edge_info = [
         'target' => $result['m_id'],
         'color' => '',
-        'label' => '',
+        'label' => 'Daytime : '.$result['r']['noDayTime'].', Nighttime : '.$result['r']['noNightTime'].', Duration : '.$result['r']['duration'],
         'source' => $result['n_id'],
         'attributes' => $edge_prop,
         'id' => $result['r_id'],

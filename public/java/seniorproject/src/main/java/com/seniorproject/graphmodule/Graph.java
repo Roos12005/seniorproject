@@ -32,7 +32,7 @@ public class Graph {
         }
         for(Edge e : edges) {
             this.fullEdges.add(new Edge(e));
-            this.edges.add(e);
+            this.edges.add(new Edge(e));
             this.outEdges.get(e.getSource()).add(e);
             this.allEdges.get(e.getSource()).add(e);
             this.allEdges.get(e.getTarget()).add(e);

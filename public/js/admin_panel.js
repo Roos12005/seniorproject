@@ -638,7 +638,6 @@
         addDeleteButtonListener();
         addViewButtonListener();
         addDownloadButtonListener();
-
         setInterval(updateProgressBar, 1000);
     }();
 

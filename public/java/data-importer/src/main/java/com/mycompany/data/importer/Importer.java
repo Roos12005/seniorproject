@@ -167,7 +167,7 @@ public class Importer {
                     b.setProperty("number", nextLine[3]);
                     b.setProperty("incoming", incoming.get(nextLine[3]) == null? 0 : incoming.get(nextLine[3]));
                     b.setProperty("outgoing", outgoing.get(nextLine[3]) == null? 0 : outgoing.get(nextLine[3]));
-                    b.setProperty("carrier",nextLine[4]);
+                    b.setProperty("carrier", age.containsKey(nextLine[3])? "AIS" : nextLine[4]);
                     b.setProperty("age", age.get(nextLine[3]) == null? "unknown" : age.get(nextLine[3]));
                     b.setProperty("gender", gender.get(nextLine[3]) == null? "unknown" : gender.get(nextLine[3]));
                     b.setProperty("arpu", arpu.get(nextLine[3]) == null? "unknown" : arpu.get(nextLine[3]));
