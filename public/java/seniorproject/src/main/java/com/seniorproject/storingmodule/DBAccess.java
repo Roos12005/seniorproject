@@ -136,6 +136,8 @@ public class DBAccess {
                 tx.success();
                 Map<Integer, Integer> incoming = new HashMap<>();
                 Map<Integer, Integer> outgoing = new HashMap<>();
+                Map<Integer, Set<Integer>> known = new HashMap<>();
+                Map<Integer, Integer> totalDuration = new HashMap<>();
                 while (result.hasNext()) {
                     Map<String, Object> row = result.next();
 
@@ -187,6 +189,22 @@ public class DBAccess {
                         outgoing.put(aid, 1);
                     }
                     
+                    if(known.containsKey(aid)) {
+                        Set<Integer> tmp = known.get(aid);
+                        tmp.add(bid);
+                        known.put(aid, tmp);
+                    } else {
+                        Set<Integer> tmp = new HashSet<>();
+                        tmp.add(bid);
+                        known.put(aid, tmp);
+                    }
+                    
+                    if(totalDuration.containsKey(aid)) {
+                        totalDuration.put(aid, totalDuration.get(aid)+Integer.parseInt(r.get("duration").toString()));
+                    } else {
+                        totalDuration.put(aid,Integer.parseInt(r.get("duration").toString()));
+                    }
+                    
                     a.remove("id");
                     b.remove("id");
                     a.remove("number");
@@ -223,6 +241,23 @@ public class DBAccess {
                         tmp.setProperty("outgoing", outgoing.get(tmp.getID()));
                     } else {
                         tmp.setProperty("outgoing", 0);
+                    }
+                    
+                    if(known.containsKey(tmp.getID())) {
+                        tmp.setProperty("known", known.get(tmp.getID()).size());
+                    } else {
+                        tmp.setProperty("known", 0);
+                    }
+                    
+                    if(totalDuration.containsKey(tmp.getID())) {
+                        tmp.setProperty("totalDuration", totalDuration.get(tmp.getID()));
+                        try {
+                            tmp.setProperty("averageDuration", totalDuration.get(tmp.getID())/(1.0*outgoing.get(tmp.getID())));
+                        } catch (Exception e) {
+                            tmp.setProperty("averageDuration", 0);
+                        }
+                    } else {
+                        tmp.setProperty("averageDuration", 0);
                     }
                     
                     nodes.add(tmp);

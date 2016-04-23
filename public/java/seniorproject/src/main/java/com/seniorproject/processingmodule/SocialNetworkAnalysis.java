@@ -14,7 +14,29 @@ import java.util.Map;
 import java.util.Set;
 
 public class SocialNetworkAnalysis {
-
+    
+    public static void scoringNode(Node n, double maxCC, double minCC, double maxAvDuration, double minAvDuration, 
+            double maxKnown, double minKnown) {
+        double score = 0;
+        score += scoringAttribute(Double.parseDouble(n.getProperty("closeness").toString()), maxCC, minCC);
+        score += scoringAttribute(Double.parseDouble(n.getProperty("averageDuration").toString()), maxAvDuration, minAvDuration);
+        score += scoringAttribute(Double.parseDouble(n.getProperty("known").toString()), maxKnown, minKnown);
+        
+        n.setProperty("score", score/3);
+    }
+    
+    public static double scoringAttribute(double x, double max, double min) {
+        try {
+            return Math.log(x-min)/Math.log(max-min);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+    
+    public static double toDouble(Object x) {
+        return Double.parseDouble(x.toString());
+    }
+    
     public static String randomColor() {
 
         int r = (int) (Math.floor((Math.random() * 255 + Math.random() * 255) / 2));
@@ -88,15 +110,42 @@ public class SocialNetworkAnalysis {
         System.out.println("Detecting Communities ... Done! exec time : " + (comTime - calTime) + " ms");
         Set<Integer> tot = new HashSet<>();
         int idx = 0;
+        
+        double maxCC = 0, minCC = Double.MAX_VALUE, maxAvDuration = 0, minAvDuration = Double.MAX_VALUE, maxKnown = 0, minKnown = Double.MAX_VALUE;
         for (Node node : hgraph.getNodes()) {
             node.setProperty("communityID", com[idx]);
             tot.add(com[idx]);
             idx++;
+            
+            Double cc = toDouble(node.getProperty("closeness"));
+            if(cc > maxCC) {
+                maxCC = cc;
+            } else if (cc < minCC) {
+                minCC = cc;
+            }
+            
+            Double avD = toDouble(node.getProperty("averageDuration"));
+            if(avD > maxAvDuration) {
+                maxAvDuration = avD;
+            } else if (avD < minAvDuration) {
+                minAvDuration = avD;
+            }
+            
+            Double kno = toDouble(node.getProperty("known"));
+            if(kno > maxKnown) {
+                maxKnown = kno;
+            } else if (kno < minKnown) {
+                minKnown = kno;
+            }
         }
         System.out.println("-------------------------------------------");
         System.out.println("Total of Communities : " + tot.size());
         System.out.println("-------------------------------------------");
-
+        
+        for(Node n : hgraph.getNodes()) {
+            scoringNode(n, maxCC, minCC, maxAvDuration, minAvDuration, maxKnown, minKnown);
+        }
+        
         markColor(hgraph, tot.size());
         (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges(),hgraph.getFullEdges(), tid);
 
