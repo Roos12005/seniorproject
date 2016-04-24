@@ -95,6 +95,8 @@ public class Importer {
     public static void main(String args[]) throws IOException {
         Map<String, Integer> incoming = new HashMap<>();
         Map<String, Integer> outgoing = new HashMap<>();
+        Map<String, Integer> pair_number = new HashMap<>();
+        Map<String, Integer> known_number = new HashMap<>();
         Map<String, String> age = new HashMap<>();
         Map<String, String> gender = new HashMap<>();
         Map<String, String> arpu = new HashMap<>();
@@ -102,6 +104,7 @@ public class Importer {
         readConfigFile();
         try (CSVReader reader = new CSVReader(new FileReader(TMP_STORAGE_PATH + args[0] + "_cdr"), '|')) {
             String[] nextLine;
+            
             while ((nextLine = reader.readNext()) != null) {
                 if (incoming.containsKey(nextLine[3])) {
                     incoming.put(nextLine[3], incoming.get(nextLine[3]) + 1);
@@ -114,6 +117,14 @@ public class Importer {
                 } else {
                     outgoing.put(nextLine[0], 1);
                 }
+                 if (!(pair_number.containsKey(nextLine[0]+","+nextLine[3]))){
+                     if(known_number.containsKey(nextLine[0])){
+                         known_number.put(nextLine[0], known_number.get(nextLine[0]) + 1);
+                     } else {
+                         known_number.put(nextLine[0], 1);
+                     }
+                     pair_number.put(nextLine[0]+","+nextLine[3],1);
+                 } 
             }
             
             reader.close();
@@ -144,6 +155,43 @@ public class Importer {
             reader.readNext();
             while ((nextLine = reader.readNext()) != null) {
                 Node a, b;
+                
+                if(!incoming.containsKey(nextLine[0])) {
+                    continue;
+                }
+                
+                if(!outgoing.containsKey(nextLine[0])) {
+                    continue;
+                }
+                
+                if(!known_number.containsKey(nextLine[0])) {
+                    continue;
+                }
+                
+                 double average_no_call ;
+                    if(known_number.get(nextLine[0]) == 0) {
+                        average_no_call = 0;
+                    } else {
+                        average_no_call = outgoing.get(nextLine[0])/known_number.get(nextLine[0]);
+                    }
+                 //filter call center
+                 if (incoming.get(nextLine[0]) > 14 && outgoing.get(nextLine[0]) == 0 && known_number.get(nextLine[0]) > 14){
+                     continue;
+                 }
+                 //filter salesman
+                 // data week 2 : boundary number = 2.60505
+                 // data week 3 : boundary number = ???
+                 // data week 4 : boundary number = ???
+                 else if (incoming.get(nextLine[0]) == 0 && outgoing.get(nextLine[0]) > 14 && known_number.get(nextLine[0]) > 14 && average_no_call < 2.60505){
+                     continue;
+                 }
+                 //filter noisy call
+                 else if (incoming.get(nextLine[0]) == 1 && outgoing.get(nextLine[0]) == 0 && Integer.parseInt(nextLine[5]) < 15) {
+                     continue;
+                 }
+
+
+
                 if (nodes.containsKey(nextLine[0])) {
                     a = nodes.get(nextLine[0]);
                 } else {
@@ -166,7 +214,7 @@ public class Importer {
                     b.setProperty("number", nextLine[3]);
                     b.setProperty("incoming", incoming.get(nextLine[3]) == null? 0 : incoming.get(nextLine[3]));
                     b.setProperty("outgoing", outgoing.get(nextLine[3]) == null? 0 : outgoing.get(nextLine[3]));
-                    b.setProperty("carrier", age.containsKey(nextLine[3])? "AIS" : nextLine[4]);
+                    b.setProperty("carrier",nextLine[4]);
                     b.setProperty("age", age.get(nextLine[3]) == null? "unknown" : age.get(nextLine[3]));
                     b.setProperty("gender", gender.get(nextLine[3]) == null? "unknown" : gender.get(nextLine[3]));
                     b.setProperty("arpu", arpu.get(nextLine[3]) == null? "unknown" : arpu.get(nextLine[3]));
