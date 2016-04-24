@@ -264,10 +264,51 @@ public class DBAccess {
                     nodes.add(tmp);
                 }
                 
+                
+                Set<Node> removed = new HashSet<>();
+                // filter out node
+                for(Node tmp : nodes) {
+                    if(Integer.parseInt(tmp.getProperty("known").toString()) == 0) continue;
+                //1 . Callcenter
+                    if(Integer.parseInt(tmp.getProperty("incoming").toString()) > 10 && Integer.parseInt(tmp.getProperty("outgoing").toString()) == 0
+                            && Integer.parseInt(tmp.getProperty("known").toString()) > 10) {
+                        removed.add(tmp);
+//                        nodes.remove(tmp);
+                    }
+                //2. Salesman
+                    if(Integer.parseInt(tmp.getProperty("incoming").toString())  == 0 && Integer.parseInt(tmp.getProperty("outgoing").toString()) > 10
+                            && Integer.parseInt(tmp.getProperty("known").toString()) > 10 && (1.0*Integer.parseInt(tmp.getProperty("outgoing").toString()))/Integer.parseInt(tmp.getProperty("known").toString()) < 2.6) {
+                        removed.add(tmp);
+//                        nodes.remove(tmp);
+                    }
+                //3. Noisy Call
+                    if(Integer.parseInt(tmp.getProperty("incoming").toString()) == 1 && Integer.parseInt(tmp.getProperty("outgoing").toString()) == 0) {
+                        removed.add(tmp);
+//                        nodes.remove(tmp);
+                    }
+                }
+                
+                Set<Integer> removedID = new HashSet<>();
+                for(Node n : removed) {
+                    removedID.add(n.getID());
+                    nodes.remove(n);
+                }
+                
+                Set<Edge> removedEdge = new HashSet<>();
+                for(Edge tmp : edges) {
+                    if(removedID.contains(tmp.getSource()) || removedID.contains(tmp.getTarget())) {
+                        removedEdge.add(tmp);
+                    }
+                }
+                
+                for(Edge tmp : removedEdge) {
+                    edges.remove(tmp);
+                }
+                
                 return new com.seniorproject.graphmodule.Graph(nodes, edges);
             } catch (Exception e) {
                 System.out.println("======== Error occured in LoadAll function ========");
-                System.err.println(e.getMessage());
+                e.printStackTrace();
                 System.out.println("======================================");
             }
         } finally {
