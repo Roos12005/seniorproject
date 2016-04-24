@@ -18,14 +18,16 @@ public class SocialNetworkAnalysis {
     public static void scoringNode(Node n, double maxCC, double minCC, double maxAvDuration, double minAvDuration, 
             double maxKnown, double minKnown) {
         double score = 0;
-        score += scoringAttribute(Double.parseDouble(n.getProperty("closeness").toString()), maxCC, minCC);
-        score += scoringAttribute(Double.parseDouble(n.getProperty("averageDuration").toString()), maxAvDuration, minAvDuration);
-        score += scoringAttribute(Double.parseDouble(n.getProperty("known").toString()), maxKnown, minKnown);
+        double wCC = 2, wAD = 1, wK = 3;
+        score += wCC*scoringAttribute(Double.parseDouble(n.getProperty("closeness").toString()), maxCC, minCC);
+//        score += wAD*scoringAttribute(Double.parseDouble(n.getProperty("averageDuration").toString()), maxAvDuration, minAvDuration);
+        score += wK*scoringAttribute(Double.parseDouble(n.getProperty("known").toString()), maxKnown, minKnown);
         
-        n.setProperty("score", score/3);
+        n.setProperty("score", score/(wCC+wK));
     }
     
     public static double scoringAttribute(double x, double max, double min) {
+        if(x == 0 || x <= min) return 0;
         try {
             return Math.log(x-min)/Math.log(max-min);
         } catch (Exception e) {

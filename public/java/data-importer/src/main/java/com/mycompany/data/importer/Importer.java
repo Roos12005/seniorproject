@@ -102,7 +102,6 @@ public class Importer {
         readConfigFile();
         try (CSVReader reader = new CSVReader(new FileReader(TMP_STORAGE_PATH + args[0] + "_cdr"), '|')) {
             String[] nextLine;
-            
             while ((nextLine = reader.readNext()) != null) {
                 if (incoming.containsKey(nextLine[3])) {
                     incoming.put(nextLine[3], incoming.get(nextLine[3]) + 1);

@@ -257,6 +257,7 @@ public class DBAccess {
                             tmp.setProperty("averageDuration", 0);
                         }
                     } else {
+                        tmp.setProperty("totalDuration", 0);
                         tmp.setProperty("averageDuration", 0);
                     }
                     
