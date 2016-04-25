@@ -43,9 +43,9 @@ public class DBAccess {
         InputStream input = null;
 
         try {
-            File jarPath=new File(DBAccess.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String propertiesPath=jarPath.getParentFile().getAbsolutePath();
-            prop.load(new FileInputStream(propertiesPath+"/config.properties"));
+            File jarPath = new File(DBAccess.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String propertiesPath = jarPath.getParentFile().getAbsolutePath();
+            prop.load(new FileInputStream(propertiesPath + "/config.properties"));
 
             DATABASE_DIR = prop.getProperty("database_dir");
             SOURCE_DATABASE = prop.getProperty("source_database");
@@ -134,9 +134,11 @@ public class DBAccess {
             try (Transaction tx = graphDb.beginTx();
                     Result result = graphDb.execute(cypher, params)) {
                 tx.success();
+                Map<Integer, Node> numMapper = new HashMap<>();
                 Map<Integer, Integer> incoming = new HashMap<>();
                 Map<Integer, Integer> outgoing = new HashMap<>();
                 Map<Integer, Set<Integer>> known = new HashMap<>();
+                Map<Integer, Set<Integer>> beKnown = new HashMap<>();
                 Map<Integer, Integer> totalDuration = new HashMap<>();
                 while (result.hasNext()) {
                     Map<String, Object> row = result.next();
@@ -176,20 +178,20 @@ public class DBAccess {
                     Node callee = new Node(bid);
                     caller.setLabel(a.get("number").toString());
                     callee.setLabel(b.get("number").toString());
-                    
-                    if(incoming.containsKey(bid)) {
+
+                    if (incoming.containsKey(bid)) {
                         incoming.put(bid, incoming.get(bid) + 1);
                     } else {
                         incoming.put(bid, 1);
                     }
-                    
-                    if(outgoing.containsKey(aid)) {
+
+                    if (outgoing.containsKey(aid)) {
                         outgoing.put(aid, outgoing.get(aid) + 1);
                     } else {
                         outgoing.put(aid, 1);
                     }
-                    
-                    if(known.containsKey(aid)) {
+
+                    if (known.containsKey(aid)) {
                         Set<Integer> tmp = known.get(aid);
                         tmp.add(bid);
                         known.put(aid, tmp);
@@ -198,13 +200,23 @@ public class DBAccess {
                         tmp.add(bid);
                         known.put(aid, tmp);
                     }
-                    
-                    if(totalDuration.containsKey(aid)) {
-                        totalDuration.put(aid, totalDuration.get(aid)+Integer.parseInt(r.get("duration").toString()));
+
+                    if (beKnown.containsKey(bid)) {
+                        Set<Integer> tmp = beKnown.get(bid);
+                        tmp.add(aid);
+                        beKnown.put(bid, tmp);
                     } else {
-                        totalDuration.put(aid,Integer.parseInt(r.get("duration").toString()));
+                        Set<Integer> tmp = new HashSet<>();
+                        tmp.add(aid);
+                        beKnown.put(bid, tmp);
                     }
-                    
+
+                    if (totalDuration.containsKey(aid)) {
+                        totalDuration.put(aid, totalDuration.get(aid) + Integer.parseInt(r.get("duration").toString()));
+                    } else {
+                        totalDuration.put(aid, Integer.parseInt(r.get("duration").toString()));
+                    }
+
                     a.remove("id");
                     b.remove("id");
                     a.remove("number");
@@ -228,31 +240,37 @@ public class DBAccess {
                     nodes.add(callee);
                     edges.add(rel);
                 }
-                
-                for(Node tmp : nodes) {
-                    
-                    if(incoming.containsKey(tmp.getID())) {
+
+                for (Node tmp : nodes) {
+
+                    if (incoming.containsKey(tmp.getID())) {
                         tmp.setProperty("incoming", incoming.get(tmp.getID()));
                     } else {
                         tmp.setProperty("incoming", 0);
                     }
-                    
-                    if(outgoing.containsKey(tmp.getID())) {
+
+                    if (outgoing.containsKey(tmp.getID())) {
                         tmp.setProperty("outgoing", outgoing.get(tmp.getID()));
                     } else {
                         tmp.setProperty("outgoing", 0);
                     }
-                    
-                    if(known.containsKey(tmp.getID())) {
+
+                    if (known.containsKey(tmp.getID())) {
                         tmp.setProperty("known", known.get(tmp.getID()).size());
                     } else {
                         tmp.setProperty("known", 0);
                     }
-                    
-                    if(totalDuration.containsKey(tmp.getID())) {
+
+                    if (beKnown.containsKey(tmp.getID())) {
+                        tmp.setProperty("beKnown", beKnown.get(tmp.getID()).size());
+                    } else {
+                        tmp.setProperty("beKnown", 0);
+                    }
+
+                    if (totalDuration.containsKey(tmp.getID())) {
                         tmp.setProperty("totalDuration", totalDuration.get(tmp.getID()));
                         try {
-                            tmp.setProperty("averageDuration", totalDuration.get(tmp.getID())/(1.0*outgoing.get(tmp.getID())));
+                            tmp.setProperty("averageDuration", totalDuration.get(tmp.getID()) / (1.0 * outgoing.get(tmp.getID())));
                         } catch (Exception e) {
                             tmp.setProperty("averageDuration", 0);
                         }
@@ -260,51 +278,105 @@ public class DBAccess {
                         tmp.setProperty("totalDuration", 0);
                         tmp.setProperty("averageDuration", 0);
                     }
-                    
+                    numMapper.put(tmp.getID(), tmp);
                     nodes.add(tmp);
                 }
-                
-                
+
                 Set<Node> removed = new HashSet<>();
+                int r1 = 0, r2 = 0, r3 = 0;
                 // filter out node
-                for(Node tmp : nodes) {
-                    if(Integer.parseInt(tmp.getProperty("known").toString()) == 0) continue;
-                //1 . Callcenter
-                    if(Integer.parseInt(tmp.getProperty("incoming").toString()) > 10 && Integer.parseInt(tmp.getProperty("outgoing").toString()) == 0
-                            && Integer.parseInt(tmp.getProperty("known").toString()) > 10) {
+                for (Node tmp : nodes) {
+                    //1 . Callcenter
+                    if (Integer.parseInt(tmp.getProperty("incoming").toString()) > 10 && Integer.parseInt(tmp.getProperty("outgoing").toString()) == 0
+                            && Integer.parseInt(tmp.getProperty("beKnown").toString()) > 10) {
                         removed.add(tmp);
+                        r1++;
 //                        nodes.remove(tmp);
                     }
-                //2. Salesman
-                    if(Integer.parseInt(tmp.getProperty("incoming").toString())  == 0 && Integer.parseInt(tmp.getProperty("outgoing").toString()) > 10
-                            && Integer.parseInt(tmp.getProperty("known").toString()) > 10 && (1.0*Integer.parseInt(tmp.getProperty("outgoing").toString()))/Integer.parseInt(tmp.getProperty("known").toString()) < 2.6) {
-                        removed.add(tmp);
+                    //2. Salesman
+                    try {
+                        if (Integer.parseInt(tmp.getProperty("incoming").toString()) == 0 && Integer.parseInt(tmp.getProperty("outgoing").toString()) > 10
+                                && Integer.parseInt(tmp.getProperty("known").toString()) > 10 && (1.0 * Integer.parseInt(tmp.getProperty("outgoing").toString())) / Integer.parseInt(tmp.getProperty("known").toString()) <= 1.742) {
+                            removed.add(tmp);
+                            r2++;
 //                        nodes.remove(tmp);
+                        }
+                    } catch (Exception e) {
+
                     }
-                //3. Noisy Call
-                    if(Integer.parseInt(tmp.getProperty("incoming").toString()) == 1 && Integer.parseInt(tmp.getProperty("outgoing").toString()) == 0) {
-                        removed.add(tmp);
-//                        nodes.remove(tmp);
+
+                }
+
+                for (Edge tmp : edges) {
+                    if (Integer.parseInt(tmp.getProperty("duration").toString()) < 15) {
+                        Node tar = numMapper.get(tmp.getTarget());
+                        if (Integer.parseInt(tar.getProperty("incoming").toString()) == 1 && Integer.parseInt(tar.getProperty("outgoing").toString()) == 0) {
+                            r3++;
+                            removed.add(tar);
+                        }
                     }
                 }
-                
+
+                System.out.println("CC: " + r1 + " Sales:" + r2 + " Noise:" + r3);
                 Set<Integer> removedID = new HashSet<>();
-                for(Node n : removed) {
+                for (Node n : removed) {
                     removedID.add(n.getID());
                     nodes.remove(n);
                 }
-                
+
                 Set<Edge> removedEdge = new HashSet<>();
-                for(Edge tmp : edges) {
-                    if(removedID.contains(tmp.getSource()) || removedID.contains(tmp.getTarget())) {
+                for (Edge tmp : edges) {
+                    if (removedID.contains(tmp.getSource()) || removedID.contains(tmp.getTarget())) {
                         removedEdge.add(tmp);
                     }
                 }
-                
-                for(Edge tmp : removedEdge) {
+
+                for (Edge tmp : removedEdge) {
                     edges.remove(tmp);
                 }
                 
+                incoming = new HashMap<>();
+                outgoing = new HashMap<>();
+                for(Edge e : edges) {
+                    if(incoming.containsKey(e.getTarget())) {
+                        incoming.put(e.getTarget(), incoming.get(e.getTarget()) + 1);
+                    } else {
+                        incoming.put(e.getTarget(), 1);
+                    }
+                    
+                    if(outgoing.containsKey(e.getSource())) {
+                        outgoing.put(e.getSource(), outgoing.get(e.getSource()) + 1);
+                    } else {
+                        outgoing.put(e.getSource(), 1);
+                    }
+                }
+                
+                removed = new HashSet<>();
+                for(Node n : nodes) {
+                    if(incoming.containsKey(n.getID())) {
+                        n.setProperty("incoming", incoming.get(n.getID()));
+                    } else {
+                        n.setProperty("incoming", 0);
+                    }
+                    
+                    if(outgoing.containsKey(n.getID())) {
+                        n.setProperty("outgoing", outgoing.get(n.getID()));
+                    } else {
+                        n.setProperty("outgoing", 0);
+                    }
+                    
+                    if(!incoming.containsKey(n.getID()) && !outgoing.containsKey(n.getID())) {
+                        removed.add(n);
+                    }
+                }
+                int count_removed = 0;
+                for(Node n : removed) {
+                    nodes.remove(n);
+                    count_removed++;
+                }
+                System.out.println("Removed single node - " + count_removed);
+                
+
                 return new com.seniorproject.graphmodule.Graph(nodes, edges);
             } catch (Exception e) {
                 System.out.println("======== Error occured in LoadAll function ========");
@@ -322,7 +394,8 @@ public class DBAccess {
      * Store nodes and edges as customers in CSV format
      *
      * @param nodes - NodeIterable containing all nodes to be stored
-     * @param aggregatedEdges - List of aggregated edges to be stored (no more than one edge between each pair of nodes)
+     * @param aggregatedEdges - List of aggregated edges to be stored (no more
+     * than one edge between each pair of nodes)
      * @param edges - List of edges to be stored
      * @param tid - Table ID
      * @throws java.io.IOException
@@ -363,7 +436,7 @@ public class DBAccess {
             writer.writeNext(line);
         }
         writer.close();
-        
+
         writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_aggregated_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : aggregatedEdges) {
@@ -428,7 +501,7 @@ public class DBAccess {
             writer.writeNext(line);
         }
         writer.close();
-        
+
         writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_aggregated_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : aggregatedEdges) {

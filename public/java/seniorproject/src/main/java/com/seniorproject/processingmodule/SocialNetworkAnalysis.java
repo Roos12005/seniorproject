@@ -18,9 +18,9 @@ public class SocialNetworkAnalysis {
     public static void scoringNode(Node n, double maxCC, double minCC, double maxAvDuration, double minAvDuration, 
             double maxKnown, double minKnown) {
         double score = 0;
-        double wCC = 2, wAD = 1, wK = 3;
+        double wCC = 3, wAD = 1, wK = 6;
         score += wCC*scoringAttribute(Double.parseDouble(n.getProperty("closeness").toString()), maxCC, minCC);
-//        score += wAD*scoringAttribute(Double.parseDouble(n.getProperty("averageDuration").toString()), maxAvDuration, minAvDuration);
+        score += wAD*scoringAttribute(Double.parseDouble(n.getProperty("averageDuration").toString()), maxAvDuration, minAvDuration);
         score += wK*scoringAttribute(Double.parseDouble(n.getProperty("known").toString()), maxKnown, minKnown);
         
         n.setProperty("score", score/(wCC+wK));
