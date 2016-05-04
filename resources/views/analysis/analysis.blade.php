@@ -4,15 +4,15 @@
 
 @section('stylesheet')
 
-    {!! Html::style('js/bootstrap-datepicker/css/datepicker.css') !!}
-    {!! Html::style('js/select2/select2.css') !!}
-    {!! Html::style('js/iCheck/skins/flat/_all.css') !!}
+    {!! Html::style('js/bootstrap/bootstrap-datepicker/css/datepicker.css') !!}
+    {!! Html::style('js/bucket-admin/select2/select2.css') !!}
+    {!! Html::style('js/bucket-admin/iCheck/skins/flat/_all.css') !!}
 
-    {!! Html::style('js/advanced-datatable/css/demo_page.css') !!}
-    {!! Html::style('js/advanced-datatable/css/demo_table.css') !!}
-    {!! Html::style('js/data-tables/DT_bootstrap.css') !!}
-    {!! Html::style('js/ion.rangeSlider-1.8.2/css/ion.rangeSlider.css') !!}
-    {!! Html::style('js/ion.rangeSlider-1.8.2/css/ion.rangeSlider.skinFlat.css') !!}
+    {!! Html::style('js/bucket-admin/advanced-datatable/css/demo_page.css') !!}
+    {!! Html::style('js/bucket-admin/advanced-datatable/css/demo_table.css') !!}
+    {!! Html::style('js/bucket-admin/data-tables/DT_bootstrap.css') !!}
+    {!! Html::style('js/bucket-admin/ion.rangeSlider-1.8.2/css/ion.rangeSlider.css') !!}
+    {!! Html::style('js/bucket-admin/ion.rangeSlider-1.8.2/css/ion.rangeSlider.skinFlat.css') !!}
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}" />
@@ -865,45 +865,49 @@
 
 <!-- Other Statistic Section End -->
 @section('bottom-script')
-{!! Html::script('js/jquery.js'); !!}
-{!! Html::script('js/jquery.maskedinput.js'); !!}
+{!! Html::script('js/jquery/jquery.js'); !!}
+{!! Html::script('js/jquery/jquery.maskedinput.js'); !!}
 {!! Html::script('js/sigmajs/sigma.min.js'); !!}
 {!! Html::script('js/sigmajs/plugins/sigma.layout.forceAtlas2.min.js'); !!}
 {!! Html::script('js/sigmajs/plugins/sigma.renderers.edgeLabels.min.js'); !!}
 
 <!-- Slider -->
-{!! Html::script('js/ion.rangeSlider-1.8.2/js/ion-rangeSlider/ion.rangeSlider.min.js'); !!}
+{!! Html::script('js/bucket-admin/ion.rangeSlider-1.8.2/js/ion-rangeSlider/ion.rangeSlider.min.js'); !!}
 
 {!! Html::script('js/jquery-csv/jquery.csv.js'); !!}
+{!! Html::script('js/graph_variable.js'); !!}
+{!! Html::script('js/graph_highlight.js'); !!}
+{!! Html::script('js/graph_highlightByImportFile.js'); !!}
+{!! Html::script('js/graph_listener.js'); !!}
 {!! Html::script('js/graph_main.js'); !!}
 {!! Html::script('js/exportCSV.js'); !!}
 
 
 <!-- Spinner -->
-{!! Html::script('js/fuelux/js/spinner.min.js'); !!}
+{!! Html::script('js/bucket-admin/fuelux/js/spinner.min.js'); !!}
 
 <!-- Date Range (Date Picker) -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}
-{!! Html::script('js/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
-{!! Html::script('js/bootstrap-switch.js'); !!}
+{!! Html::script('js/bootstrap/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
+{!! Html::script('js/bootstrap/bootstrap-switch.js'); !!}
 {!! Html::script('js/main.js'); !!}
 
 <!-- Dynamic Table-->
-{!! Html::script('js/advanced-datatable/js/jquery.dataTables.js'); !!}
-{!! Html::script('js/data-tables/DT_bootstrap.js'); !!}
-{!! Html::script('js/dynamic_table_init.js'); !!}
+{!! Html::script('js/bucket-admin/advanced-datatable/js/jquery.dataTables.js'); !!}
+{!! Html::script('js/bucket-admin/data-tables/DT_bootstrap.js'); !!}
+{!! Html::script('js/bucket-admin/dynamic_table_init.js'); !!}
 
 <!-- Date Range (Dropdown) -->
-{!! Html::script('js/select2/select2.js'); !!}
+{!! Html::script('js/bucket-admin/select2/select2.js'); !!}
 {!! Html::script('js/select-init.js'); !!}
 
 <!--Check Box -->
-{!! Html::script('js/iCheck/jquery.icheck.js'); !!}
-{!! Html::script('js/icheck-init.js'); !!}
+{!! Html::script('js/bucket-admin/iCheck/jquery.icheck.js'); !!}
+{!! Html::script('js/bucket-admin/icheck-init.js'); !!}
 
 <!--Morris Chart-->
-{!! Html::script('js/morris-chart/morris.js'); !!}
-{!! Html::script('js/morris-chart/raphael-min.js'); !!}
+{!! Html::script('js/bucket-admin/morris-chart/morris.js'); !!}
+{!! Html::script('js/bucket-admin/morris-chart/raphael-min.js'); !!}
 
 @endsection
 @stop

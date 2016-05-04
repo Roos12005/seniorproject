@@ -131,7 +131,7 @@
 
 <!-- Other Statistic Section End -->
 @section('bottom-script')
-{!! Html::script('js/jquery.js'); !!}
+{!! Html::script('js/jquery/jquery.js'); !!}
 
 
 @endsection

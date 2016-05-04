@@ -173,6 +173,7 @@ class AnalysisController extends Controller{
     $results = $client->sendCypherQuery($r)->getResult()->getTableFormat();
     foreach($results as $key => $result) {
       $user_info = [
+        'Community ID' => $result['n']['communityID'],
         'label' => $result['n']['number'],
         'Betweenness Centrality' => $result['n']['betweenness'],
         'Modularity Class' => $result['n']['communityID'],
