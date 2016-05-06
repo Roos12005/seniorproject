@@ -3,6 +3,7 @@ package com.seniorproject.processingmodule;
 import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.Graph;
 import com.seniorproject.graphmodule.Node;
+import com.seniorproject.graphmodule.NodeIterable;
 import com.seniorproject.storingmodule.DBAccess;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -15,68 +16,12 @@ import java.util.Set;
 
 public class SocialNetworkAnalysis {
     
-    public static void scoringNode(Node n, double maxCC, double minCC, double maxAvDuration, double minAvDuration, 
-            double maxKnown, double minKnown) {
-        double score = 0;
-        double wCC = 3, wAD = 1, wK = 6;
-        score += wCC*scoringAttribute(Double.parseDouble(n.getProperty("closeness").toString()), maxCC, minCC);
-        score += wAD*scoringAttribute(Double.parseDouble(n.getProperty("averageDuration").toString()), maxAvDuration, minAvDuration);
-        score += wK*scoringAttribute(Double.parseDouble(n.getProperty("known").toString()), maxKnown, minKnown);
+    protected void foo() {
         
-        n.setProperty("score", score/(wCC+wK));
     }
     
-    public static double scoringAttribute(double x, double max, double min) {
-        if(x == 0 || x <= min) return 0;
-        try {
-            return Math.log(x-min)/Math.log(max-min);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-    
-    public static double toDouble(Object x) {
-        return Double.parseDouble(x.toString());
-    }
-    
-    public static String randomColor() {
-
-        int r = (int) (Math.floor((Math.random() * 255 + Math.random() * 255) / 2));
-        int g = (int) (Math.floor((Math.random() * 255 + Math.random() * 255) / 2));
-        int b = (int) (Math.floor((Math.random() * 255 + Math.random() * 255) / 2));
-
-        String hex = String.format("#%02x%02x%02x", r, g, b);
-        return hex;
-    }
-
-    public static String[] generateColor(int n) {
-        Set<String> colors = new HashSet<>();
-        while (colors.size() < n) {
-            colors.add(randomColor());
-        }
-        String[] results = new String[n];
-        colors.toArray(results);
-        return results;
-    }
-
-    public static void markColor(Graph hgraph, int totalCommunities) {
-        String[] colors = generateColor(totalCommunities);
-        for (Node n : hgraph.getNodes()) {
-            n.setProperty("color", colors[Integer.parseInt(n.getProperty("communityID").toString())]);
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
-        long startTime = System.currentTimeMillis();
-        Map<String, List<Double>> comparableFilters = new HashMap<>();
-        Map<String, List<String>> stringFilters = new HashMap<>();
-
-        String tid = args[0];
-        String database = args[1];
-        System.out.println("Analyses Database : " + database);
-        boolean comOfCom = args[2].equals("1");
-
-        for (int i = 3; i < args.length; i++) {
+    public static void extractFilters(String[] args, int startIdx, int endIdx, Map<String, List<String>> sFilters, Map<String, List<Double>> dFilters) {
+        for(int i=startIdx; i<endIdx; i++) {
             String key = args[i++];
             int is_number = Integer.parseInt(args[i++]);
             int args_len = Integer.parseInt(args[i++]);
@@ -86,161 +31,138 @@ public class SocialNetworkAnalysis {
                 for (int j = 0; j < args_len; j++, i++) {
                     tmp.add(Double.parseDouble(args[i]));
                 }
-                comparableFilters.put(key, tmp);
+                dFilters.put(key, tmp);
             } else {
                 List<String> tmp = new ArrayList<>();
                 for (int j = 0; j < args_len; j++, i++) {
                     tmp.add(args[i]);
                 }
-                stringFilters.put(key, tmp);
+                sFilters.put(key, tmp);
             }
             i--;
         }
+    }
 
+    public static void main(String[] args) throws IOException {
+        String tid = args[0];
+        String database = args[1];
+        System.out.println("Analyses Database : " + database);
+        boolean comOfCom = args[2].equals("1");
+        
+        // ----------------------------- Extracting all Filters from Arguments --------------------------
+        long startTime = System.currentTimeMillis();
+        Map<String, List<Double>> comparableFilters = new HashMap<>();
+        Map<String, List<String>> stringFilters = new HashMap<>();
+        extractFilters(args, 3, args.length, stringFilters, comparableFilters);
+        
+        // ----------------------------- Customer Section -----------------------------------------
+        // ----------------------------- Building Graph-like Structure in Java --------------------------
         Graph hgraph = (new DBAccess()).loadAll(stringFilters, comparableFilters, database);
         long buildGraphTime = System.currentTimeMillis();
         System.out.println("Building Graph ... Done! exec time : " + (buildGraphTime - startTime) + " ms");
+        
+        // ----------------------------- Calculating Betweenness and Closeness Centrality ---------------
         GraphDistance dis = new GraphDistance(hgraph);
         dis.execute(hgraph);
         long calTime = System.currentTimeMillis();
         System.out.println("Calculating Graph Distance ... Done! exec time : " + (calTime - buildGraphTime) + " ms");
-
+        
+        // ----------------------------- Detecting Customer Communities ---------------------------
         Modularity mod = new Modularity(hgraph);
-        int[] com = mod.buildCommunities(hgraph);
-
+        int totalCommunities = mod.buildCommunities(hgraph);
         long comTime = System.currentTimeMillis();
         System.out.println("Detecting Communities ... Done! exec time : " + (comTime - calTime) + " ms");
-        Set<Integer> tot = new HashSet<>();
-        int idx = 0;
-        
-        double maxCC = 0, minCC = Double.MAX_VALUE, maxAvDuration = 0, minAvDuration = Double.MAX_VALUE, maxKnown = 0, minKnown = Double.MAX_VALUE;
-        for (Node node : hgraph.getNodes()) {
-            node.setProperty("communityID", com[idx]);
-            tot.add(com[idx]);
-            idx++;
-            
-            Double cc = toDouble(node.getProperty("closeness"));
-            if(cc > maxCC) {
-                maxCC = cc;
-            } else if (cc < minCC) {
-                minCC = cc;
-            }
-            
-            Double avD = toDouble(node.getProperty("averageDuration"));
-            if(avD > maxAvDuration) {
-                maxAvDuration = avD;
-            } else if (avD < minAvDuration) {
-                minAvDuration = avD;
-            }
-            
-            Double kno = toDouble(node.getProperty("known"));
-            if(kno > maxKnown) {
-                maxKnown = kno;
-            } else if (kno < minKnown) {
-                minKnown = kno;
-            }
-        }
-        System.out.println("-------------------------------------------");
-        System.out.println("Total of Communities : " + tot.size());
-        System.out.println("-------------------------------------------");
-        
-        for(Node n : hgraph.getNodes()) {
-            scoringNode(n, maxCC, minCC, maxAvDuration, minAvDuration, maxKnown, minKnown);
-        }
-        
-        markColor(hgraph, tot.size());
-        (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges(),hgraph.getFullEdges(), tid);
+        System.out.println("Classifying customers into " + totalCommunities + " communities");
 
+        // ----------------------------- Scoring Node --------------------------------------------
+        Scoring scoring = new Scoring(hgraph, new String[] {"known", "closeness", "averageDuration"}, 
+                new double[] {0.6, 0.3, 0.1});
+        scoring.scoreAllNodes();
+        long scoreTime = System.currentTimeMillis();
+        System.out.println("Scoring All Nodes ... Done! exec time : " + (scoreTime - comTime) + " ms");
+        
+        // ----------------------------- Coloring Node -------------------------------------------
+        Coloring.markColor(hgraph.getNodes(), totalCommunities, Coloring.RANDOM_COLOR, null);
+        
+        // ------------------- Stores Graph with Calculated in Neo4J (Customer Level) ---------------------
+        (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges(), hgraph.getFullEdges(), tid);
+
+        // ----------------------------- End Customer Section -------------------------------------
+        
+        // ----------------------------- Comunity View -------------------------------------------
         if (comOfCom) {
-            Set<Node> comNodes = new HashSet<>();
-            List<Edge> comEdges = new ArrayList<>();
-            int[] comMember = new int[tot.size()];
-            String[] comColor = new String[tot.size()];
+            
+            // ----------------------------- Building Community Graph -------------------------------
+            Graph cGraph = hgraph.buildCommunityGraph(totalCommunities);
+            NodeIterable comNodes = cGraph.getNodes();
+            List<Edge> comEdges = cGraph.getFullEdges();
 
-            //community profile attributes
-            double[] comArpu = new double[tot.size()];
-            int[] comAis = new int[tot.size()];
-            int[] comCallOtherCarrier = new int[tot.size()];
-            int[] comDaytimeCall = new int[tot.size()];
-            int[] comNighttimeCall = new int[tot.size()];
-            int[] comWeekDayCall = new int[tot.size()];
-            int[] comWeekendCall = new int[tot.size()];
-            int[] comInGroupCall = new int[tot.size()];
-            int[] comOutGroupCall = new int[tot.size()];
-            int[] comDurationCall = new int[tot.size()];
+            
+
+//community profile attributes
+            double[] comArpu = new double[totalCommunities];
+            int[] comAis = new int[totalCommunities];
+            int[] comCallOtherCarrier = new int[totalCommunities];
+            int[] comDaytimeCall = new int[totalCommunities];
+            int[] comNighttimeCall = new int[totalCommunities];
+            int[] comWeekDayCall = new int[totalCommunities];
+            int[] comWeekendCall = new int[totalCommunities];
+            int[] comInGroupCall = new int[totalCommunities];
+            int[] comOutGroupCall = new int[totalCommunities];
+            int[] comDurationCall = new int[totalCommunities];
 
             for (Node node : hgraph.getNodes()) {
                 int communityID = Integer.parseInt(node.getProperty("communityID").toString());
-                comMember[communityID]++;
-                comColor[communityID] = node.getProperty("color").toString();
-                comArpu[communityID] += node.getProperty("arpu").toString().equals("unknown")? 0 : Double.parseDouble(node.getProperty("arpu").toString());
+                comArpu[communityID] += node.getProperty("arpu").toString().equals("unknown") ? 0 : Double.parseDouble(node.getProperty("arpu").toString());
                 // if (node.getProperty("carrier").toString().equals("AIS")) {
-                if(!node.getProperty("arpu").toString().equals("unknown")){
+                if (!node.getProperty("arpu").toString().equals("unknown")) {
                     comAis[communityID]++;
                 }
             }
-            
-            Map<Integer, String>carrierMapper = new HashMap<>();
-            
-            for (int id = 0; id < tot.size(); id++) {
-                Node node = new Node(id);
-                node.setProperty("communityID", id);
-                node.setProperty("member", comMember[id]);
-                node.setProperty("color", comColor[id]);
-                comNodes.add(node);
-            }
+
+            Map<Integer, String> carrierMapper = new HashMap<>();
+
 
             for (Edge edge : hgraph.getFullEdges()) {
                 int comSource = Integer.parseInt(hgraph.getNodes().get(edge.getSource()).getProperty("communityID").toString());
                 int comTarget = Integer.parseInt(hgraph.getNodes().get(edge.getTarget()).getProperty("communityID").toString());
                 comDurationCall[comSource] += Integer.parseInt(edge.getProperty("duration").toString());
                 if (comSource != comTarget) {
-                    comEdges.add(new Edge(
-                            comSource,
-                            comTarget,
-                            1.0f,
-                            edge.getProperty("startDate").toString(),
-                            edge.getProperty("startTime").toString(),
-                            edge.getProperty("callDay").toString(),
-                            Integer.parseInt(edge.getProperty("duration").toString()),
-                            ""
-                    ));
                     comOutGroupCall[comSource]++;
                 }
-                
+
                 comInGroupCall[comSource]++;
-                    //daytime & nighttime profile
-                    double st = Double.parseDouble(edge.getProperty("startTime").toString());
-                    if(st >= 5 && st <= 17) {
-                        comDaytimeCall[comSource]++;
-                    } else {
-                        comNighttimeCall[comSource]++;
-                    }
+                //daytime & nighttime profile
+                double st = Double.parseDouble(edge.getProperty("startTime").toString());
+                if (st >= 5 && st <= 17) {
+                    comDaytimeCall[comSource]++;
+                } else {
+                    comNighttimeCall[comSource]++;
+                }
 
-                    //weekday & weekend profile
-                    String cd = edge.getProperty("callDay").toString();
-                    if(cd.substring(0,1).equals("S")) {
-                        comWeekendCall[comSource]++;
-                    } else {
-                        comWeekDayCall[comSource]++;
-                    }
+                //weekday & weekend profile
+                String cd = edge.getProperty("callDay").toString();
+                if (cd.substring(0, 1).equals("S")) {
+                    comWeekendCall[comSource]++;
+                } else {
+                    comWeekDayCall[comSource]++;
+                }
 
-                    //call to other carrier
-                    String carrier = edge.getProperty("calleeCarrier").toString();
-                    if(!(carrier.equals("AIS"))) {
-                        comCallOtherCarrier[comSource]++;
-                    }
+                //call to other carrier
+                String carrier = edge.getProperty("calleeCarrier").toString();
+                if (!(carrier.equals("AIS"))) {
+                    comCallOtherCarrier[comSource]++;
+                }
 
             }
-            comNodes = profilingCommunities(comNodes, tot.size(), comMember, comArpu, comAis, comCallOtherCarrier, comDaytimeCall, comNighttimeCall, comDurationCall, comWeekDayCall, comWeekendCall, comInGroupCall, comOutGroupCall);
+//            comNodes = profilingCommunities(comNodes, totalCommunities, comMember, comArpu, comAis, comCallOtherCarrier, comDaytimeCall, comNighttimeCall, comDurationCall, comWeekDayCall, comWeekendCall, comInGroupCall, comOutGroupCall);
             System.out.println("Profiling Community Graph ... Done!");
-            Graph comGraph = new Graph(comNodes, comEdges);
-            GraphDistance comDis = new GraphDistance(comGraph);
-            comDis.execute(comGraph);
+            
+            GraphDistance comDis = new GraphDistance(cGraph);
+            comDis.execute(cGraph);
             System.out.println("Calculating Community Graph Distance ... Done!");
-            
-            
-            (new DBAccess()).storeCommunity(comGraph.getNodes(), comGraph.getEdges(), comGraph.getFullEdges(), tid);
+
+            (new DBAccess()).storeCommunity(cGraph.getNodes(), cGraph.getEdges(), cGraph.getFullEdges(), tid);
         }
     }
 
@@ -297,10 +219,10 @@ public class SocialNetworkAnalysis {
 
     private static String mapLevel(double value, double min, double max) {
         double range = max - min;
-        if(max == 0 && min == 0) {
+        if (max == 0 && min == 0) {
             return "None";
         }
-        
+
         if (value < min + range / 5) {
             return "Very Low";
         } else if (value < min + range * 2 / 5) {
@@ -357,10 +279,10 @@ public class SocialNetworkAnalysis {
                 n.setProperty("weekdayWeekendProfile", "Weekday");
             } else {
                 n.setProperty("weekdayWeekendProfile", "Average");
-            } 
+            }
             nodes.add(n);
         }
-        
+
         return nodes;
     }
 }

@@ -282,58 +282,58 @@ public class DBAccess {
                     nodes.add(tmp);
                 }
 
-                Set<Node> removed = new HashSet<>();
-                int r1 = 0, r2 = 0, r3 = 0;
-                // filter out node
-                for (Node tmp : nodes) {
-                    //1 . Callcenter
-                    if (Integer.parseInt(tmp.getProperty("incoming").toString()) > 10 && Integer.parseInt(tmp.getProperty("outgoing").toString()) == 0
-                            && Integer.parseInt(tmp.getProperty("beKnown").toString()) > 10) {
-                        removed.add(tmp);
-                        r1++;
-//                        nodes.remove(tmp);
-                    }
-                    //2. Salesman
-                    try {
-                        if (Integer.parseInt(tmp.getProperty("incoming").toString()) == 0 && Integer.parseInt(tmp.getProperty("outgoing").toString()) > 10
-                                && Integer.parseInt(tmp.getProperty("known").toString()) > 10 && (1.0 * Integer.parseInt(tmp.getProperty("outgoing").toString())) / Integer.parseInt(tmp.getProperty("known").toString()) <= 1.742) {
-                            removed.add(tmp);
-                            r2++;
-//                        nodes.remove(tmp);
-                        }
-                    } catch (Exception e) {
-
-                    }
-
-                }
-
-                for (Edge tmp : edges) {
-                    if (Integer.parseInt(tmp.getProperty("duration").toString()) < 15) {
-                        Node tar = numMapper.get(tmp.getTarget());
-                        if (Integer.parseInt(tar.getProperty("incoming").toString()) == 1 && Integer.parseInt(tar.getProperty("outgoing").toString()) == 0) {
-                            r3++;
-                            removed.add(tar);
-                        }
-                    }
-                }
-
-                System.out.println("CC: " + r1 + " Sales:" + r2 + " Noise:" + r3);
-                Set<Integer> removedID = new HashSet<>();
-                for (Node n : removed) {
-                    removedID.add(n.getID());
-                    nodes.remove(n);
-                }
-
-                Set<Edge> removedEdge = new HashSet<>();
-                for (Edge tmp : edges) {
-                    if (removedID.contains(tmp.getSource()) || removedID.contains(tmp.getTarget())) {
-                        removedEdge.add(tmp);
-                    }
-                }
-
-                for (Edge tmp : removedEdge) {
-                    edges.remove(tmp);
-                }
+//                Set<Node> removed = new HashSet<>();
+//                int r1 = 0, r2 = 0, r3 = 0;
+//                // filter out node
+//                for (Node tmp : nodes) {
+//                    //1 . Callcenter
+//                    if (Integer.parseInt(tmp.getProperty("incoming").toString()) > 10 && Integer.parseInt(tmp.getProperty("outgoing").toString()) == 0
+//                            && Integer.parseInt(tmp.getProperty("beKnown").toString()) > 10) {
+//                        removed.add(tmp);
+//                        r1++;
+////                        nodes.remove(tmp);
+//                    }
+//                    //2. Salesman
+//                    try {
+//                        if (Integer.parseInt(tmp.getProperty("incoming").toString()) == 0 && Integer.parseInt(tmp.getProperty("outgoing").toString()) > 10
+//                                && Integer.parseInt(tmp.getProperty("known").toString()) > 10 && (1.0 * Integer.parseInt(tmp.getProperty("outgoing").toString())) / Integer.parseInt(tmp.getProperty("known").toString()) <= 1.742) {
+//                            removed.add(tmp);
+//                            r2++;
+////                        nodes.remove(tmp);
+//                        }
+//                    } catch (Exception e) {
+//
+//                    }
+//
+//                }
+//
+//                for (Edge tmp : edges) {
+//                    if (Integer.parseInt(tmp.getProperty("duration").toString()) < 15) {
+//                        Node tar = numMapper.get(tmp.getTarget());
+//                        if (Integer.parseInt(tar.getProperty("incoming").toString()) == 1 && Integer.parseInt(tar.getProperty("outgoing").toString()) == 0) {
+//                            r3++;
+//                            removed.add(tar);
+//                        }
+//                    }
+//                }
+//
+//                System.out.println("CC: " + r1 + " Sales:" + r2 + " Noise:" + r3);
+//                Set<Integer> removedID = new HashSet<>();
+//                for (Node n : removed) {
+//                    removedID.add(n.getID());
+//                    nodes.remove(n);
+//                }
+//
+//                Set<Edge> removedEdge = new HashSet<>();
+//                for (Edge tmp : edges) {
+//                    if (removedID.contains(tmp.getSource()) || removedID.contains(tmp.getTarget())) {
+//                        removedEdge.add(tmp);
+//                    }
+//                }
+//
+//                for (Edge tmp : removedEdge) {
+//                    edges.remove(tmp);
+//                }
                 
                 incoming = new HashMap<>();
                 outgoing = new HashMap<>();
@@ -351,7 +351,7 @@ public class DBAccess {
                     }
                 }
                 
-                removed = new HashSet<>();
+//                removed = new HashSet<>();
                 for(Node n : nodes) {
                     if(incoming.containsKey(n.getID())) {
                         n.setProperty("incoming", incoming.get(n.getID()));
@@ -365,16 +365,16 @@ public class DBAccess {
                         n.setProperty("outgoing", 0);
                     }
                     
-                    if(!incoming.containsKey(n.getID()) && !outgoing.containsKey(n.getID())) {
-                        removed.add(n);
-                    }
+//                    if(!incoming.containsKey(n.getID()) && !outgoing.containsKey(n.getID())) {
+//                        removed.add(n);
+//                    }
                 }
-                int count_removed = 0;
-                for(Node n : removed) {
-                    nodes.remove(n);
-                    count_removed++;
-                }
-                System.out.println("Removed single node - " + count_removed);
+//                int count_removed = 0;
+//                for(Node n : removed) {
+//                    nodes.remove(n);
+//                    count_removed++;
+//                }
+//                System.out.println("Removed single node - " + count_removed);
                 
 
                 return new com.seniorproject.graphmodule.Graph(nodes, edges);

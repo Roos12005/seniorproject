@@ -411,11 +411,15 @@ public class Modularity {
         return qValue;
     }
     
-    public int[] buildCommunities(Graph hgraph){
+    public int buildCommunities(Graph hgraph){
         int[] comStructure = new int[hgraph.getNodeCount()];
         computeModularity(hgraph, structure, comStructure, resolution);
-        System.out.println("Total Zoom out : " + outNum);
-        return comStructure;
+        
+        int idx = 0;
+        for(Node n : hgraph.getNodes()) {
+            n.setProperty("communityID", comStructure[idx++]);
+        }
+        return comStructure.length;
     }
     
     public static void printGraph(Graph hgraph) {

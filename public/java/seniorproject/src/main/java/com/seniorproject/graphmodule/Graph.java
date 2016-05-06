@@ -3,6 +3,7 @@ package com.seniorproject.graphmodule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,4 +137,51 @@ public class Graph {
     public List<Edge> getFullEdges() {
         return this.fullEdges;
     }
+    
+    private int[] measureCommunitiesSize(int totalCommunities, String[] communitiesColor) {
+        int[] communities = new int[totalCommunities];
+        
+        for(Node n : this.getNodes()) {
+            int comID = Integer.parseInt(n.getProperty("communityID").toString());
+            communities[comID]++;
+            communitiesColor[comID] = n.getProperty("color").toString();
+        }
+        
+        return communities;
+    }
+    
+    public Graph buildCommunityGraph(int totalCommunities) {
+        Set<Node> comNodes = new HashSet<>();
+        List<Edge> comEdges = new ArrayList<>();
+        String[] communitiesColor = new String[totalCommunities];
+        int[] communitiesSize = measureCommunitiesSize(totalCommunities, communitiesColor);
+        
+        for(int idx=0; idx<totalCommunities; idx++) {
+            Node tmp = new Node(idx);
+            tmp.setProperty("communityID", idx);
+            tmp.setProperty("member", communitiesSize[idx]);
+            tmp.setProperty("color", communitiesColor[idx]);
+            comNodes.add(tmp);
+        }
+        
+        for(Edge edge : this.getFullEdges()) {
+            int comSource = Integer.parseInt(this.getNodes().get(edge.getSource()).getProperty("communityID").toString());
+            int comTarget = Integer.parseInt(this.getNodes().get(edge.getTarget()).getProperty("communityID").toString());
+            if(comSource != comTarget) {
+                comEdges.add(new Edge(
+                            comSource,
+                            comTarget,
+                            1.0f,
+                            edge.getProperty("startDate").toString(),
+                            edge.getProperty("startTime").toString(),
+                            edge.getProperty("callDay").toString(),
+                            Integer.parseInt(edge.getProperty("duration").toString()),
+                            ""
+                ));
+            }
+        }
+        
+        return new Graph(comNodes, comEdges);
+    }
+   
 }
