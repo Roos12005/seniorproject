@@ -4,9 +4,9 @@
 
 @section('stylesheet')
 
-{!! Html::style('js/bootstrap-datepicker/css/datepicker.css') !!}
-{!! Html::style('js/select2/select2.css') !!}
-{!! Html::style('js/iCheck/skins/flat/_all.css') !!}
+{!! Html::style('js/bootstrap/bootstrap-datepicker/css/datepicker.css') !!}
+{!! Html::style('js/bucket-admin/select2/select2.css') !!}
+{!! Html::style('js/bucket-admin/iCheck/skins/flat/_all.css') !!}
 {!! Html::style('css/adminpanel.css') !!}
 
 
@@ -694,29 +694,29 @@
     </div>
 </div>
 @section('bottom-script')
-{!! Html::script('js/jquery.js'); !!}
-{!! Html::script('js/jquery.maskedinput.js'); !!}
-{!! Html::script('js/data-tables/jquery.dataTables.js'); !!}
-{!! Html::script('js/data-tables/DT_bootstrap.js'); !!}
-{!! Html::script('js/validator.js'); !!}
-{!! Html::script('js/date_helpers.js'); !!}
+{!! Html::script('js/jquery/jquery.js'); !!}
+{!! Html::script('js/jquery/jquery.maskedinput.js'); !!}
+{!! Html::script('js/bucket-admin/data-tables/jquery.dataTables.js'); !!}
+{!! Html::script('js/bucket-admin/data-tables/DT_bootstrap.js'); !!}
+{!! Html::script('js/bucket-admin/validator.js'); !!}
+{!! Html::script('js/bucket-admin/date_helpers.js'); !!}
 {!! Html::script('js/converter.js'); !!}
 {!! Html::script('js/admin_panel.js'); !!}
 
 
 <!-- Date Range (Date Picker) -->
 {!! Html::script('bs3/js/bootstrap.min.js'); !!}
-{!! Html::script('js/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
-{!! Html::script('js/bootstrap-switch.js'); !!}
+{!! Html::script('js/bootstrap/bootstrap-datepicker/js/bootstrap-datepicker.js'); !!}
+{!! Html::script('js/bootstrap/bootstrap-switch.js'); !!}
 {!! Html::script('js/main.js'); !!}
 
 <!-- Date Range (Dropdown) -->
-{!! Html::script('js/select2/select2.js'); !!}
+{!! Html::script('js/bucket-admin/select2/select2.js'); !!}
 <!-- {!! Html::script('js/select-init.js'); !!} -->
 
 <!--Check Box -->
-{!! Html::script('js/iCheck/jquery.icheck.js'); !!}
-{!! Html::script('js/icheck-init.js'); !!}
+{!! Html::script('js/bucket-admin/iCheck/jquery.icheck.js'); !!}
+{!! Html::script('js/bucket-admin/icheck-init.js'); !!}
 
 @endsection
 @stop

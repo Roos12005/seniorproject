@@ -8,15 +8,15 @@
 
 	    <!--Core CSS -->
 	    {!! Html::style('bs3/css/bootstrap.min.css') !!}
-	    {!! Html::style('js/jquery-ui/jquery-ui-1.10.1.custom.min.css') !!}
+	    {!! Html::style('js/jquery/jquery-ui/jquery-ui-1.10.1.custom.min.css') !!}
 	    {!! Html::style('css/bootstrap-reset.css') !!}
 	    {!! Html::style('font-awesome/css/font-awesome.css') !!}
-	    {!! Html::style('js/jvector-map/jquery-jvectormap-1.2.2.css') !!}
+	    {!! Html::style('js/bucket-admin/jvector-map/jquery-jvectormap-1.2.2.css') !!}
 	    {!! Html::style('css/clndr.css') !!}
 	    <!--clock css-->
-	    {!! Html::style('js/css3clock/css/style.css') !!}
+	    {!! Html::style('js/bucket-admin/css3clock/css/style.css') !!}
 	    <!--Morris Chart CSS -->
-	    {!! Html::style('js/morris-chart/morris.css') !!}
+	    {!! Html::style('js/bucket-admin/morris-chart/morris.css') !!}
 	    
 	    @yield('stylesheet')
 
@@ -94,7 +94,7 @@
         @yield('bottom-script')
 
         <!-- Side Bar -->
-	{!! Html::script('js/jquery.nicescroll.js'); !!}
+	{!! Html::script('js/jquery/jquery.nicescroll.js'); !!}
 	{!! Html::script('js/scripts.js'); !!}
 
     </body>
