@@ -13,6 +13,7 @@
     'use strict';
     var uploader_factory = null;
     var db_name = "";
+    var feature_extraction = 0;
     function foo() {
 
     }
@@ -114,7 +115,7 @@
         $.ajax({
             type: "POST",
             url: "http://localhost/seniorproject/public/database/writedb",
-            data : {name: db_name},
+            data : {name: db_name, feature: feature_extraction},
             success: function(e){
                 console.log(e);
             },
@@ -136,7 +137,6 @@
         init();
         uploader_factory = new UploaderFactory('alert-warning', 'alert-success');
 
-
         var profile_uploader = uploader_factory.createUploader('browse-profile', '2mb', 'uploadprofile');
         profile_uploader = uploader_factory.onFileAdded(profile_uploader, 'profile', 1);
         profile_uploader = uploader_factory.onUploading(profile_uploader, 'profile');
@@ -150,6 +150,10 @@
 
         document.getElementById('start-upload').onclick = function() {
             db_name = $('#database-name').val();
+            if ($('#feature-extraction').is(":checked"))
+            {
+                feature_extraction = $('#feature-extraction').val();
+            }
             if(db_name == undefined || db_name == '') {
                 alert("Please assign database name");
                 return;

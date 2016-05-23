@@ -47,6 +47,7 @@ class DatabaseController extends Controller{
         ignore_user_abort(true);
 
         $db_name = Request::all()['name'];
+        $feature_extraction = Request::all()['feature'];
         $db_name = str_replace(" ","_",$db_name);
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
         $validator = new Neo4JValidator($neo->getConnector());
@@ -59,7 +60,7 @@ class DatabaseController extends Controller{
         try {
             $isGranted = $neo->grantLock($db_name);
             if($isGranted) {
-                $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' 2>&1';
+                $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name .' '.$feature_extraction.' 2>&1';
                 $output = shell_exec($command);
                 Log::info($command);
                 Log::info($output);
