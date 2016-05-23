@@ -5,7 +5,6 @@
  *
  *
  *  @author Thanaphoom Pungchaichan (pperfectionist)
- *  @bug    not found!
  *
  */
 
@@ -84,6 +83,11 @@
 
     function initPagination() {
         $('#preprocess-table').dataTable({
+            "fnDrawCallback": function (oSettings) {
+                addViewButtonListener();
+                addDeleteButtonListener();
+                addDownloadButtonListener();
+            },
             "aLengthMenu": [
                 [5, 15, 20, -1],
                 [5, 15, 20, "All"] // change per page values here
@@ -109,6 +113,11 @@
         jQuery('#preprocess-table_wrapper .dataTables_length select').addClass("form-control xsmall"); // modify table per page dropdown
 
         $('#preprocess-progress-table').dataTable({
+            "fnDrawCallback": function (oSettings) {
+                addViewButtonListener();
+                addDeleteButtonListener();
+                addDownloadButtonListener();
+            },
             "aLengthMenu": [
                 [5, 15, 20, -1],
                 [5, 15, 20, "All"] // change per page values here
@@ -135,6 +144,11 @@
 
 
         $('#progress-table').dataTable({
+            "fnDrawCallback": function (oSettings) {
+                addViewButtonListener();
+                addDeleteButtonListener();
+                addDownloadButtonListener();
+            },
             "aLengthMenu": [
                 [5, 15, 20, -1],
                 [5, 15, 20, "All"] // change per page values here
@@ -154,7 +168,8 @@
                     'bSortable': false,
                     'aTargets': [0]
                 }
-            ]
+            ],
+
         });
         jQuery('#progress-table_wrapper .dataTables_filter input').addClass("form-control medium"); // modify table search input
         jQuery('#progress-table_wrapper .dataTables_length select').addClass("form-control xsmall"); // modify table per page dropdown
@@ -594,7 +609,7 @@
             var id = $(this).attr('data-id');
             if(id == undefined) return;
             window.location = "analysis/" + id;
-        });
+        });    
     }
 
     function addDownloadButtonListener() {

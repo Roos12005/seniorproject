@@ -29,7 +29,7 @@ public class Scoring {
         this.weights = new HashMap<>();
         this.maxVal = new HashMap<>();
         this.minVal = new HashMap<>();
-        
+        this.hgraph = hgraph;
         int idx = 0;
         for(String factor : factors) {
             this.weights.put(factor, weights[idx++]);
