@@ -267,7 +267,6 @@
                             <th>Size</th>
                             <th>Actions</th>
                             <th>Status</th>
-                            <th>Progress</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -285,7 +284,7 @@
                         <td class="text-center">{{ $row['customers'] }}</td>
                         <td class="text-center">{{ $row['size'] }}</td>
                         <td>
-                            @if($row['progress'] < 100)
+                            @if($row['status'] == 'Processing')
                             <span class="label label-default label-mini"><i class="fa fa-eye"></i></span>
                             <span class="label label-default label-mini"><i class="fa fa-download"></i></span>
                             @else
@@ -295,13 +294,6 @@
                             <a href="#" class="label label-danger label-mini delete-button" data-pid="{{$row['id']}}" data-type="preprocess-result"><i class="fa fa-times"></i></a>
                         </td>
                         <td><span class="label label-success label-mini">{{ $row['status'] }}</span></td>
-                        <td>
-                            <div class="progress progress-striped progress-xs">
-                                <div style="width: {{ $row['progress'] }}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
-                                    <span class="sr-only">100% Complete (success)</span>
-                                </div>
-                            </div>
-                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -335,7 +327,6 @@
                             <th>Size</th>
                             <th>Actions</th>
                             <th>Status</th>
-                            <th>Progress</th>
                         </tr>
                     </thead>
                     <tbody id="progress-table-body">
@@ -356,7 +347,7 @@
                             <div class="label label-default label-mini table-filter" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></div>
                             <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
                                 data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}"></span>
-                            @if($row['progress'] < 100)
+                            @if($row['status'] == 'Processing')
                             <div class="label label-default label-mini" id="tf-view-{{ $row['id'] }}"><i class="fa fa-eye"></i></div>
                             <div class="label label-default label-mini" id="tf-download-{{ $row['id'] }}"><i class="fa fa-download"></i></div>
                             @else
@@ -365,20 +356,13 @@
                             @endif
                             <div class="label label-danger label-mini delete-button" data-tid="{{$row['id']}}" data-type="batch"><i class="fa fa-times"></i></div>
                         </td>
-                        @if($row['progress'] < 100)
+                        @if($row['status'] == 'Processing')
                         <td width="30"><div class="label label-warning label-mini" id="tf-status-{{ $row['id'] }}">
                             {{ $row['status'] }}</div></td>
                         @else
                         <td width="30"><div class="label label-success label-mini" id="tf-status-{{ $row['id'] }}">
                             {{ $row['status'] }}</div></td>
                         @endif
-                        <td width="70">
-                            <div class="progress progress-striped progress-xs">
-                                <div style="width: {{ $row['progress'] }}%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success" aria-speed="{{ $row['speed'] }}" aria-current="{{ $row['progress'] }}" data-id="{{ $row['id'] }}">
-                                    <span class="sr-only">100% Complete (success)</span>
-                                </div>
-                            </div>
-                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -673,26 +657,6 @@
     </div>
 </div>
 
-<!-- Table Information Modal-->
-<div aria-hidden="true" aria-labelledby="estimationModalLabel" role="dialog" tabindex="-1" id="estimationModal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-                <h4 class="modal-title">Execution time estimation</h4>
-            </div>
-            <div class="modal-body text-center">
-                <p>This process will take approximately <span id="exectime"></span>. Are you sure to start this proess ?</p>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <button class="btn btn-success" id="begin-batch">Submit</button>
-                    <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Close</button>
-                </div> 
-            </div>  
-        </div>
-    </div>
-</div>
 @section('bottom-script')
 {!! Html::script('js/jquery/jquery.js'); !!}
 {!! Html::script('js/jquery/jquery.maskedinput.js'); !!}

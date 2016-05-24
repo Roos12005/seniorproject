@@ -1,6 +1,7 @@
 package com.seniorproject.processingmodule;
 
 import com.seniorproject.graphmodule.Graph;
+import com.seniorproject.graphmodule.Node;
 import com.seniorproject.graphmodule.NodeIterable;
 import com.seniorproject.storingmodule.DBAccess;
 import java.io.IOException;
@@ -77,7 +78,8 @@ public class SocialNetworkAnalysis {
         System.out.println("Scoring All Nodes ... Done! exec time : " + (scoreTime - comTime) + " ms");
         
         // ----------------------------- Coloring Node -------------------------------------------
-        Coloring.markColor(hgraph.getNodes(), totalCommunities, Coloring.RANDOM_COLOR, null);
+        NodeIterable tmpNodes = Coloring.markColor(hgraph.getNodes(), totalCommunities, Coloring.RANDOM_COLOR, null);
+        hgraph.setNodes(tmpNodes);
         
         // ------------------- Stores Graph with Calculated in Neo4J (Customer Level) ---------------------
         (new DBAccess()).store(hgraph.getNodes(), hgraph.getEdges(), hgraph.getFullEdges(), tid);
@@ -91,8 +93,9 @@ public class SocialNetworkAnalysis {
             Graph cGraph = hgraph.buildCommunityGraph(totalCommunities);
             
             // ------------------------------- Profiling Communities --------------------------------
-            Profiling profiling = new Profiling(cGraph, totalCommunities);
+            Profiling profiling = new Profiling(cGraph, hgraph, totalCommunities);
             NodeIterable comNodes = profiling.profilingCommunities();
+            cGraph.setNodes(comNodes);
             System.out.println("Profiling Community Graph ... Done!");
             
             // ------------------------- Calculating Centrality for Communities -------------------------
@@ -101,7 +104,7 @@ public class SocialNetworkAnalysis {
             System.out.println("Calculating Community Graph Distance ... Done!");
             
             // -------------------------- Stores Communities with Results -----------------------------
-            (new DBAccess()).storeCommunity(comNodes, cGraph.getEdges(), cGraph.getFullEdges(), tid);
+            (new DBAccess()).storeCommunity(cGraph.getNodes(), cGraph.getEdges(), cGraph.getFullEdges(), tid);
             
             // ------------------------------ End Community Section --------------------------------
         }

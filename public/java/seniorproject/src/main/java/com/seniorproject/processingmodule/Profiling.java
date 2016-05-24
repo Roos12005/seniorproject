@@ -20,6 +20,7 @@ import java.util.Map;
 public class Profiling {
 
     private Graph hgraph;
+    private Graph cgraph;
     private int totalCommunities;
     
     private double[] comArpu;
@@ -34,8 +35,9 @@ public class Profiling {
     private int[] comDurationCall;
     private int[] comMember;
 
-    public Profiling(Graph hgraph, int totalCommunities) {
+    public Profiling(Graph cgraph, Graph hgraph, int totalCommunities) {
         this.hgraph = hgraph;
+        this.cgraph = cgraph;
         this.totalCommunities = totalCommunities;
         this.comArpu = new double[totalCommunities];
         this.comAis = new int[totalCommunities];
@@ -55,6 +57,7 @@ public class Profiling {
     private void initParams() {
         for (Node node : this.hgraph.getNodes()) {
             int communityID = Integer.parseInt(node.getProperty("communityID").toString());
+            comMember[communityID]++;
             comArpu[communityID] += node.getProperty("arpu").toString().equals("unknown") ? 0 : Double.parseDouble(node.getProperty("arpu").toString());
             if (!node.getProperty("arpu").toString().equals("unknown")) {
                 comAis[communityID]++;
@@ -166,14 +169,16 @@ public class Profiling {
     }
 
      public NodeIterable profilingCommunities() {
-         NodeIterable nodes = hgraph.getNodes();
+        initParams();
+        NodeIterable nodes = cgraph.getNodes();
         DecimalFormat df = new DecimalFormat("#.##");
         double[][] maxmin = findBoundary();
         double[] min = maxmin[0];
         double[] max = maxmin[1];
-
+        
         for (Node n : nodes) {
             int communityID = Integer.parseInt(n.getProperty("communityID").toString());
+            
             //community profile attrbutes
             n.setProperty("averageArpu", df.format((double) comArpu[communityID] / (double) comAis[communityID]));
             n.setProperty("aisRatio", df.format((double) comAis[communityID] / Double.parseDouble(n.getProperty("member").toString())));

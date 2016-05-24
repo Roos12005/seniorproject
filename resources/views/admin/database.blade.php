@@ -243,6 +243,34 @@
     </div>
 </div>
 
+<div aria-hidden="true" aria-labelledby="success" role="dialog" tabindex="-1" id="successModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Write to Database</h4>
+            </div>
+            <div class="modal-body">
+                Writing input data to database successfully. This page will be reloaded in 5 seconds.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div aria-hidden="true" aria-labelledby="failed" role="dialog" tabindex="-1" id="failedModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                <h4 class="modal-title">Write to Database</h4>
+            </div>
+            <div class="modal-body">
+                Failed to write input data to database. Please check logging file for errors.
+            </div>
+        </div>
+    </div>
+</div>
+
 @section('bottom-script')
 {!! Html::script('js/jquery/jquery.js'); !!}
 {!! Html::script('js/jquery/jquery.maskedinput.js'); !!}

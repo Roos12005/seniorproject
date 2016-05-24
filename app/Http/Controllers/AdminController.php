@@ -32,25 +32,6 @@ class AdminController extends Controller{
                     ]);
    }
 
-   public function getEstimation() {
-        set_time_limit(50000);
-        // Get all Input send via AJAX to $rec
-        $rec = Request::all();
-
-        // Inputs divided into three Categories - Filters and Type
-        $filters = $rec['filter'];
-        $type = $rec['type'];
-
-        // Instantiate Neo4JConnector
-        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
-
-        // Estimate both exec time and resources used
-        $estimation = $neo->estimateResource($type, $filters);
-
-        return $estimation;
-        
-   }
-
    public function processSetup() {
         set_time_limit(50000);
         // Get all Input send via AJAX to $rec
@@ -66,16 +47,15 @@ class AdminController extends Controller{
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
 
         if($type == 'batch') {
-            $others = $rec['others'];
             // Setup Batch Process, Save Batch Process Information to Neo4j and Formatting data for Displaying
-            return $neo->setUpBatchProcess($filters, $desc, $others);
+            return $neo->setUpBatchProcess($filters, $desc);
         } elseif ($type == 'preprocess') {
             // Save Preprocess Setting and Formatting data for Displaying
             // Note that Preprocess Settings will be retrieved when Scheduler is triggered!
             return $neo->setUpPreprocess($filters, $desc);
         } else {
             // This condition should not be reachable.
-            throw new Exception("Invalid Process Setup");
+            throw new \Exception("Invalid Process Setup");
         }
    }
 

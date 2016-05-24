@@ -41,14 +41,15 @@ public class Coloring {
         return results;
     }
 
-    public static void markColor(NodeIterable nodes, int totalCommunities, int coloringType, String[] colors) {
+    public static NodeIterable markColor(NodeIterable nodes, int totalCommunities, int coloringType, String[] colors) {
         if(coloringType == Coloring.RANDOM_COLOR) {
             colors = generateColor(totalCommunities);
-            
         }
         
         for (Node n : nodes) {
             n.setProperty("color", colors[Integer.parseInt(n.getProperty("communityID").toString())]);
         }
+        
+        return nodes;
     }
 }

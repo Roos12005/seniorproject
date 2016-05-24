@@ -1,11 +1,13 @@
 package com.seniorproject.graphmodule;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 
@@ -50,6 +52,10 @@ public class Graph {
         
     }
 
+    
+    public void setNodes(NodeIterable nodes) {
+        this.nodes = nodes;
+    }
     public boolean addEdge(Edge edge){
         return edges.add(edge);
     }
@@ -138,24 +144,25 @@ public class Graph {
         return this.fullEdges;
     }
     
-    private int[] measureCommunitiesSize(int totalCommunities, String[] communitiesColor) {
+    private Entry<int[], String[]> measureCommunitiesSize(int totalCommunities) {
         int[] communities = new int[totalCommunities];
-        
+        String[] communitiesColor = new String[totalCommunities];
         for(Node n : this.getNodes()) {
             int comID = Integer.parseInt(n.getProperty("communityID").toString());
             communities[comID]++;
             communitiesColor[comID] = n.getProperty("color").toString();
         }
-        
-        return communities;
+        Entry<int[], String[]> results = new SimpleEntry<>(communities, communitiesColor);
+        return results;
     }
     
     public Graph buildCommunityGraph(int totalCommunities) {
         Set<Node> comNodes = new HashSet<>();
         List<Edge> comEdges = new ArrayList<>();
-        String[] communitiesColor = new String[totalCommunities];
-        int[] communitiesSize = measureCommunitiesSize(totalCommunities, communitiesColor);
         
+        Entry<int[], String[]> pairTemp = measureCommunitiesSize(totalCommunities);
+        int[] communitiesSize = pairTemp.getKey();
+        String[] communitiesColor = pairTemp.getValue();
         for(int idx=0; idx<totalCommunities; idx++) {
             Node tmp = new Node(idx);
             tmp.setProperty("communityID", idx);

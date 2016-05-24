@@ -105,7 +105,6 @@ class Neo4JConnector {
         foreach($jobs as $r) {
 
             $formatted_date = DateHelper::getStartEndDate(substr($r['n']['startDate'],0,6), substr($r['n']['startDate'],6));
-            $progress = $this->calculateProgress($r['n']['startExecTime'], $r['n']['estimatedExecTime']);
             $tmp = [
             'id' => $r['jid'], 
             'description' => $r['n']['description'], 
@@ -113,16 +112,15 @@ class Neo4JConnector {
             'duration' => $r['n']['durationMax'] == -1? 
             'More than ' . $r['n']['durationMin'] : $r['n']['durationMin'] . ' - ' . $r['n']['durationMax'],
             'date' => DateHelper::formatDate($formatted_date['startDate']) . ' - ' . DateHelper::formatDate($formatted_date['endDate']),
-            'customers' => number_format($r['n']['customers']),
+            // 'customers' => number_format($r['n']['customers']),
+            'customers' => 9999,
             'size' => $r['n']['size'],
             'carrier' => UnaryHelper::unaryToCarrierReadable($r['n']['rnCode']),
             'days' => UnaryHelper::unaryToDaysReadable($r['n']['callDay']),
             'period' => $r['n']['endTime'] == -1? 
             'After ' . number_format($r['n']['startTime'], 2, '.', '') : number_format($r['n']['startTime'], 2, '.', '') . ' - ' . number_format($r['n']['endTime'], 2, '.', ''),
-            'progress' => $progress['progress'],
-            'speed' => $progress['speed'],
-            'status' => $progress['status'],
-            'type' => $r['n']['type']
+            'type' => $r['n']['type'],
+            'status' => $r['n']['status']
             ];
             array_push($result, $tmp);
         }
@@ -167,22 +165,8 @@ class Neo4JConnector {
             return $result;
         }
 
-        public function estimateResource($type, $filters) {
-            if($type == 'batch') {
-                $filters = $this->prepareData($filters);
-                $info = $this->getEstimation($filters);
-                $ret = [
-                'customers' => $info['customers']['nodes'],
-                'execTime' => $info['execTime'],
-                'speed' => $info['speed']
-                ];
-                return $ret;
-            } else {
-                throw new Exception("Invalid Calling - estimateResource()");
-            }
-        }
 
-        public function setUpBatchProcess($filters, $desc, $others) {
+        public function setUpBatchProcess($filters, $desc) {
         // Reject query whenever $this->connector has not been initialized
             $this->checkConnection();
 
@@ -201,10 +185,9 @@ class Neo4JConnector {
             outgoingMin: " . $filters['outgoing'][0] . ",
             outgoingMax: " . $filters['outgoing'][1] . ",
             description : '" . $desc . "',
-            customers : " . $others['customers'] .",
             startExecTime: " . Carbon\Carbon::now()->timestamp . ",
             size: '- ',
-            estimatedExecTime: " . $others['estimatedExecTime'] . "
+            status: 'Processing'
         }) RETURN ID(n) as nid";
         
         // Save new Batch Process Information in Neo4J
@@ -221,9 +204,8 @@ class Neo4JConnector {
         $filters['startTime'] = UnaryHelper::rangeToReadable($filters['startTime'], 'time');
 
         return [
-        'filters' => $filters,
-        'nid' => $result[0]['nid'],
-        'speed' => $others['speed']
+            'filters' => $filters,
+            'nid' => $result[0]['nid'],
         ];
     }
 
@@ -477,41 +459,6 @@ private function prepareData($filters) {
 }
 
 
-private function calculateProgress($start, $estimated) {
-    $now = Carbon\Carbon::now()->timestamp;
-    $tmp_prog = 1000*($now - $start)/$estimated;
-    $progress = $tmp_prog > 1? '100' : $tmp_prog*100;
-    $status = $tmp_prog >= 1? 'Ready' : 'Processing'; 
-    $speed = 100000/$estimated;
-    return ['progress' => $progress, 'status' => $status, 'speed' => $speed];
-}
-
-private function getEstimation($filters) {
-        // Reject query whenever $this->connector has not been initialized
-    $this->checkConnection();
-
-        // TODO : find another way to get source data or estimate resource
-    $q = 'MATCH (n:Node)-[r:Call]->(m:Node) WHERE';
-
-    $q = $q . ' r.startDate >= ' . $filters['startDate'][0] . ' AND r.startDate <= ' . $filters['startDate'][1] . ' AND';
-    $q = $q . ' r.startTime >= ' . $filters['startTime'][0] . ' AND r.startTime <= ' . $filters['startTime'][1] . ' AND';
-    $q = $q . ' r.duration >= ' . $filters['duration'][0] . ' AND r.duration <= ' . $filters['duration'][1] . ' AND';
-    $q = $q . ' n.incoming >= ' . $filters['incoming'][0] . ' AND n.incoming <= ' . $filters['incoming'][1] . ' AND';
-    $q = $q . ' n.outgoing >= ' . $filters['outgoing'][0] . ' AND n.outgoing <= ' . $filters['outgoing'][1] . ' AND';
-    $q = $q . ' n.rnCode =~ "' . UnaryHelper::arrToRegex($filters['rnCode']) . '"' . ' AND';
-    $q = $q . ' m.rnCode =~ "' . UnaryHelper::arrToRegex($filters['rnCode']) . '"' . ' AND';
-    $q = $q . ' r.callDay =~ "' . UnaryHelper::arrToRegex($filters['callDay']) . '"';
-
-    $q = $q . ' RETURN count(r) as edges, count(DISTINCT n) as nodes';
-    $results = $this->connector->sendCypherQuery($q)->getResult()->getTableFormat();
-    $ret = [
-    "customers" => $results[0],
-    "execTime" => 5000,
-    "speed" => 100000/5000
-    ];
-    return $ret;
-}
-
 private function beginProcess($filters, $id, $db, $isScheduler) {
     putenv('/seniortmp');
     ignore_user_abort(true);
@@ -540,6 +487,8 @@ private function beginProcess($filters, $id, $db, $isScheduler) {
     exec($command, $output);
     Log::info($command);
     Log::info($output);
+    $q = "MATCH (n:BatchJob) WHERE ID(n) = " . $id . " SET n.status = 'Ready'";
+    $this->connector->sendCypherQuery($q);
     return ;
 }
 
@@ -613,15 +562,15 @@ private function setZeroPrefix($n) {
 
 private function checkConnection() {
     if(is_null($this->connector)) {
-        throw new Exception("You have not connect to Database yet.");
+        throw new \Exception("You have not connect to Database yet.");
     }
 }
 
 public function lockWrite($db_name) {
     $q = 'MATCH (n:UploadLocker) RETURN n';
     if(sizeof($this->connector->sendCypherQuery($q)->getResult()->getTableFormat()) == 0) {
-        $q = 'CREATE (n:UploadLocker {name: "' . db_name . '", status : 0}) RETURN n' ;
-        return sizeof($this->connector->sendCypherQuery($q)->getResult()->getTableFormat()) == 1;
+        $q = 'CREATE (n:UploadLocker {name: "' . $db_name . '", status : 0}) RETURN n' ;
+        $this->connector->sendCypherQuery($q);
     }
 
     $q = 'MATCH (n:UploadLocker {status: 0}) SET n.status = 1, n.name = "' . $db_name . '" RETURN n';
@@ -629,6 +578,13 @@ public function lockWrite($db_name) {
 }
 
 public function unlockWrite() {
+    $q = 'MATCH (n:UploadLocker) RETURN n';
+    if(sizeof($this->connector->sendCypherQuery($q)->getResult()->getTableFormat()) == 0) {
+        $q = 'CREATE (n:UploadLocker {name: "", status : 0}) RETURN n' ;
+        $this->connector->sendCypherQuery($q);
+        return true;
+    }
+
     $q = 'MATCH (n:UploadLocker {status: 1}) SET n.status = 0 RETURN n';
     return sizeof($this->connector->sendCypherQuery($q)->getResult()->getTableFormat()) == 1;   
 }

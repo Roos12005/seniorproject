@@ -63,14 +63,17 @@ class DatabaseController extends Controller{
                 $output = shell_exec($command);
                 Log::info($command);
                 Log::info($output);
+                if (preg_match('/Exception/',$output)) {
+                    throw new \Exception("Error occured while writing input data to database. Please check logging file.");
+                }
+                $neo->execQuery('CREATE (n:Database {name: "' . $db_name . '"})');
             } else {
-                continue;
+                throw new \Exception("Locking database is denied.");
             }
         } catch (Exception $e) {
-            throw new Exception($e);
+            throw new \Exception($e);
         } finally {
             $isReleased = $neo->releaseLock();
-            $neo->execQuery('CREATE (n:Database {name: "' . $db_name . '"})');
 
             $filename1 = $db_name . '_cdr';
             $filename2 = $db_name . '_profile';
@@ -78,7 +81,7 @@ class DatabaseController extends Controller{
             unlink(storage_path() . '/tmp_db_store/' . $filename1);
             unlink(storage_path() . '/tmp_db_store/' . $filename2);
             if(!$isReleased) {
-                throw new Exception("Database can't be unlocked. Manually unlocking is needed.");
+                throw new \Exception("Database can't be unlocked. Manually unlocking is needed.");
             }
         }    
         return 'success';

@@ -117,10 +117,14 @@
             data : {name: db_name},
             success: function(e){
                 console.log(e);
+                $('#successModal').modal('show');
+                setTimeout(function() {
+                    location.reload();
+                }, 5000);
             },
             error: function(rs, e){
                 console.log(rs.responseText);
-                alert('Problem occurs during fetch data.');
+                $('#failedModal').modal('show');
             }
         })
         

@@ -4,6 +4,7 @@ import com.seniorproject.graphmodule.Edge;
 import com.seniorproject.graphmodule.Graph;
 import com.seniorproject.graphmodule.Node;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -414,12 +415,13 @@ public class Modularity {
     public int buildCommunities(Graph hgraph){
         int[] comStructure = new int[hgraph.getNodeCount()];
         computeModularity(hgraph, structure, comStructure, resolution);
-        
+        Set<Integer> communityCount  = new HashSet<>();
         int idx = 0;
         for(Node n : hgraph.getNodes()) {
+            communityCount.add(comStructure[idx]);
             n.setProperty("communityID", comStructure[idx++]);
         }
-        return comStructure.length;
+        return communityCount.size();
     }
     
     public static void printGraph(Graph hgraph) {
