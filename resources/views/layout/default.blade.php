@@ -67,8 +67,14 @@
 			                    </a>
 			                </li>
 			                <li>
+			                    <a class="active" href="/seniorproject/public/spark">
+			                        <i class="fa fa-cloud"></i>
+			                        <span>Spark Mode</span>
+			                    </a>
+			                </li>
+			                <li>
 			                    <a class="active" href="/seniorproject/public/database">
-			                        <i class="fa fa-user"></i>
+			                        <i class="fa fa-hdd-o"></i>
 			                        <span>Database Manager</span>
 			                    </a>
 			                </li>
