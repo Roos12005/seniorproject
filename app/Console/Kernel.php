@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
         Commands\Inspire::class,
     ];
 
+    //* * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
+
     /**
      * Define the application's command schedule.
      *
@@ -24,6 +26,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // $schedule->command('inspire')
+        //          ->withoutOverlapping()->monthly()->saturdays()->at('0:00');
         // $schedule->command('inspire')
         //          ->everyMinute();
     }

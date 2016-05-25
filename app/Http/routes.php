@@ -15,6 +15,7 @@ Route::get('/analysis/{id}','AnalysisController@main');
 Route::get('/aboutus','PageController@getAboutUs');
 Route::post('/processSetup','AdminController@processSetup');
 Route::post('/startProcess','AdminController@startProcess');
+Route::get('/checkJobStatus','AdminController@checkJobStatus');
 
 //Get Data
 Route::get('/exportCSV','AdminController@exportCSV');

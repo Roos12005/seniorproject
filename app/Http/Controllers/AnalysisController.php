@@ -17,8 +17,17 @@ class AnalysisController extends Controller{
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
     ->build();
+    $results = [];
+    
     $q = 'Match (n:BatchJob) Where ID(n) = '.$id.' Return n';
     $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+    if(empty($results)) {
+      $q = 'Match (n:PreprocessJob) Where ID(n) = '.$id.' Return n';
+      $results = $client->sendCypherQuery($q)->getResult()->getTableFormat();
+    }  
+  
+    
+    
     $week = substr($results[0]['n']['startDate'],6);
     $startDate = 'Year '.substr($results[0]['n']['startDate'],0,-3).' Month '.substr($results[0]['n']['startDate'],4,2)."  ".($week == "0"?'All month':($week == "1"?'Week 1':($week == "2"?'Week 2':($week == "3"?'Week 3':($week == "4"?'Week 4':'Week 5')))));
     $callDay =   (substr($results[0]['n']['callDay'],0,1)=="1"?"Sunday , ":"").(substr($results[0]['n']['callDay'],1,1)=="1"?"Monday , ":"").(substr($results[0]['n']['callDay'],2,1)=="1"?"Tuesday , ":"").(substr($results[0]['n']['callDay'],3,1)=="1"?"Wednesday , ":"").(substr($results[0]['n']['callDay'],4,1)=="1"?"Thursday , ":"").(substr($results[0]['n']['callDay'],5,1)=="1"?"Friday , ":"").(substr($results[0]['n']['callDay'],6,1)=="1"?"Saturday":"");

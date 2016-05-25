@@ -60,8 +60,7 @@
                             <a href="#" data-toggle="modal" class="preprocess-filter" data-pid="{{$p['id']}}">
                                 Click to see filters
                             </a>
-                            <span id="pf-{{$p['id']}}" data-date="{{$p['date']}}" data-noOfCall="{{$p['noOfCall']}}" data-days="{{$p['days']}}"
-                            data-duration="{{$p['duration']}}" data-period="{{$p['period']}}" data-carrier="{{$p['carrier']}}">
+                            <span id="pf-{{$p['id']}}" data-date="{{$p['date']}}" data-noOfIncomingCall="{{$p['noOfIncomingCall']}}" data-noOfOutgoingCall="{{$p['noOfOutgoingCall']}}" data-days="{{$p['days']}}" data-duration="{{$p['duration']}}" data-period="{{$p['period']}}" data-carrier="{{$p['carrier']}}" data-database="{{$p['database']}}">
                         </span>
                     </td>
 
@@ -91,7 +90,7 @@
                         <select class="form-control" id="preprocess-database">
                             <optgroup label="Database Name">
                                 @foreach($database as $db) 
-                                    <option value="{{ $db['dbid'] }}"> {{ $db['dbid'] }} : {{ $db['n']['name'] }} </option>
+                                    <option value="{{ $db['n']['name'] }}"> {{ $db['dbid'] }} : {{ $db['n']['name'] }} </option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -275,21 +274,21 @@
                             <td><a href="./analysis/{{$row['id']}}">{{ $key + 1 }}</a></td>
                             <td>{{ $row['date'] }}</td>
                             <td>
-                                <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
                                 {{ $row['description'] }}
-                                <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
-                                data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}">
+                                <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfIncomingCall="{{$row['noOfIncomingCall']}}" data-noOfOutgoingCall="{{$p['noOfOutgoingCall']}}" data-days="{{$row['days']}}" data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}" data-database="{{$row['database']}}">
                             </span>
                         </td>
                         <td class="text-center">{{ $row['customers'] }}</td>
                         <td class="text-center">{{ $row['size'] }}</td>
                         <td>
+                            <a class="label label-default label-mini table-filter" href="#" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></a>
+
                             @if($row['status'] == 'Processing')
-                            <span class="label label-default label-mini"><i class="fa fa-eye"></i></span>
-                            <span class="label label-default label-mini"><i class="fa fa-download"></i></span>
+                            <div class="label label-default label-mini"><i class="fa fa-eye tf-view" data-id="{{$row['id']}}"></i></div>
+                            <div class="label label-default label-mini"><i class="fa fa-download tf-download" data-id="{{$row['id']}}"></i></div>
                             @else
-                            <span class="label label-primary label-mini"><i class="fa fa-eye"></i></span>
-                            <span class="label label-success label-mini"><i class="fa fa-download"></i></span>
+                            <div class="label label-primary label-mini"><i class="fa fa-eye tf-view" data-id="{{$row['id']}}"></i></div>
+                            <div class="label label-success label-mini"><i class="fa fa-download tf-download" data-id="{{$row['id']}}"></i></div>
                             @endif
                             <a href="#" class="label label-danger label-mini delete-button" data-pid="{{$row['id']}}" data-type="preprocess-result"><i class="fa fa-times"></i></a>
                         </td>
@@ -334,19 +333,18 @@
                         <tr id="row-b-{{$row['id']}}">
                             <td hidden><i>{{ 1 }}</i></td>
                             <td><i>{{ $key + 1 }}</i></td>
-                            <td width="180">{{ $row['date'] }}</td>
-                            <td width="250">
+                            <td>{{ $row['date'] }}</td>
+                            <td>
                                 
                                 {{ $row['description'] }}
                                 
                             
                             </td>
-                        <td class="text-center" width="100">{{ $row['customers'] }}</td>
-                        <td class="text-center" width="50">{{ $row['size'] }}</td>
-                        <td style="white-space: nowrap;" width="150">
+                        <td class="text-center">{{ $row['customers'] }}</td>
+                        <td class="text-center">{{ $row['size'] }}</td>
+                        <td style="white-space: nowrap;">
                             <div class="label label-default label-mini table-filter" data-toggle="modal" data-tid="{{$row['id']}}"><i class="fa fa-info"></i></div>
-                            <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfCall="{{$row['noOfCall']}}" data-days="{{$row['days']}}"
-                                data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}"></span>
+                            <span id="tf-{{$row['id']}}" data-date="{{$row['date']}}" data-noOfIncomingCall="{{$row['noOfIncomingCall']}}" data-noOfOutgoingCall="{{$row['noOfOutgoingCall']}}" data-days="{{$row['days']}}" data-duration="{{$row['duration']}}" data-period="{{$row['period']}}" data-carrier="{{$row['carrier']}}" data-database="{{$row['database']}}"></span>
                             @if($row['status'] == 'Processing')
                             <div class="label label-default label-mini" id="tf-view-{{ $row['id'] }}"><i class="fa fa-eye"></i></div>
                             <div class="label label-default label-mini" id="tf-download-{{ $row['id'] }}"><i class="fa fa-download"></i></div>
@@ -357,10 +355,10 @@
                             <div class="label label-danger label-mini delete-button" data-tid="{{$row['id']}}" data-type="batch"><i class="fa fa-times"></i></div>
                         </td>
                         @if($row['status'] == 'Processing')
-                        <td width="30"><div class="label label-warning label-mini" id="tf-status-{{ $row['id'] }}">
+                        <td><div class="label label-warning label-mini" id="tf-status-{{ $row['id'] }}">
                             {{ $row['status'] }}</div></td>
                         @else
-                        <td width="30"><div class="label label-success label-mini" id="tf-status-{{ $row['id'] }}">
+                        <td><div class="label label-success label-mini" id="tf-status-{{ $row['id'] }}">
                             {{ $row['status'] }}</div></td>
                         @endif
                     </tr>
@@ -548,7 +546,7 @@
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">Database </label>
                         <div class="col-lg-6">
-                            <p class="form-control-static" id="tf-database">-</p>
+                            <p class="form-control-static" id="pf-database">-</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -578,7 +576,7 @@
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">No. of Calls</label>
                         <div class="col-lg-6">
-                            <p class="form-control-static" id="pf-noOfCall">-</p>
+                            <p class="form-control-static" id="pf-noOfIncomingCall">-</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -636,13 +634,13 @@
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">No. of Outgoing Calls</label>
                         <div class="col-lg-6">
-                            <p class="form-control-static" id="tf-noOfCall">-</p>
+                            <p class="form-control-static" id="tf-noOfOutgoingCall">-</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class=" col-sm-3 control-label">No. of Incoming Calls</label>
                         <div class="col-lg-6">
-                            <p class="form-control-static" id="tf-noOfReceive">-</p>
+                            <p class="form-control-static" id="tf-noOfIncomingCall">-</p>
                         </div>
                     </div>
                     <div class="form-group">

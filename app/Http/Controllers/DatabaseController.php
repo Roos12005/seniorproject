@@ -18,8 +18,8 @@ use \App\Http\Classes\Neo4JValidator as Neo4JValidator;
 class DatabaseController extends Controller{
     
     public function index() {
-        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
-        
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');    
+
         // Query All Data needed
         $database = $neo->getAvailableDatabase();
 

@@ -23,7 +23,7 @@ class AdminController extends Controller{
         $preprocess_settings = $neo->getReadablePreprocessSettings();
         $preprocess_jobs = $neo->getReadablePreprocessJobs();
         $batch_jobs = $neo->getReadableBatchJobs();
-        // var_dump($database); exit();
+        
         return view('admin.adminpanel', [
                     'database' => $database,
                     'preprocess_settings' => $preprocess_settings, 
@@ -41,6 +41,7 @@ class AdminController extends Controller{
         $filters = $rec['filter'];
         $type = $rec['type'];
         $desc = $rec['description'];
+        $db = $rec['database'];
 
 
         // Instantiate Neo4JConnector
@@ -48,11 +49,11 @@ class AdminController extends Controller{
 
         if($type == 'batch') {
             // Setup Batch Process, Save Batch Process Information to Neo4j and Formatting data for Displaying
-            return $neo->setUpBatchProcess($filters, $desc);
+            return $neo->setUpBatchProcess($filters, $desc, $db);
         } elseif ($type == 'preprocess') {
             // Save Preprocess Setting and Formatting data for Displaying
             // Note that Preprocess Settings will be retrieved when Scheduler is triggered!
-            return $neo->setUpPreprocess($filters, $desc);
+            return $neo->setUpPreprocess($filters, $desc, $db);
         } else {
             // This condition should not be reachable.
             throw new \Exception("Invalid Process Setup");
@@ -108,6 +109,13 @@ class AdminController extends Controller{
         // Prepare data to export
         $results = $neo->queryNodesForCSV($pid);
 
+        return response()->json($results);
+   }
+
+   public function checkJobStatus() {
+        set_time_limit(50000);
+        $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+        $results = $neo->checkJobStatus();
         return response()->json($results);
    }
 }

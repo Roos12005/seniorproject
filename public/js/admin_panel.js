@@ -19,19 +19,22 @@
             var pid = $(this).attr('data-pid');
             var tag = $('#pf-' + pid);
             var props = {
+                'database' : tag.attr('data-database'),
                 'date' : tag.attr('data-date'),
                 'carrier' : tag.attr('data-carrier'),
                 'period' : tag.attr('data-period'),
-                'noOfCall' : tag.attr('data-noOfCall'),
+                'noOfIncomingCall' : tag.attr('data-noOfIncomingCall'),
+                'noOfOutgoingCall' : tag.attr('data-noOfOutgoingCall'),
                 'duration' : tag.attr('data-duration'),
                 'days' : tag.attr('data-days'),
 
             };
-            
+            $('#pf-database').html(props.database);
             $('#pf-date').html(props.date);
             $('#pf-carrier').html(props.carrier);
             $('#pf-period').html(props.period);
-            $('#pf-noOfCall').html(props.noOfCall);
+            $('#pf-noOfIncomingCall').html(props.noOfIncomingCall);
+            $('#pf-noOfOutgoingCall').html(props.noOfOutgoingCall);
             $('#pf-duration').html(props.duration);
             $('#pf-days').html(props.days);
 
@@ -44,19 +47,21 @@
             var tid = $(this).attr('data-tid');
             var tag = $('#tf-' + tid);
             var props = {
+                'database' : tag.attr('data-database'),
                 'date' : tag.attr('data-date'),
                 'carrier' : tag.attr('data-carrier'),
                 'period' : tag.attr('data-period'),
-                'noOfCall' : tag.attr('data-noOfCall'),
-                'noOfReceive' : tag.attr('data-noOfReceive'),
+                'noOfIncomingCall' : tag.attr('data-noOfIncomingCall'),
+                'noOfOutgoingCall' : tag.attr('data-noOfOutgoingCall'),
                 'duration' : tag.attr('data-duration'),
                 'days' : tag.attr('data-days')
             };
-            
+            $('#tf-database').html(props.database);
             $('#tf-date').html(props.date);
             $('#tf-carrier').html(props.carrier);
             $('#tf-period').html(props.period);
-            $('#tf-noOfCall').html(props.noOfCall);
+            $('#tf-noOfIncomingCall').html(props.noOfIncomingCall);
+            $('#tf-noOfOutgoingCall').html(props.noOfOutgoingCall);
             $('#tf-duration').html(props.duration);
             $('#tf-days').html(props.days);
 
@@ -265,6 +270,7 @@
                     'rnCode' : carriers,
                     'priority' : $('#preprocess-priority input[name="preprocess-priority"]:checked').val()
                 },
+                "database" : $('#preprocess-database').val(),
                 'description' : $('#preprocess-description').val(),
                 
             }
@@ -452,14 +458,14 @@
             success: function(e){
                 console.log(e);
                 if(type == 'batch') {
-                    
+                    console.log(e);
                     var f = e['filters'];
                     var idCol = '<td><a href="./analysis/' + e.nid + '">New</a></td>';
                     var dateCol = '<td>' + f['startDate'] + '</td>';
                     var descCol = '<td>'+d['description']+'</td>';
                     var sizeCol = '<td class="text-center">-</td>';
                     var customerCol = '<td class="text-center">-</td>';
-                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '"></span><div class="label label-primary label-mini margin-right-4" id="tf-view-'+e.nid+'"><i class="fa fa-eye"></i></div><div class="label label-success label-mini margin-right-4" id="tf-download-'+e.nid+'"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
+                    var actionCol = '<td><div class="label label-default label-mini table-filter margin-right-4" href="#" data-toggle="modal" data-tid="'+e.nid+'"><i class="fa fa-info"></i></div><span id="tf-'+e.nid+'" data-date="'+ e['filters']['startDate'] +'" data-noOfCall="'+'"data-duration="'+ e['filters']['duration'] +'" data-period="'+ e['filters']['startTime'] +'" data-carrier="'+ e['filters']['rnCode'] +'" data-days="' + e['filters']['callDay'] + '" data-noOfIncomingCall="'+ e['filters']['incoming'] + '" data-noOfOutgoingCall="'+ e['filters']['outgoing'] + '" data-database="'+db+'"></span><div class="label label-default label-mini margin-right-4" id="tf-view-'+e.nid+'"><i class="fa fa-eye"></i></div><div class="label label-default label-mini margin-right-4" id="tf-download-'+e.nid+'"><i class="fa fa-download"></i></div><div class="label label-danger label-mini delete-button" data-tid="'+e.nid+'" data-type="batch"><i class="fa fa-times"></i></div></td>';
                     var statusCol = '<td><span class="label label-warning label-mini" id="tf-status-'+e.nid+'">Processing</span></td>';
                     $('#progress-table-body').append('<tr id="row-p-'+e.nid+'">' + idCol + dateCol + descCol + customerCol + sizeCol + actionCol + statusCol + '</tr>');
 
@@ -482,7 +488,7 @@
                     var f = e['filters'];
                     var idCol = '<td><a href="#">New</a></td>';
                     var descCol = '<td>' + d['description'] + '</td>';
-                    var filtersCol = '<td><a href="#" data-toggle="modal" class="preprocess-filter" data-pid="' + e.nid + '"> Click to see filters </a><span id="pf-' + e.nid + '" data-date="" data-noOfCall="" data-days="" data-duration="" data-period="" data-carrier=""></span></td>';
+                    var filtersCol = '<td><a href="#" data-toggle="modal" class="preprocess-filter" data-pid="' + e.nid + '"> Click to see filters </a><span id="pf-'+e.nid+'" data-date="'+e['filters']['startDate']+'" data-noOfIncomingCall="'+e['filters']['incoming']+'" data-noOfOutgoingCall="'+e['filters']['outgoing']+'" data-days="'+e['filters']['callDay']+'" data-duration="'+e['filters']['duration']+'" data-period="'+e['filters']['startTime']+'" data-carrier="'+e['filters']['rnCode']+'" data-database="'+db+'"></span></td>';
                     var priorityCol = '<td>' + (d['filters']['priority'] == 3? 'High' : d['filters']['priority'] == 2? 'Medium' : 'Low') + '</td>';
                     var actionCol = '<td><span class="label label-danger label-mini margin-right-4"><i class="fa fa-times"></i></span></td>';
                     $('#preprocess-table-body').append('<tr id="row-p-'+e.nid+'">' + idCol + descCol + filtersCol + priorityCol + actionCol + '</tr>');
@@ -602,6 +608,36 @@
         });
     }
 
+    function recheckStatus(freq) {
+        setInterval(function() {
+            $.ajax({
+                type: "GET",
+                url: "http://localhost/seniorproject/public/checkJobStatus",
+                success: function(e){
+                    console.log(e);
+                    e.forEach(function(ev) {
+                        if(ev['status'] == 'Ready') {
+                            var jid = ev['jid'];
+                            $('#tf-view-' + jid).removeClass('label-default');
+                            $('#tf-view-' + jid).addClass('label-primary');
+
+                            $('#tf-download-' + jid).removeClass('label-default');
+                            $('#tf-download-' + jid).addClass('label-success');
+
+                            $('#tf-status-' + jid).removeClass('label-warning');
+                            $('#tf-status-' + jid).addClass('label-success');
+                            $('#tf-status-' + jid).html('Ready');
+                        }
+                    });
+                },
+                error: function(rs, e){
+                    console.log(rs.responseText);
+                    alert('Problem occurs during fetch data.');
+                },
+            });
+        }, freq);
+    }
+
     /**
      *  @brief Main function of this file
      *
@@ -618,6 +654,7 @@
         addDeleteButtonListener();
         addViewButtonListener();
         addDownloadButtonListener();
+        recheckStatus(3000);
     }();
 
 }();

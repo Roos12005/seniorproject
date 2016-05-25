@@ -12,10 +12,6 @@ import java.util.Map;
 
 public class SocialNetworkAnalysis {
     
-    protected void foo() {
-        
-    }
-    
     public static void extractFilters(String[] args, int startIdx, int endIdx, Map<String, List<String>> sFilters, Map<String, List<Double>> dFilters) {
         for(int i=startIdx; i<endIdx; i++) {
             String key = args[i++];
