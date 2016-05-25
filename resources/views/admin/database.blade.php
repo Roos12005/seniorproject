@@ -93,9 +93,14 @@
     <form action="#" class="form-horizontal bucket-form" id="preprocess-form" onsubmit="return false;">
         <div class="form-group" style="border: none;">
             <label class="col-sm-4 control-label" for="inputSuccess">Database Name</label>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <input type="text" class="form-control" id="database-name">
             </div>
+            <div class="col-sm-3">
+                <input type="checkbox" id="feature-extraction" name="feature-extraction" value="1">
+                <label class="control-label" for="inputSuccess">&nbsp;&nbsp;&nbsp;Features Extraction</label>
+            </div>
+
         </div>
         <div class="text-center">
             <p>

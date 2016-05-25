@@ -13,6 +13,8 @@
     'use strict';
     var uploader_factory = null;
     var db_name = "";
+    var feature_extraction = 0;
+
     function foo() {
 
     }
@@ -114,7 +116,7 @@
         $.ajax({
             type: "POST",
             url: "http://localhost/seniorproject/public/database/writedb",
-            data : {name: db_name},
+            data : {name: db_name, feature: feature_extraction},
             success: function(e){
                 console.log(e);
                 $('#successModal').modal('show');
@@ -154,6 +156,10 @@
 
         document.getElementById('start-upload').onclick = function() {
             db_name = $('#database-name').val();
+            if ($('#feature-extraction').is(":checked")){
+                feature_extraction = $('#feature-extraction').val();
+            }
+
             if(db_name == undefined || db_name == '') {
                 alert("Please assign database name");
                 return;

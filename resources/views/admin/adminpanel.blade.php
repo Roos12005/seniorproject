@@ -398,12 +398,48 @@
 
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Date</label>
-                        <div class="col-sm-6">
+                        <div class="col-sm-2">
+                            <select class="form-control" id="batch-year">
+                                @for ($idx=date('Y'); $idx >= 1990 ; $idx--)
+                                    <option value="{{$idx}}">{{$idx}}</option>
+                                @endfor 
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" id="batch-month">
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <select class="form-control" id="batch-period">
+                                <option value="0">Whole Month</option>
+                                <option value="1">Week 1</option>
+                                <option value="2">Week 2</option>
+                                <option value="3">Week 3</option>
+                                <option value="4">Week 4</option>
+                                <option value="5">Week 5</option>
+                            </select>
+                        </div>
+                        <!-- <div class="col-sm-6">
                             <select class="form-control" id="batch-date">
                                 <optgroup label="September 2015">
                                     <option value="2015090">Sep - Month</option>
                                     <option value="2015091">Sep - Week 1</option>
                                     <option value="2015092">Sep - Week 2</option>
+                                    <option value="2015092">Sep - Week 3</option>
+                                    <option value="2015092">Sep - Week 4</option>
+                                    <option value="2015092">Sep - Week 5</option>
                                 </optgroup>
                                 <optgroup label="October 2015">
                                     <option value="2015100">Oct - Month</option>
@@ -422,7 +458,7 @@
                                     <option value="2015115">Nov - Week 5</option>
                                 </optgroup>
                             </select>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="form-group">

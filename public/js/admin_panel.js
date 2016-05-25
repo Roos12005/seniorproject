@@ -14,6 +14,11 @@
     var dh = new DateHelper();
     var tmpStorage = {};
 
+    /**  
+     *  @brief  Add Button Listener for Preprocessing Section (View Filters)
+     *
+     *  @return void
+     */
     function addPFilterListener() {
         $(".preprocess-filter").on('click', function() {
             var pid = $(this).attr('data-pid');
@@ -42,6 +47,11 @@
         });
     }
 
+    /**  
+     *  @brief  Add Button Listener for Batch Section (View Filters)
+     *
+     *  @return void
+     */
     function addTFilterListener() {
         $(".table-filter").on('click', function() {
             var tid = $(this).attr('data-tid');
@@ -70,6 +80,11 @@
         });
     }
 
+    /**  
+     *  @brief  Rebind Button Listener for Batch Section (View Filters)
+     *
+     *  @return void
+     */
     function rebindTFilterListener() {
         $(".table-filter").unbind();
         addTFilterListener();
@@ -78,6 +93,11 @@
         addDeleteButtonListener();
     }
 
+    /**  
+     *  @brief  Rebind Button Listener for Preprocessing Section (View Filters)
+     *
+     *  @return void
+     */
     function rebindPFilterListener() {
         $(".preprocess-filter").unbind();
         addPFilterListener();
@@ -86,8 +106,14 @@
         addDeleteButtonListener();
     }
 
+    /**  
+     *  @brief  Initialise Pagination setting for data tables
+     *
+     *  @return void
+     */
     function initPagination() {
         $('#preprocess-table').dataTable({
+            // rebind the listeners when page changed
             "fnDrawCallback": function (oSettings) {
                 addViewButtonListener();
                 addDeleteButtonListener();
@@ -181,6 +207,11 @@
 
     }
 
+    /**  
+     *  @brief  Convert Array format into Unary Format
+     *
+     *  @return int - Unary
+     */
     function intArrayToUnary(arr, size) {
         var result = '';
         var c = 0;
@@ -195,6 +226,11 @@
         return result;
     }
 
+    /**  
+     *  @brief  Bind listeners and actions to the Preprocess form including create, close, submit action
+     *
+     *  @return void
+     */
     function initPreprocessForm() {
         // hide preprocess form until user clicked on add button
         $('#preprocess-form-wrapper').hide();
@@ -303,6 +339,11 @@
         });
     }
 
+    /**  
+     *  @brief  Bind listeners and actions to the Preprocess form including create, close, submit action
+     *
+     *  @return void
+     */
     function initBatchForm() {
         // hide batch form until user clicked on add button
         $('#batch-form-wrapper').hide();
@@ -368,7 +409,7 @@
 
             var submit = {
                 'filters' : {
-                    'startDate' : $('#batch-date').val(),
+                    'startDate' : $('#batch-year').val() + $('#batch-month').val() + $('#batch-period').val(),
                     'callDay' : days,
                     'startTime' : [periodMin, periodMax],
                     'duration' : [durationMin, durationMax],
@@ -410,6 +451,11 @@
         });
     }
 
+    /**  
+     *  @brief  Add masking to the input form including time mask and interger mask
+     *
+     *  @return void
+     */
     function addInputFormMasking() {
         var notOverTwentyFour = function(val) {
             return parseFloat(val) > 23.59 ? '23.59' : '00.00';
@@ -445,6 +491,11 @@
         });
     }
 
+    /**  
+     *  @brief  Submit form to the server-side and then create new row on the data table if success
+     *
+     *  @return void
+     */
     function submitForm() {
         var d = tmpStorage['d'];
         var type = tmpStorage['type'];
@@ -503,6 +554,11 @@
         });
     }
 
+    /**  
+     *  @brief  Add listener to the delete button on each row in data tables
+     *
+     *  @return void
+     */
     function addDeleteButtonListener() {
         $(".delete-button").on('click', function() {
             var type = $(this).attr('data-type');
@@ -519,6 +575,14 @@
         });
     }
 
+
+    /**  
+     *  @brief  Triggered when user click on delete button - Delete the specific row in the data table with thier data
+     *
+     *  @params id      ID of the process
+                type    type of the process (batch or preprocess) 
+     *  @return void
+     */
     function deleteData(id, type) {
         ajaxSetup();
         $.ajax({
@@ -540,40 +604,11 @@
         });
     }
 
-    // function updateProgressBar() {
-    //     var len = $('.progress-bar').length;
-    //     for(var idx = 0; idx < len ; idx += 1) {
-    //         var previous = $('.progress-bar')[idx].getAttribute('aria-current');
-    //         if(previous >= 100) continue;
-
-    //         var speed = $('.progress-bar')[idx].getAttribute('aria-speed');
-    //         var current = parseInt(previous) + parseInt(speed);
-    //         current = current > 100 ? 100 : current;
-    //         $('.progress-bar')[idx].setAttribute('aria-current', current);
-    //         $('.progress-bar')[idx].style.width = current + '%';
-
-    //         if(current >= 100) {
-    //             var sid = $('.progress-bar')[idx].getAttribute('data-id');
-    //             $('#tf-status-' + sid).removeClass('label-warning');
-    //             $('#tf-status-' + sid).addClass('label-success');
-    //             $('#tf-status-' + sid).text('Ready');
-
-    //             $('#tf-view-' + sid).removeClass('label-default');
-    //             $('#tf-download-' + sid).removeClass('label-default');
-
-    //             $('#tf-view-' + sid).addClass('label-primary');
-    //             $('#tf-view-' + sid).addClass('tf-view');
-    //             $('#tf-view-' + sid).attr('data-id', sid);
-    //             addViewButtonListener();
-
-    //             $('#tf-download-' + sid).addClass('label-success');
-    //             $('#tf-download-' + sid).addClass('tf-download');
-    //             $('#tf-download-' + sid).attr('data-id', sid);
-    //             addDownloadButtonListener();
-    //         }
-    //     }
-    // }
-
+    /**  
+     *  @brief  Bind listeners to the view button of each row in the data tables
+     *
+     *  @return void
+     */
     function addViewButtonListener() {
         $(".tf-view, .pf-view").unbind();
         $(".tf-view, .pf-view").on('click', function() {
@@ -583,6 +618,11 @@
         });    
     }
 
+    /**  
+     *  @brief  Bind listeners to the download button of each row in the data tables
+     *
+     *  @return void
+     */
     function addDownloadButtonListener() {
         $(".tf-download, .pf-download").unbind();
         $(".tf-download, .pf-download").on('click', function() {
@@ -608,6 +648,12 @@
         });
     }
 
+    /**  
+     *  @brief  Update the status of each process in data tables (Processing --> Ready)
+     *
+     *  @params freq    interval to check the status in Second
+     *  @return void
+     */
     function recheckStatus(freq) {
         setInterval(function() {
             $.ajax({

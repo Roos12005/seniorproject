@@ -102,15 +102,37 @@
     })
 }
 
-
+/**
+ *  @brief  Remove node from graph
+ *
+ *  Remove node with specific ID from the sigma graph object
+ *
+ *  @param  n  Input node
+ *  @return void
+ */
 function removeNode(n) {
     s.graph.dropNode(n.id);
 }
 
+/**
+ *  @brief  Empty Graph
+ *
+ *  Remove all nodes and edges from the graph object
+ *
+ *  @return void
+ */
 function clearGraph() {
     s.graph.clear();
 }
 
+/**
+ *  @brief  Comma Formatting for Number
+ *
+ *  Format the input number to comma separated format (e.g. x,xxx,xxx)
+ *
+ *  @param  x  Any Number
+ *  @return int - Comma Separated Number
+ */
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -135,6 +157,17 @@ function numberWithCommas(x) {
     });
 }
 
+/**
+ *  @brief  Display Full Graph
+ *
+ *  First, display the loading screen and then set flags along with reset the buttons.
+ *  display graph and change the color of the button.
+ *
+ *  Note that once the graph is already been shown, this method will not do as stated above but
+ *  show alert box with warning message instead.
+ *
+ *  @return void
+ */
 function processData() {
     $('#loading-overlay').show();
     if(graphStatus['full-graph'] == 0) {
@@ -152,6 +185,17 @@ function processData() {
     }
 }
 
+/**
+ *  @brief  Display Graph in Community View
+ *
+ *  First, display the loading screen and then set flags along with reset the buttons.
+ *  display graph and change the color of the button.
+ *
+ *  Note that once the graph is already been shown, this method will not do as stated above but
+ *  show alert box with warning message instead.
+ *
+ *  @return void
+ */
 function processCommunityData() {
     $('#loading-overlay').show();
     setTimeout(function () {
@@ -167,6 +211,18 @@ function processCommunityData() {
     }, 500);
 }
 
+/**
+ *  @brief  Display Filtered Graph with Community Profiles
+ *
+ *  First, we get all filter values from the input form and format them.
+ *  Then, we send an ajax request with these filters to get the data to display.
+ *  After the ajax responsed, plot the returned data with partialPlot method.
+ *
+ *  Note that once the graph is already been shown, this method will not do as stated above but
+ *  show alert box with warning message instead.
+ *
+ *  @return void
+ */
 function processCommunityProfile() {
     if(graphStatus['community-profile'] == 0 && graphStatus['community-group'] == 1) {
 
@@ -294,6 +350,14 @@ function processCommunityProfile() {
     }   
 }
 
+/**
+ *  @brief  Get data and Display Graph
+ *
+ *  This method will empty the graph object and call another function to get the data needed
+ *  based on the compute_com flag
+ *
+ *  @return void
+ */
 function runGraph() {
     clearGraph();
     if(flag['compute_com']){
@@ -309,7 +373,6 @@ function runGraph() {
  *  Send Ajax request to server-side to fetch all graph data,
  *  including all nodes and all edges with thier properties.
  *
- *  @param  ???
  *  @return JSON object - contains graph data
  */
 function fetchData(){
@@ -382,6 +445,14 @@ function fetchData(){
     })
 }
 
+/**  
+ *  @brief  Fetch all data
+ *
+ *  Send Ajax request to server-side to fetch community graph data,
+ *  including all nodes and all edges with thier properties.
+ *
+ *  @return JSON object - contains graph data
+ */
 function fetchCommunityData(){
     $('#loading-overlay').show();
     var preparedData = [];
@@ -429,7 +500,6 @@ function fetchCommunityData(){
             graphData = preparedData;
             plotFullGraph();
             addZoomListener();
-            //addLabelListener();
             addSearchBoxListener();
             addBackButtonListener();
             addHilightListener();
@@ -447,6 +517,14 @@ function fetchCommunityData(){
     })
 }
 
+/**  
+ *  @brief  Create Carriers Pie Chart
+ *
+ *  Creating pie chart to display the proportion of each carrier displayed in the graph
+ *  using Morris Chart
+ *
+ *  @return void
+ */
 function createPieChart(carrier, node_num){        
     Morris.Donut({
         element: 'graph-donut2',
@@ -464,31 +542,6 @@ function createPieChart(carrier, node_num){
         ],
         formatter: function (x, data) { return data.formatted; }
     });
-}
-
-function replotGraph(gdata) {
-    numIDMapper = {};
-    // Add all returned nodes to sigma object
-    gdata.nodes.forEach(function(n) {
-        addNode(n);
-        numIDMapper[n.label] = n.id;
-    });
-    // Add all return edges to sigma object
-    gdata.edges.forEach(function(edge) {
-        addEdge(edge);
-    });
-    
-    colorByCentrality();
-    s.startForceAtlas2({});
-    setTimeout(function () {
-        s.killForceAtlas2();
-
-        $('#loading-overlay').hide();
-    }, 10000 + Math.pow(1.00025,gdata.nodes.length)*gdata.nodes.length);
-    s.camera.goTo({x:0, y:0, ratio: 1});
-    s.refresh();
-    flag['clickListenerComOfCom'] = true;
-    flag['compute_com'] = false;
 }
 
 /**  
@@ -558,7 +611,15 @@ function replotGraph(gdata) {
     s.refresh();
 }
 
-
+/**  
+ *  @brief  Find Community ID of the specific number
+ *
+ *  Sending the ajax request to get the community ID of the input number
+ *  and plot the community on the graph
+ *
+ *  @param  num   input number
+ *  @return void
+ */
 function findCommunityID(num) {
     ajaxSetup();
     $.ajax({
