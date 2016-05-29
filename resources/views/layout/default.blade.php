@@ -67,7 +67,7 @@
 			                    </a>
 			                </li>
 			                <li>
-			                    <a class="active" href="/seniorproject/public/spark">
+			                    <a class="active" href="http://localhost:8080">
 			                        <i class="fa fa-cloud"></i>
 			                        <span>Spark Mode</span>
 			                    </a>

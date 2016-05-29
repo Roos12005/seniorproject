@@ -678,7 +678,6 @@
                 },
                 error: function(rs, e){
                     console.log(rs.responseText);
-                    alert('Problem occurs during fetch data.');
                 },
             });
         }, freq);

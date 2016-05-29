@@ -544,6 +544,31 @@ function createPieChart(carrier, node_num){
     });
 }
 
+function replotGraph(gdata) {
+    numIDMapper = {};
+    // Add all returned nodes to sigma object
+    gdata.nodes.forEach(function(n) {
+        addNode(n);
+        numIDMapper[n.label] = n.id;
+    });
+    // Add all return edges to sigma object
+    gdata.edges.forEach(function(edge) {
+        addEdge(edge);
+    });
+    
+    colorByCentrality();
+    s.startForceAtlas2({});
+    setTimeout(function () {
+        s.killForceAtlas2();
+
+        $('#loading-overlay').hide();
+    }, 10000 + Math.pow(1.00025,gdata.nodes.length)*gdata.nodes.length);
+    s.camera.goTo({x:0, y:0, ratio: 1});
+    s.refresh();
+    flag['clickListenerComOfCom'] = true;
+    flag['compute_com'] = false;
+}
+
 /**  
  *  @brief  Plot Full Graph
  *
