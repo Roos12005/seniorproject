@@ -673,6 +673,17 @@
                             $('#tf-status-' + jid).removeClass('label-warning');
                             $('#tf-status-' + jid).addClass('label-success');
                             $('#tf-status-' + jid).html('Ready');
+                        } else if(ev['status'] == 'Failed') {
+                            var jid = ev['jid'];
+                            $('#tf-view-' + jid).removeClass('label-default');
+                            $('#tf-view-' + jid).addClass('label-primary');
+
+                            $('#tf-download-' + jid).removeClass('label-default');
+                            $('#tf-download-' + jid).addClass('label-danger');
+
+                            $('#tf-status-' + jid).removeClass('label-warning');
+                            $('#tf-status-' + jid).addClass('label-danger');
+                            $('#tf-status-' + jid).html('Failed');
                         }
                     });
                 },

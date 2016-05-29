@@ -357,6 +357,9 @@
                         @if($row['status'] == 'Processing')
                         <td><div class="label label-warning label-mini" id="tf-status-{{ $row['id'] }}">
                             {{ $row['status'] }}</div></td>
+                        @elseif($row['status'] == 'Failed')
+                        <td><div class="label label-danger label-mini" id="tf-status-{{ $row['id'] }}">
+                            {{ $row['status'] }}</div></td>
                         @else
                         <td><div class="label label-success label-mini" id="tf-status-{{ $row['id'] }}">
                             {{ $row['status'] }}</div></td>

@@ -565,9 +565,17 @@ class Neo4JConnector {
             Log::info($output);
             $q = '';
             if($isScheduler) {
-                $q = "MATCH (n:PreprocessJob) WHERE ID(n) = " . $id . " SET n.status = 'Ready'"; 
+                if (preg_match('/Exit code AA0901/',end($output))) {
+                    $q = "MATCH (n:PreprocessJob) WHERE ID(n) = " . $id . " SET n.status = 'Failed'"; 
+                } else {
+                    $q = "MATCH (n:PreprocessJob) WHERE ID(n) = " . $id . " SET n.status = 'Ready'"; 
+                }
             } else {
-                $q = "MATCH (n:BatchJob) WHERE ID(n) = " . $id . " SET n.status = 'Ready'";
+                if (preg_match('/Exit code AA0901/', end($output))) {
+                    $q = "MATCH (n:BatchJob) WHERE ID(n) = " . $id . " SET n.status = 'Failed'";
+                } else {
+                    $q = "MATCH (n:BatchJob) WHERE ID(n) = " . $id . " SET n.status = 'Ready'";
+                }
             }
             $this->connector->sendCypherQuery($q);
             return ;
