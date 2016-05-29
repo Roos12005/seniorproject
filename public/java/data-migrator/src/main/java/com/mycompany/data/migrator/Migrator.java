@@ -7,12 +7,15 @@ package com.mycompany.data.migrator;
 
 import com.opencsv.CSVReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -22,11 +25,16 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
+
 /**
  *
  * @author pperfectionist
  */
 public class Migrator {
+    
+    public static String BASE_DIR;
+    public static String TMP_MIGRATE_PATH;
+    public static String TARGET_DATABASE;
 
     public static final DynamicRelationshipType LINK = DynamicRelationshipType.withName("Call");
 
@@ -43,7 +51,7 @@ public class Migrator {
         Label nl = DynamicLabel.label(label);
         Transaction tx;
         Map<String, Node> nodes = new HashMap<>();
-        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/" + file), ',')) {
+        try (CSVReader reader = new CSVReader(new FileReader(TMP_MIGRATE_PATH + file), ',')) {
             String[] nextLine;
             int i = 0;
             tx = gdb.beginTx();
@@ -73,14 +81,15 @@ public class Migrator {
 
         tx.success();
         tx.finish();
-
         return nodes;
     }
     
     private static void createRelationships(GraphDatabaseService gdb, String file, Map<String, Node> nodes, String label) throws IOException {
         DynamicRelationshipType lab = DynamicRelationshipType.withName(label);
         Transaction tx;
-        try (CSVReader reader = new CSVReader(new FileReader("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/" + file), ',')) {
+        
+        
+        try (CSVReader reader = new CSVReader(new FileReader(TMP_MIGRATE_PATH + file), ',')) {
             String[] nextLine;
             int i = 0;
             tx = gdb.beginTx();
@@ -112,16 +121,24 @@ public class Migrator {
         tx.success();
         tx.finish();
     }
+    
+    public static void readConfig() throws IOException {
+        Properties prop = new Properties();
+        InputStream input = null;
+        File jarPath=new File(Migrator.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        String propertiesPath=jarPath.getAbsolutePath();
+        propertiesPath = propertiesPath.substring(0, propertiesPath.indexOf("java/") + 5) + "configuration/";
+        prop.load(new FileInputStream(propertiesPath+"config.properties"));
+        BASE_DIR = prop.getProperty("base_dir");
+        TMP_MIGRATE_PATH = BASE_DIR + prop.getProperty("tmp_migrate_path");
+        TARGET_DATABASE = BASE_DIR + prop.getProperty("target_database");
+    }
 
     public static void main(String args[]) throws IOException {
-
-        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/database/Neo4j/default.graphdb");
+        readConfig();
+        GraphDatabaseService gdb = new GraphDatabaseFactory().newEmbeddedDatabase(TARGET_DATABASE);
         
-        // TODO : this should loop through all files
-        
-        
-        
-        File folder = new File("/Applications/XAMPP/xamppfiles/htdocs/seniorproject/storage/tmp_migrate/");
+        File folder = new File(TMP_MIGRATE_PATH);
         File[] listOfFiles = folder.listFiles();
         List<String> done = new ArrayList<>();
         for (int i = 1; i < listOfFiles.length; i++) {
@@ -145,11 +162,14 @@ public class Migrator {
         
         gdb.shutdown();
         
-
-//            System.out.println("File " + listOfFiles[i].getName());
-//          } else if (listOfFiles[i].isDirectory()) {
-//            System.out.println("Directory " + listOfFiles[i].getName());
-//          }
-//        }
+        File file = new File(TMP_MIGRATE_PATH);      
+        String[] myFiles;    
+           if(file.isDirectory()){
+               myFiles = file.list();
+               for (int i=0; i<myFiles.length; i++) {
+                   File myFile = new File(file, myFiles[i]); 
+                   myFile.delete();
+               }
+        }
     }
 }

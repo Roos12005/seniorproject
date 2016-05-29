@@ -30,8 +30,8 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 public class DBAccess {
 
-    private String DATABASE_DIR;
-    private String MIGRATE_DIR;
+    private String BASE_DIR;
+    private String TMP_MIGRATE_PATH;
     private String SOURCE_DATABASE;
 
     public DBAccess() {
@@ -44,12 +44,12 @@ public class DBAccess {
 
         try {
             File jarPath = new File(DBAccess.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String propertiesPath = jarPath.getParentFile().getAbsolutePath();
-            prop.load(new FileInputStream(propertiesPath + "/config.properties"));
-
-            DATABASE_DIR = prop.getProperty("database_dir");
-            SOURCE_DATABASE = prop.getProperty("source_database");
-            MIGRATE_DIR = prop.getProperty("migrate_dir");
+            String propertiesPath=jarPath.getAbsolutePath();
+            propertiesPath = propertiesPath.substring(0, propertiesPath.indexOf("java/") + 5) + "configuration/";
+            prop.load(new FileInputStream(propertiesPath+"config.properties"));
+            BASE_DIR = prop.getProperty("base_dir");
+            SOURCE_DATABASE = BASE_DIR + prop.getProperty("source_database");
+            TMP_MIGRATE_PATH = BASE_DIR + prop.getProperty("tmp_migrate_path");
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -105,7 +105,7 @@ public class DBAccess {
         }
         rnCode_Regex = rnCode_Regex.substring(0, rnCode_Regex.length() - 1);
         callDay_Regex = callDay_Regex.substring(0, callDay_Regex.length() - 1);
-        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(DATABASE_DIR + SOURCE_DATABASE);
+        GraphDatabaseService graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(SOURCE_DATABASE);
 
         try {
 
@@ -403,7 +403,7 @@ public class DBAccess {
      */
     public void store(NodeIterable nodes, EdgeIterable aggregatedEdges, List<Edge> edges, String tid) throws IOException {
         Map<Integer, String> numberMapper = new HashMap<>();
-        CSVWriter writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_profile.csv"), ',');
+        CSVWriter writer = new CSVWriter(new FileWriter(TMP_MIGRATE_PATH + "processed_" + tid + "_profile.csv"), ',');
 
         boolean isFirst = true;
         String[] line = null;
@@ -420,7 +420,7 @@ public class DBAccess {
         }
         writer.close();
 
-        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_full_cdr.csv"), ',');
+        writer = new CSVWriter(new FileWriter(TMP_MIGRATE_PATH + "processed_" + tid + "_full_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : edges) {
             if (isFirst) {
@@ -437,7 +437,7 @@ public class DBAccess {
         }
         writer.close();
 
-        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_" + tid + "_aggregated_cdr.csv"), ',');
+        writer = new CSVWriter(new FileWriter(TMP_MIGRATE_PATH + "processed_" + tid + "_aggregated_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : aggregatedEdges) {
             if (isFirst) {
@@ -467,7 +467,7 @@ public class DBAccess {
      */
     public void storeCommunity(NodeIterable nodes, EdgeIterable aggregatedEdges, List<Edge> edges, String tid) throws IOException {
         Map<Integer, String> numberMapper = new HashMap<>();
-        CSVWriter writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_profile.csv"), ',');
+        CSVWriter writer = new CSVWriter(new FileWriter(TMP_MIGRATE_PATH + "processed_com_" + tid + "_profile.csv"), ',');
 
         boolean isFirst = true;
         String[] line = null;
@@ -485,7 +485,7 @@ public class DBAccess {
         }
         writer.close();
 
-        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_full_cdr.csv"), ',');
+        writer = new CSVWriter(new FileWriter(TMP_MIGRATE_PATH + "processed_com_" + tid + "_full_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : edges) {
             if (isFirst) {
@@ -502,7 +502,7 @@ public class DBAccess {
         }
         writer.close();
 
-        writer = new CSVWriter(new FileWriter(MIGRATE_DIR + "processed_com_" + tid + "_aggregated_cdr.csv"), ',');
+        writer = new CSVWriter(new FileWriter(TMP_MIGRATE_PATH + "processed_com_" + tid + "_aggregated_cdr.csv"), ',');
         isFirst = true;
         for (Edge e : aggregatedEdges) {
             if (isFirst) {

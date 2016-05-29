@@ -39,6 +39,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 public class Importer {
 
     public static final DynamicRelationshipType LINK = DynamicRelationshipType.withName("Call");
+    public static String BASE_DIR = "";
     public static String TMP_STORAGE_PATH = "";
     public static String SOURCE_DATABASE = "";
     public static String OUTPUTFILE = "features_";
@@ -59,11 +60,12 @@ public class Importer {
 
         try {
             File jarPath=new File(Importer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String propertiesPath=jarPath.getParentFile().getAbsolutePath();
-            prop.load(new FileInputStream(propertiesPath+"/config.properties"));
-
-            TMP_STORAGE_PATH = prop.getProperty("tmp_storage_path");
-            SOURCE_DATABASE = prop.getProperty("source_database");
+            String propertiesPath=jarPath.getAbsolutePath();
+            propertiesPath = propertiesPath.substring(0, propertiesPath.indexOf("java/") + 5) + "configuration/";
+            prop.load(new FileInputStream(propertiesPath+"config.properties"));
+            BASE_DIR = prop.getProperty("base_dir");
+            TMP_STORAGE_PATH = BASE_DIR + prop.getProperty("tmp_storage_path");
+            SOURCE_DATABASE = BASE_DIR + prop.getProperty("source_database");
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
