@@ -37,7 +37,7 @@
 				<!--logo start-->
 				<div class="brand">
 
-				    <a href="/seniorproject/public" class="logo text-center">
+				    <a href="/" class="logo text-center">
 				        <h4><strong>AIS - CU</strong> Project</h4>
 				    </a>
 				    <div class="sidebar-toggle-box">
@@ -47,8 +47,8 @@
 				<!--logo end-->		
 				<div class="top-nav clearfix">				    
 				    <ul class="nav pull-right top-menu">
-				    	<img src="/seniorproject/public/images/ais.jpg" id="ais-logo">  
-				    	<img src="/seniorproject/public/images/ChulaEngineering.png" id="chula-logo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				    	<img src="/images/ais.jpg" id="ais-logo">  
+				    	<img src="/images/ChulaEngineering.png" id="chula-logo">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				    	
 				    </ul>
 				</div>	
@@ -61,7 +61,7 @@
 			        <div class="leftside-navigation">
 			            <ul class="sidebar-menu" id="nav-accordion">
 			            	<li>
-			                    <a class="active" href="/seniorproject/public">
+			                    <a class="active" href="/">
 			                        <i class="fa fa-dashboard"></i>
 			                        <span>Social Network Analysis</span>
 			                    </a>
@@ -73,13 +73,13 @@
 			                    </a>
 			                </li>
 			                <li>
-			                    <a class="active" href="/seniorproject/public/database">
+			                    <a class="active" href="/database">
 			                        <i class="fa fa-hdd-o"></i>
 			                        <span>Database Manager</span>
 			                    </a>
 			                </li>
 			                <li>
-			                    <a class="active" href="/seniorproject/public/aboutus">
+			                    <a class="active" href="/aboutus">
 			                        <i class="fa fa-user"></i>
 			                        <span>About Us</span>
 			                    </a>
