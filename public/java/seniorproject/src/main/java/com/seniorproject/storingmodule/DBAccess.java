@@ -45,7 +45,7 @@ public class DBAccess {
         try {
             File jarPath = new File(DBAccess.class.getProtectionDomain().getCodeSource().getLocation().getPath());
             String propertiesPath=jarPath.getAbsolutePath();
-            propertiesPath = propertiesPath.substring(0, propertiesPath.indexOf("java/") + 5) + "configuration/";
+            propertiesPath = propertiesPath.substring(0, propertiesPath.indexOf("java\\") + 5) + "configuration/";
             prop.load(new FileInputStream(propertiesPath+"config.properties"));
             BASE_DIR = prop.getProperty("base_dir");
             SOURCE_DATABASE = BASE_DIR + prop.getProperty("source_database");
