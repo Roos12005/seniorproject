@@ -21,7 +21,7 @@
 
   $.ajax({
         type: "GET",
-        url: "http://localhost/seniorproject/public/test/getxy",
+        url: "http://localhost:8000/test/getxy",
         data : {},
         success: function(e){
           console.log('!!!');

@@ -311,7 +311,7 @@ function processCommunityProfile() {
 
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getNodeCommunityProfile/" + did,
+                url: "http://localhost:8000/getNodeCommunityProfile/" + did,
                 data : {"sendprofile":data},
                 success: function(e){
                     $('#community-profile').removeClass('btn-warning').addClass('btn-success');
@@ -386,7 +386,7 @@ function fetchData(){
     ajaxSetup();
     $.ajax({
         type: "GET",
-        url: "http://localhost/seniorproject/public/getCDR/" + did,
+        url: "http://localhost:8000/getCDR/" + did,
         data : {},
         success: function(e){
             $('#loading-overlay').hide();
@@ -402,7 +402,7 @@ function fetchData(){
 
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getCarrier/" + did,
+                url: "http://localhost:8000/getCarrier/" + did,
                 data : {},
                 success: function(e){
                     console.log(e);
@@ -465,7 +465,7 @@ function fetchCommunityData(){
 
     $.ajax({
         type: "GET",
-        url: "http://localhost/seniorproject/public/getCommunityOfCommunity/" + did,
+        url: "http://localhost:8000/getCommunityOfCommunity/" + did,
         data : {},
         success: function(e){
 
@@ -475,7 +475,7 @@ function fetchCommunityData(){
 
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getCarrier/" + did,
+                url: "http://localhost:8000/getCarrier/" + did,
                 data : {},
                 success: function(e){
                     console.log(e);
@@ -649,7 +649,7 @@ function findCommunityID(num) {
     ajaxSetup();
     $.ajax({
         type: "GET",
-        url: "http://localhost/seniorproject/public/findCommunity/" + did,
+        url: "http://localhost:8000/findCommunity/" + did,
         data : {number: num},
         success: function(e){
             

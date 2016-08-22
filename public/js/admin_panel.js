@@ -504,7 +504,7 @@
         ajaxSetup();
         $.ajax({
             type: "POST",
-            url: "http://localhost/seniorproject/public/processSetup",
+            url: "http://localhost:8000/processSetup",
             data : {'filter' : d['filters'], 'type' : type, 'description' : d['description'], 'database' : db},
             success: function(e){
                 console.log(e);
@@ -527,7 +527,7 @@
                     rebindTFilterListener();
                     $.ajax({
                         type: "POST",
-                        url: "http://localhost/seniorproject/public/startProcess",
+                        url: "http://localhost:8000/startProcess",
                         data : {'filter' : d['filters'], 'type' : type, 'description' : d['description'], 'nid' : e.nid, 'database' : db},
                         success: function(e){},
                         error: function(rs, e){
@@ -587,7 +587,7 @@
         ajaxSetup();
         $.ajax({
             type: "POST",
-            url: "http://localhost/seniorproject/public/deleteData",
+            url: "http://localhost:8000/deleteData",
             data : { 'nid' : id, 'type' : type },
             success: function(e){
                 if(type == 'batch') {
@@ -629,7 +629,7 @@
             var id = $(this).attr('data-id');
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/exportCSV",
+                url: "http://localhost:8000/exportCSV",
                 data : { "pid" : id },
                 success: function(e){
                     console.log(e);
@@ -658,7 +658,7 @@
         setInterval(function() {
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/checkJobStatus",
+                url: "http://localhost:8000/checkJobStatus",
                 success: function(e){
                     console.log(e);
                     e.forEach(function(ev) {

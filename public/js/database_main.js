@@ -39,7 +39,7 @@
             ajaxSetup();
             $.ajax({
                 type: "POST",
-                url: "http://localhost/seniorproject/public/database/delete",
+                url: "http://localhost:8000/database/delete",
                 data : {db_id: db_id},
                 success: function(e){
                     console.log(e);
@@ -72,7 +72,7 @@
             ajaxSetup();
             $.ajax({
                 type: "POST",
-                url: "http://localhost/seniorproject/public/database/rename",
+                url: "http://localhost:8000/database/rename",
                 data : {db_id: db_id, new_name: new_name},
                 success: function(e){
                     console.log(e);
@@ -115,7 +115,7 @@
         ajaxSetup();
         $.ajax({
             type: "POST",
-            url: "http://localhost/seniorproject/public/database/writedb",
+            url: "http://localhost:8000/database/writedb",
             data : {name: db_name, feature: feature_extraction},
             success: function(e){
                 console.log(e);

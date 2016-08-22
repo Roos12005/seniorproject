@@ -8,7 +8,7 @@
     function addCommunity(){
         $.ajax(
         {
-            url: 'http://localhost/seniorproject/public/getCommunities/' + did,
+            url: 'http://localhost:8000/getCommunities/' + did,
             type: 'GET',
             data: {},
             dataType: 'json',
@@ -127,7 +127,7 @@
 
                 $.ajax({
                     type: "GET",
-                    url: "http://localhost/seniorproject/public/getNodeCommunity/" + did,
+                    url: "http://localhost:8000/getNodeCommunity/" + did,
                     data : {"exportdata":selectedCommunities, "exportprofile":data},
                     success: function(e){
                         console.log(e);

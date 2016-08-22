@@ -102,7 +102,7 @@ function doubleClickNodeListener(node) {
             ajaxSetup();
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
+                url: "http://localhost:8000/getNodeInSelectedCommunity/" + did,
                 data : {"senddata":selectedCommunity},
                 success: function(e){
                    console.log(e);
@@ -143,7 +143,7 @@ function doubleClickNodeListener(node) {
             ajaxSetup();
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getNeighbors/" + did,
+                url: "http://localhost:8000/getNeighbors/" + did,
                 data : {"node" : node.data.node.label},
                 success: function(e){
                    console.log(e);
@@ -195,7 +195,7 @@ function doubleClickNodeAndZoom(node, zoomNode) {
             ajaxSetup();
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getNodeInSelectedCommunity/" + did,
+                url: "http://localhost:8000/getNodeInSelectedCommunity/" + did,
                 data : {"senddata":selectedCommunity},
                 success: function(e){
                    console.log(e);
@@ -240,7 +240,7 @@ function doubleClickNodeAndZoom(node, zoomNode) {
             ajaxSetup();
             $.ajax({
                 type: "GET",
-                url: "http://localhost/seniorproject/public/getNeighbors/" + did,
+                url: "http://localhost:8000/getNeighbors/" + did,
                 data : {"node" : node.data.node.label},
                 success: function(e){
                    console.log(e);

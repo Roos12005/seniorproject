@@ -50,7 +50,7 @@ class AnalysisController extends Controller{
   //Get all CDR
   public function getCDR($id) {
     $start = Carbon\Carbon::now()->timestamp;
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     set_time_limit(0);
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
@@ -114,7 +114,7 @@ class AnalysisController extends Controller{
 
   //Get number of Community for export data
   public function getCommunities($id) {
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
@@ -137,7 +137,7 @@ class AnalysisController extends Controller{
 
   //Get nodes in selected community for export data
   public function getNodeCommunity($id) {
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
@@ -212,7 +212,7 @@ class AnalysisController extends Controller{
   public function getCommunityOfCommunity($id) {
     set_time_limit(50000);
     ini_set('memory_limit', '4096M');
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
@@ -284,7 +284,7 @@ class AnalysisController extends Controller{
   //Get numbers of nodes in each carrier
   public function getCarrier($id){
     set_time_limit(50000);
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
@@ -314,7 +314,7 @@ class AnalysisController extends Controller{
   //Get nodes in selected community for double click listener
   public function getNodeInSelectedCommunity($id){
     set_time_limit(50000);
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
@@ -380,7 +380,7 @@ class AnalysisController extends Controller{
     return response()->json(["nodes" => $node_list,"edges" => $edge_list]);
   } 
   public function getNodeCommunityProfile($id){
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     $client = ClientBuilder::create()
     ->addConnection('default', 'http', 'localhost', 7474, true, 'neo4j', 'aiscu')
     ->setAutoFormatResponse(true)
@@ -404,7 +404,7 @@ class AnalysisController extends Controller{
   }
 
   public function getNeighbors($id) {
-    putenv("TMPDIR=/seniortmp");
+    putenv("TMPDIR=C:/seniortmp");
     $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
     $selectedNode  = Input::get('node');
 
