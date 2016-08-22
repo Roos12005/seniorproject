@@ -61,7 +61,8 @@ class DatabaseController extends Controller{
         try {
             $isGranted = $neo->grantLock($db_name);
             if($isGranted) {
-                $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' ' . $feature_extraction . ' 2>&1';
+                $command = "java -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' ' . $feature_extraction . ' 2>&1';
+//                $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' ' . $feature_extraction . ' 2>&1';
                 $output = shell_exec($command);
                 Log::info($command);
                 Log::info($output);
