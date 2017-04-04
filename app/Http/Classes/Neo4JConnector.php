@@ -367,7 +367,7 @@ class Neo4JConnector {
           $results = $this->connector->sendCypherQuery($r)->getResult()->getTableFormat();
           foreach($results as $key => $result) {
             $user_info = [
-            'label' => $result['n']['a_number'],
+            'label' => $result['n']['number'],
             'Betweenness Centrality' => $result['n']['betweenness'],
             'Modularity Class' => $result['n']['communityID'],
             'Eccentricity' => $result['n']['eccentricity'],
@@ -385,8 +385,8 @@ class Neo4JConnector {
 
         for ($x = 0; $x < count($communities_list); $x++) {
           usort($communities_list[$x], function($a,$b){
-            if ($a['closeness']==$b['closeness']) return 0;
-            return ($a['closeness']>$b['closeness'])?-1:1;
+            if ($a['Closeness Centrality']==$b['Closeness Centrality']) return 0;
+            return ($a['Closeness Centrality']>$b['Closeness Centrality'])?-1:1;
         });
         }
 

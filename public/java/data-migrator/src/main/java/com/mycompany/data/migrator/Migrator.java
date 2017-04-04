@@ -59,6 +59,7 @@ public class Migrator {
             nextLine = reader.readNext();
             String[] columns = new String[nextLine.length];
             for(int idx=0;idx<nextLine.length;idx++) {
+                System.out.println(nextLine[idx]);
                 columns[idx] = nextLine[idx];
             }
             
@@ -148,6 +149,8 @@ public class Migrator {
                     continue;
                 }
                 Long time = System.currentTimeMillis() ;
+                System.out.println();System.out.println(">>>");
+                System.out.println(n);
                 Map<String, Node> storedNodes = createNodes(gdb, "processed_"+n+"_profile.csv", "Processed" + n);
                 createRelationships(gdb, "processed_"+n+"_full_cdr.csv", storedNodes, "Call");
                 createRelationships(gdb, "processed_"+n+"_aggregated_cdr.csv", storedNodes, "aCall");

@@ -254,7 +254,7 @@ function processCommunityProfile() {
             averageNoOfCallSelected.push($(this).val());
         });
         var averageArpuSelected = [];    
-        $("#averArpuProfile :selected").each(function(){
+        $("#averageArpuProfile :selected").each(function(){
             averageArpuSelected.push($(this).val());
         });
         var averageDurationSelected = [];    
