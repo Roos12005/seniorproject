@@ -51,7 +51,9 @@ class DatabaseController extends Controller{
         $feature_extraction = Request::all()['feature'];
         
         $neo = new Neo4JConnector('default', 'http', 'localhost', 7474, 'neo4j', 'aiscu');
+        Log::info("Neo4j connected");
         $validator = new Neo4JValidator($neo->getConnector());
+        set_time_limit(1200);
         while($av = $validator->isWriteLocked()) {
             if(!$av) {
                 sleep(rand(1,10));
@@ -59,10 +61,13 @@ class DatabaseController extends Controller{
             }
         }
         try {
+            Log::info("Neo4j locking trying ...");
             $isGranted = $neo->grantLock($db_name);
+            Log::info("Neo4j locking processed");
             if($isGranted) {
-                $command = "java -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' ' . $feature_extraction . ' 2>&1';
-//                $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' ' . $feature_extraction . ' 2>&1';
+                Log::info("Neo4j locking granted");
+                // $command = "java -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' ' . $feature_extraction . ' 2>&1';
+               $command = "java -Xmx6G -XX:+CMSClassUnloadingEnabled -jar java/data-importer/target/data-importer-1.0-SNAPSHOT.jar " . $db_name . ' ' . $feature_extraction . ' 2>&1';
                 $output = shell_exec($command);
                 Log::info($command);
                 Log::info($output);

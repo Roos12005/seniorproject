@@ -361,9 +361,13 @@ function processCommunityProfile() {
 function runGraph() {
     clearGraph();
     if(flag['compute_com']){
-        graphData = fetchCommunityData();
+        console.log("Fetching community data")
+        fetchCommunityData();
+        console.log("Fetched")
     } else {
-        graphData = fetchData();
+        console.log("Fetching node data")
+        fetchData();
+        console.log(graphData)
     }
 }
 
@@ -422,8 +426,9 @@ function fetchData(){
             document.getElementById('unique_numbers').innerHTML = numberWithCommas(user_num);
             document.getElementById('communities').innerHTML = numberWithCommas(communities.length);
             document.getElementById('transactions').innerHTML = numberWithCommas(e['edges'].length);
-
+            console.log(preparedData);
             graphData = preparedData;
+            console.log(graphData);
             plotFullGraph();
             addZoomListener();
            // addLabelListener();
